@@ -26,7 +26,7 @@ public class Movie{
     private String filmPath;
     private String trailerPath;
     @Setter(AccessLevel.NONE)
-    private Date addedAt = Date.from(Instant.now());
+    private Date dateAdded = Date.from(Instant.now());
 
     @DocumentReference
     @Setter(AccessLevel.NONE)
