@@ -1,11 +1,14 @@
 package com.vsl700.nitflex;
 
+import com.vsl700.nitflex.components.Settings;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
+//@PropertySource("classpath:application.properties")
 //@ComponentScan("com.vsl700.nitflex.components") // May come in handy if we're making different scopes and want to
 												  // isolate some components
 public class NitflexApplication {
@@ -17,6 +20,12 @@ public class NitflexApplication {
 	@Bean
 	public ModelMapper modelMapper(){
 		return new ModelMapper();
+	}
+
+	@Bean
+	public Settings settings(){
+		var settings = new Settings();
+		return settings;
 	}
 
 //	@Bean
