@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.components;
 
+import com.vsl700.nitflex.services.MovieLoaderService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
@@ -8,7 +9,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class InitialMoviesLoader {
     @Bean
-    public CommandLineRunner run(){
-        return args -> { System.out.println("CLR2"); };
+    public CommandLineRunner run(MovieLoaderService movieLoaderService){
+        return args -> {
+            System.out.println("CLR2");
+            movieLoaderService.load("D:\\Videos\\some_movie");
+        };
     }
 }
