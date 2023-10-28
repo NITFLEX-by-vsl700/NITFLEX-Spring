@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 public class Episode {
     @Id
-    @Setter(AccessLevel.NONE)
     private String id;
     @NonNull
     private String seriesId;

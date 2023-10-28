@@ -49,6 +49,36 @@ public class AlgorithmTests {
         Assertions.assertEquals(1, Math.max(matches_4digits, Math.max(matches_3digits, matches_2digits)));
     }
 
+    @Test
+    public void episodeRegex_Test5(){
+        String seasonEpisode = "S102E109";
+
+        int matches_4digits = regexMatches("S[0-9]+E\\d\\d\\d\\d", "Wednesday.%s.BRRip".formatted(seasonEpisode));
+        int matches_3digits = regexMatches("S[0-9]+E\\d\\d\\d", "Wednesday.%s.BRRip".formatted(seasonEpisode));
+        int matches_2digits = regexMatches("S[0-9]+E\\d\\d", "Wednesday.%s.BRRip".formatted(seasonEpisode));
+
+        Assertions.assertEquals(1, Math.max(matches_4digits, Math.max(matches_3digits, matches_2digits)));
+    }
+
+    @Test
+    public void episodeRegex_Test6(){
+        String seasonEpisode1 = "S102E109";
+        String seasonEpisode2 = "S02E10";
+        String seasonEpisode3 = "S02E1004";
+
+        String regex = "S[0-9]+E[0-9]+"; // '\\d' instead of '[0-9]' also works!
+
+        int matches1 = regexMatches(regex, seasonEpisode1);
+        int matches2 = regexMatches(regex, seasonEpisode2);
+        int matches3 = regexMatches(regex, seasonEpisode3);
+
+        Assertions.assertAll(() -> {
+            Assertions.assertEquals(1, matches1);
+            Assertions.assertEquals(1, matches2);
+            Assertions.assertEquals(1, matches3);
+        });
+    }
+
     private String getMatcher(String regex, String text){
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(text);

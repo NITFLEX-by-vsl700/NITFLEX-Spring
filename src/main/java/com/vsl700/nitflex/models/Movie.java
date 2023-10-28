@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 public class Movie{
     @Id
-    @Setter(AccessLevel.NONE)
     private String id;
     @NonNull
     private String name;
