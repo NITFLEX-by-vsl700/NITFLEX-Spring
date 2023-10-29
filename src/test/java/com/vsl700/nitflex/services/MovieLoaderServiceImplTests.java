@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -147,8 +146,10 @@ public class MovieLoaderServiceImplTests {
 
         when(movieRepo.save(any())).then((invocation) -> {
             var movie = invocation.getArgument(0, Movie.class);
-            movies.add(movie);
+            if(movies.contains(movie))
+                return movie;
 
+            movies.add(movie);
             return movie;
         });
 
@@ -157,24 +158,28 @@ public class MovieLoaderServiceImplTests {
         service.load("D:\\Videos\\The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR");
 
         // Test 1st movie from collection
-        Movie resultMovie1 = movies.get(0);
+        Movie resultMovie1 = movies.stream().filter(m -> m.getName().equals("The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR"))
+                .findFirst()
+                .orElseThrow();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie1).isNotNull();
             assertThat(resultMovie1.getType()).isEqualTo(Movie.MovieType.Film);
-            assertThat(resultMovie1.getName()).isEqualTo("The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR");
+            //assertThat(resultMovie1.getName()).isEqualTo("The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR");
             assertThat(resultMovie1.getPath()).isEqualTo("The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR");
             assertThat(resultMovie1.getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie1.getFilmPath()).isEqualTo("war-thematrix.mkv");
         });
 
         // Test 2nd movie from collection
-        Movie resultMovie2 = movies.get(1);
+        Movie resultMovie2 = movies.stream().filter(m -> m.getName().equals("The.Matrix.Reloaded.2003.1080p.BluRay.x265.DD5.1-WAR"))
+                .findFirst()
+                .orElseThrow();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie2).isNotNull();
             assertThat(resultMovie2.getType()).isEqualTo(Movie.MovieType.Film);
-            assertThat(resultMovie2.getName()).isEqualTo("The.Matrix.Reloaded.2003.1080p.BluRay.x265.DD5.1-WAR");
+            //assertThat(resultMovie2.getName()).isEqualTo("The.Matrix.Reloaded.2003.1080p.BluRay.x265.DD5.1-WAR");
             assertThat(resultMovie2.getPath()).isEqualTo("The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\The.Matrix.Reloaded.2003.1080p.BluRay.x265.DD5.1-WAR");
             assertThat(resultMovie2.getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie2.getFilmPath()).isEqualTo("war-mreloaded.mkv");
@@ -249,6 +254,137 @@ public class MovieLoaderServiceImplTests {
         Assertions.assertAll(() -> {
             assertThat(episode.getSeriesId()).isEqualTo(resultMovie.get().getId());
             assertThat(episode.getEpisodePath()).isEqualTo("Wednesday.S01E01.Wednesdays.Child.is.Full.of.Woe.1080p.NF.WEB-DL.DDP5.1.Atmos.H.264-SMURF.mkv");
+            assertThat(episode.getSeasonNumber()).isEqualTo(1);
+        });
+    }
+
+    @Test
+    public void regularSeries_multipleSeasons_inOneFolder_withTrailer_Test(){
+        AtomicReference<Movie> resultMovie = new AtomicReference<>();
+
+        when(movieRepo.save(any())).then((invocation) -> {
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
+            resultMovie.set(movie);
+            return movie;
+        });
+
+        ArrayList<Episode> episodes = new ArrayList<>();
+        when(episodeRepo.save(any())).then((invocation) -> {
+            Episode episode = invocation.getArgument(0, Episode.class);
+            episodes.add(episode);
+            return episode;
+        });
+
+        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+
+        service.load("D:\\Videos\\TEST_SERIES");
+
+        Assertions.assertAll(() -> {
+            assertThat(resultMovie.get()).isNotNull();
+            assertThat(resultMovie.get().getType()).isEqualTo(Movie.MovieType.Series);
+            assertThat(resultMovie.get().getName()).isEqualTo("TEST_SERIES");
+            assertThat(resultMovie.get().getPath()).isEqualTo("TEST_SERIES");
+            assertThat(resultMovie.get().getTrailerPath()).isEqualTo("sample.mkv");
+            assertThat(resultMovie.get().getFilmPath()).isNull();
+        });
+
+        Assertions.assertEquals(5, episodes.size());
+
+        var numberlessEpisodes = episodes.stream().filter(e -> e.getEpisodeNumber() == 0 || e.getSeasonNumber() == 0)
+                .toList();
+        Assertions.assertEquals(0, numberlessEpisodes.size());
+
+        Episode episode_S01E03 = episodes.stream().filter(e -> e.getEpisodeNumber() == 3 && e.getSeasonNumber() == 1).findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(episode_S01E03.getSeriesId()).isEqualTo(resultMovie.get().getId());
+            assertThat(episode_S01E03.getEpisodePath()).isEqualTo("Нов текстов документ.S01E03.mkv");
+        });
+
+        Episode episode_S02E01 = episodes.stream().filter(e -> e.getEpisodeNumber() == 1 && e.getSeasonNumber() == 2).findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(episode_S02E01.getSeriesId()).isEqualTo(resultMovie.get().getId());
+            assertThat(episode_S02E01.getEpisodePath()).isEqualTo("Нов текстов документ.S02E01.mkv");
+        });
+    }
+
+    @Test
+    public void regularSeries_multipleSeasons_inSeparateFolders_withTrailer_Test(){
+        ArrayList<Movie> movies = new ArrayList<>();
+        when(movieRepo.save(any())).then((invocation) -> {
+            Movie movie = invocation.getArgument(0, Movie.class);
+            if(movies.contains(movie))
+                return movie;
+
+            movie.setId("850fd9g9b90gibgf0dju9" + Math.random());
+            movies.add(movie);
+            return movie;
+        });
+
+        ArrayList<Episode> episodes = new ArrayList<>();
+        when(episodeRepo.save(any())).then((invocation) -> {
+            Episode episode = invocation.getArgument(0, Episode.class);
+            episodes.add(episode);
+            return episode;
+        });
+
+        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+
+        service.load("D:\\Videos\\TEST_SERIES_SEP_FOLDER");
+
+        // Test 1st movie from collection
+        Movie resultMovie1 = movies.stream().filter(m -> m.getName().equals("Season 1")).findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(resultMovie1).isNotNull();
+            assertThat(resultMovie1.getType()).isEqualTo(Movie.MovieType.Series);
+            assertThat(resultMovie1.getName()).isEqualTo("Season 1");
+            assertThat(resultMovie1.getPath()).isEqualTo("TEST_SERIES_SEP_FOLDER\\Season 1");
+            assertThat(resultMovie1.getTrailerPath()).isEqualTo("sample.mkv");
+            assertThat(resultMovie1.getFilmPath()).isNull();
+        });
+
+        // Test 2nd movie from collection
+        Movie resultMovie2 = movies.stream().filter(m -> m.getName().equals("Season 2")).findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(resultMovie2).isNotNull();
+            assertThat(resultMovie2.getType()).isEqualTo(Movie.MovieType.Series);
+            assertThat(resultMovie2.getName()).isEqualTo("Season 2");
+            assertThat(resultMovie2.getPath()).isEqualTo("TEST_SERIES_SEP_FOLDER\\Season 2");
+            assertThat(resultMovie2.getTrailerPath()).isEqualTo("sample.mkv");
+            assertThat(resultMovie2.getFilmPath()).isNull();
+        });
+
+        Assertions.assertEquals(2, movies.size());
+
+        // Test episodes
+        Assertions.assertEquals(5, episodes.size());
+
+        var numberlessEpisodes = episodes.stream().filter(e -> e.getEpisodeNumber() == 0 || e.getSeasonNumber() == 0)
+                .toList();
+        Assertions.assertEquals(0, numberlessEpisodes.size());
+
+        Episode episode_S01E03 = episodes.stream().filter(e -> e.getEpisodeNumber() == 3 && e.getSeasonNumber() == 1).findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(episode_S01E03.getSeriesId()).isEqualTo(resultMovie1.getId());
+            assertThat(episode_S01E03.getEpisodePath()).isEqualTo("Нов текстов документ.S01E03.mkv");
+        });
+
+        Episode episode_S02E01 = episodes.stream().filter(e -> e.getEpisodeNumber() == 1 && e.getSeasonNumber() == 2).findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(episode_S02E01.getSeriesId()).isEqualTo(resultMovie2.getId());
+            assertThat(episode_S02E01.getEpisodePath()).isEqualTo("Нов текстов документ.S02E01.mkv");
         });
     }
 

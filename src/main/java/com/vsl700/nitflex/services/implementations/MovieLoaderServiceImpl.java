@@ -101,11 +101,23 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
                 , true).stream().toList();
 
         episodePaths.forEach(episodePath -> {
+            int seasonNumber = getSeasonNumber(episodePath);
             int episodeNumber = getEpisodeNumber(episodePath);
 
-            Episode episode = new Episode(movie.getId(), episodeNumber, episodePath);
+            Episode episode = new Episode(movie.getId(), seasonNumber, episodeNumber, episodePath);
             episodeRepo.save(episode);
         });
+    }
+
+    private int getSeasonNumber(String episodePath){
+        String seasonEpisode = getMatcher(episodePath, "S\\d+E\\d+");
+
+        if(seasonEpisode == null)
+            return 0;
+
+        String season = seasonEpisode.substring(seasonEpisode.indexOf("S") + 1, seasonEpisode.indexOf("E"));
+
+        return Integer.parseInt(season);
     }
 
     private int getEpisodeNumber(String episodePath){
