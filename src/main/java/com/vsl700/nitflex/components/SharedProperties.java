@@ -7,7 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("nitflex")
 @Getter
 @Setter
-public class Settings {
+public class SharedProperties {
     private String moviesFolder;
     private int downloadInterval;
     private String movieRequestPrivilege;

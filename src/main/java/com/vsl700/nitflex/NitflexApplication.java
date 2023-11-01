@@ -1,12 +1,7 @@
 package com.vsl700.nitflex;
 
-import com.vsl700.nitflex.components.Settings;
-import com.vsl700.nitflex.models.User;
-import com.vsl700.nitflex.models.Movie;
-import com.vsl700.nitflex.repo.MovieRepository;
-import com.vsl700.nitflex.repo.UserRepository;
+import com.vsl700.nitflex.components.SharedProperties;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +22,8 @@ public class NitflexApplication {
 	}
 
 	@Bean
-	public Settings settings(){
-		return new Settings();
+	public SharedProperties settings(){
+		return new SharedProperties();
 	}
 
 //	@Bean

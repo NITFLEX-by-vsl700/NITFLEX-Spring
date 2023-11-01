@@ -1,6 +1,6 @@
 package com.vsl700.nitflex.services.implementations;
 
-import com.vsl700.nitflex.components.Settings;
+import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.User;
@@ -25,15 +25,15 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
     private EpisodeRepository episodeRepo;
 
-    private Settings settings;
+    private SharedProperties sharedProperties;
 
     private final BiFunction<String, String, String> relativizePaths =
             (homePath, fullPath) -> Paths.get(homePath).relativize(Paths.get(fullPath)).toString();
 
-    public MovieLoaderServiceImpl(MovieRepository movieRepo, EpisodeRepository episodeRepo, Settings settings) {
+    public MovieLoaderServiceImpl(MovieRepository movieRepo, EpisodeRepository episodeRepo, SharedProperties sharedProperties) {
         this.movieRepo = movieRepo;
         this.episodeRepo = episodeRepo;
-        this.settings = settings;
+        this.sharedProperties = sharedProperties;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
         // Create Movie object
         String relativePath = relativizePaths
-                .apply(settings.getMoviesFolder(), path);
+                .apply(sharedProperties.getMoviesFolder(), path);
         String name = relativePath.substring(relativePath.lastIndexOf("\\") + 1);
         long size = getFileSize(path);
         Movie movie = new Movie(name, type, relativePath, size);
@@ -140,13 +140,11 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     }
 
     private long getFileSize(String path){
-        AtomicLong length = new AtomicLong();
-        getFiles(path, null, true)
+        return getFiles(path, null, true)
                 .stream()
                 .filter(File::isFile)
-                .forEach(f -> length.addAndGet(f.length()));
-
-        return length.get();
+                .mapToLong(File::length)
+                .sum();
     }
 
     private String getMatcher(String text, String... regexes){
@@ -166,9 +164,9 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     }
 
     private boolean isTrailer(String fileName){
-        return fileName.equals("sample.mkv")
-                || fileName.equals("sample.mp4")
-                || fileName.equals("sample.avi");
+        return fileName.equalsIgnoreCase("sample.mkv")
+                || fileName.equalsIgnoreCase("sample.mp4")
+                || fileName.equalsIgnoreCase("sample.avi");
     }
 
     private List<String> getFilePaths(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){
