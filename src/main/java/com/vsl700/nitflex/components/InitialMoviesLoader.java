@@ -12,7 +12,7 @@ public class InitialMoviesLoader {
     public CommandLineRunner run(MovieLoaderService movieLoaderService){
         return args -> {
             System.out.println("CLR2");
-            movieLoaderService.load("D:\\Videos\\some_movie");
+            //movieLoaderService.load("D:\\Videos\\some_movie");
         };
     }
 }

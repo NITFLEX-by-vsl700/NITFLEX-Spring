@@ -3,6 +3,7 @@ package com.vsl700.nitflex.services.implementations;
 import com.vsl700.nitflex.components.Settings;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.services.MovieLoaderService;
@@ -36,7 +37,12 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     }
 
     @Override
-    public void load(String path) {
+    public void load(String path){
+        load(path, null);
+    }
+
+    @Override
+    public void load(String path, User requester) {
         // Check if it is either a collection or a nested folder
         var allFiles = getFiles(path, (dir, name) -> true, false);
         var dirs = allFiles.stream().filter(File::isDirectory).toList();
@@ -64,6 +70,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         String name = relativePath.substring(relativePath.lastIndexOf("\\") + 1);
         long size = getFileSize(path);
         Movie movie = new Movie(name, type, relativePath, size);
+        movie.setRequester(requester);
 
         movie = movieRepo.save(movie); // Obtain a Movie.Id
 

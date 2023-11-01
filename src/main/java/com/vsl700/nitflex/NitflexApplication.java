@@ -1,11 +1,15 @@
 package com.vsl700.nitflex;
 
 import com.vsl700.nitflex.components.Settings;
+import com.vsl700.nitflex.models.User;
+import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.repo.MovieRepository;
+import com.vsl700.nitflex.repo.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication
 //@PropertySource("classpath:application.properties")
@@ -24,9 +28,26 @@ public class NitflexApplication {
 
 	@Bean
 	public Settings settings(){
-		var settings = new Settings();
-		return settings;
+		return new Settings();
 	}
+
+//	@Bean
+//	public CommandLineRunner movieAdderTest(UserRepository userRepo, MovieRepository movieRepo){
+//		return args -> {
+//			userRepo.deleteAll();
+//			movieRepo.deleteAll();
+//
+//			var user = new User("vsl700", "password");
+//			user = userRepo.save(user);
+//
+//			var movie = new Movie("Fast X", Movie.MovieType.Film, "D:\\Movies\\Fast.X.2023", 1943589L);
+//			movie.setFilmPath("\\fast.x.mkv");
+//			movie.setRequester(user);
+//			movie = movieRepo.save(movie);
+//
+//			System.out.println(movie.getRequester());
+//		};
+//	}
 
 //	@Bean
 //	public CommandLineRunner usersTest(UserRepository userRepo){
