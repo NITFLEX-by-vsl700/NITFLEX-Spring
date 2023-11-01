@@ -62,6 +62,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO");
             assertThat(resultMovie.get().getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie.get().getFilmPath()).isEqualTo("The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO.mkv");
+            assertThat(resultMovie.get().getSize()).isEqualTo(1086293770L);
         });
     }
 
@@ -87,6 +88,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO");
             assertThat(resultMovie.get().getTrailerPath()).isEqualTo("sample.avi");
             assertThat(resultMovie.get().getFilmPath()).isEqualTo("Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO.avi");
+            assertThat(resultMovie.get().getSize()).isEqualTo(881577837L);
         });
     }
 
@@ -112,6 +114,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("Baby.Driver.2017.1080p.Bluray.x265");
             assertThat(resultMovie.get().getTrailerPath()).isNull();
             assertThat(resultMovie.get().getFilmPath()).isEqualTo("Baby.Driver.2017.1080p.Bluray.x265.mkv");
+            assertThat(resultMovie.get().getSize()).isEqualTo(5062776855L);
         });
     }
 
@@ -137,6 +140,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("Tetris.2023.1080p.WEBRip.x264-LAMA");
             assertThat(resultMovie.get().getTrailerPath()).isNull();
             assertThat(resultMovie.get().getFilmPath()).isEqualTo("Tetris.2023.1080p.WEBRip.x264-LAMA.mp4");
+            assertThat(resultMovie.get().getSize()).isEqualTo(2413763371L);
         });
     }
 
@@ -169,6 +173,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie1.getPath()).isEqualTo("The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR");
             assertThat(resultMovie1.getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie1.getFilmPath()).isEqualTo("war-thematrix.mkv");
+            assertThat(resultMovie1.getSize()).isEqualTo(4532892434L);
         });
 
         // Test 2nd movie from collection
@@ -183,6 +188,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie2.getPath()).isEqualTo("The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\The.Matrix.Reloaded.2003.1080p.BluRay.x265.DD5.1-WAR");
             assertThat(resultMovie2.getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie2.getFilmPath()).isEqualTo("war-mreloaded.mkv");
+            assertThat(resultMovie2.getSize()).isEqualTo(4887740817L);
         });
 
         Assertions.assertEquals(4, movies.size());
@@ -209,6 +215,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("TEST_NESTED\\NESTED_FOLDER");
             assertThat(resultMovie.get().getTrailerPath()).isNull();
             assertThat(resultMovie.get().getFilmPath()).isEqualTo("cube snake.mkv");
+            assertThat(resultMovie.get().getSize()).isEqualTo(16138966L);
         });
     }
 
@@ -241,6 +248,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("Wednesday.S01.1080p.NF.WEBRip.DDP5.1.Atmos.x264-SMURF");
             assertThat(resultMovie.get().getTrailerPath()).isNull();
             assertThat(resultMovie.get().getFilmPath()).isNull();
+            assertThat(resultMovie.get().getSize()).isEqualTo(18812351667L);
         });
 
         Assertions.assertEquals(8, episodes.size());
@@ -287,6 +295,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie.get().getPath()).isEqualTo("TEST_SERIES");
             assertThat(resultMovie.get().getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie.get().getFilmPath()).isNull();
+            assertThat(resultMovie.get().getSize()).isEqualTo(104L);
         });
 
         Assertions.assertEquals(5, episodes.size());
@@ -347,6 +356,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie1.getPath()).isEqualTo("TEST_SERIES_SEP_FOLDER\\Season 1");
             assertThat(resultMovie1.getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie1.getFilmPath()).isNull();
+            assertThat(resultMovie1.getSize()).isEqualTo(80L);
         });
 
         // Test 2nd movie from collection
@@ -360,6 +370,7 @@ public class MovieLoaderServiceImplTests {
             assertThat(resultMovie2.getPath()).isEqualTo("TEST_SERIES_SEP_FOLDER\\Season 2");
             assertThat(resultMovie2.getTrailerPath()).isEqualTo("sample.mkv");
             assertThat(resultMovie2.getFilmPath()).isNull();
+            assertThat(resultMovie2.getSize()).isEqualTo(58L);
         });
 
         Assertions.assertEquals(2, movies.size());

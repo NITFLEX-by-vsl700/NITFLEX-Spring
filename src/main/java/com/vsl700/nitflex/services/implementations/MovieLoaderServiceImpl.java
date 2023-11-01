@@ -12,7 +12,7 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +62,8 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         String relativePath = relativizePaths
                 .apply(settings.getMoviesFolder(), path);
         String name = relativePath.substring(relativePath.lastIndexOf("\\") + 1);
-        Movie movie = new Movie(name, type, relativePath);
+        long size = getFileSize(path);
+        Movie movie = new Movie(name, type, relativePath, size);
 
         movie = movieRepo.save(movie); // Obtain a Movie.Id
 
@@ -129,6 +130,16 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         String episode = seasonEpisode.substring(seasonEpisode.indexOf("E") + 1);
 
         return Integer.parseInt(episode);
+    }
+
+    private long getFileSize(String path){
+        AtomicLong length = new AtomicLong();
+        getFiles(path, null, true)
+                .stream()
+                .filter(File::isFile)
+                .forEach(f -> length.addAndGet(f.length()));
+
+        return length.get();
     }
 
     private String getMatcher(String text, String... regexes){
