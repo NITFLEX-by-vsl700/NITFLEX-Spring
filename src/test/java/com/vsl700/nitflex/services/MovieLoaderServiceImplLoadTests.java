@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 @Disabled // These tests will only work on my machine!
 @ExtendWith(MockitoExtension.class)
-public class MovieLoaderServiceImplTests {
+public class MovieLoaderServiceImplLoadTests {
 
     @Mock
     private MovieRepository movieRepo;
