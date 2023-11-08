@@ -1,5 +1,6 @@
 package com.vsl700.nitflex;
 
+import com.vsl700.nitflex.components.InitialMoviesLoader;
 import com.vsl700.nitflex.components.SharedProperties;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
@@ -24,6 +25,11 @@ public class NitflexApplication {
 	@Bean
 	public SharedProperties settings(){
 		return new SharedProperties();
+	}
+
+	@Bean
+	public InitialMoviesLoader initialMoviesLoader(){
+		return new InitialMoviesLoader();
 	}
 
 //	@Bean
