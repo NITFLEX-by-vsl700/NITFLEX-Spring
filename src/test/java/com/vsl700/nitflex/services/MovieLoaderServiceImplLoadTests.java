@@ -1,6 +1,6 @@
 package com.vsl700.nitflex.services;
 
-import com.vsl700.nitflex.components.Settings;
+import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.repo.EpisodeRepository;
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 @Disabled // These tests will only work on my machine!
 @ExtendWith(MockitoExtension.class)
-public class MovieLoaderServiceImplTests {
+public class MovieLoaderServiceImplLoadTests {
 
     @Mock
     private MovieRepository movieRepo;
@@ -32,13 +32,13 @@ public class MovieLoaderServiceImplTests {
     private EpisodeRepository episodeRepo;
 
     @Mock
-    private Settings settings;
+    private SharedProperties sharedProperties;
 
     private MovieLoaderService service;
 
     @BeforeEach
     public void setUp(){
-        service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, settings);
+        service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, sharedProperties);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class MovieLoaderServiceImplTests {
             return movie;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO");
 
@@ -77,7 +77,7 @@ public class MovieLoaderServiceImplTests {
             return movie;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO");
 
@@ -103,7 +103,7 @@ public class MovieLoaderServiceImplTests {
             return movie;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\Baby.Driver.2017.1080p.Bluray.x265");
 
@@ -129,7 +129,7 @@ public class MovieLoaderServiceImplTests {
             return movie;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA");
 
@@ -157,7 +157,7 @@ public class MovieLoaderServiceImplTests {
             return movie;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR");
 
@@ -204,7 +204,7 @@ public class MovieLoaderServiceImplTests {
             return movie;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\TEST_NESTED");
 
@@ -237,7 +237,7 @@ public class MovieLoaderServiceImplTests {
             return episode;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\Wednesday.S01.1080p.NF.WEBRip.DDP5.1.Atmos.x264-SMURF");
 
@@ -284,7 +284,7 @@ public class MovieLoaderServiceImplTests {
             return episode;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\TEST_SERIES");
 
@@ -341,7 +341,7 @@ public class MovieLoaderServiceImplTests {
             return episode;
         });
 
-        when(settings.getMoviesFolder()).thenReturn("D:\\Videos");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
         service.load("D:\\Videos\\TEST_SERIES_SEP_FOLDER");
 
