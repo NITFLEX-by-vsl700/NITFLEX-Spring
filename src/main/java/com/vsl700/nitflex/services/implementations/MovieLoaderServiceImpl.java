@@ -96,6 +96,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         File home = new File(sharedProperties.getMoviesFolder());
         List<File> movieFolders = Arrays.stream(Objects.requireNonNull(home.listFiles()))
                 .filter(File::isDirectory)
+                .filter(f -> Objects.requireNonNull(f.listFiles()).length != 0)
                 .toList();
 
         List<Movie> oldMovieRecords = movieRepo.findAll().stream()
