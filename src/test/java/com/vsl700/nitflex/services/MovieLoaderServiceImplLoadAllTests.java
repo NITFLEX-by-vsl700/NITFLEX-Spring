@@ -86,11 +86,13 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.loadNewlyAdded();
 
         assertThat(movies.size()).isEqualTo(34);
+        assertThat(episodes.size()).isEqualTo(147);
     }
 
     @Test
     public void unloadNonExisting_test(){
         service.loadNewlyAdded();
+        int episodesSize = episodes.size();
 
         movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
         movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
@@ -113,11 +115,13 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.unloadNonExisting();
 
         assertThat(movies.size()).isEqualTo(34);
+        assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 
     @Test
     public void unloadNonExisting_thenCheckForNewlyAdded_test(){
         service.loadNewlyAdded();
+        int episodesSize = episodes.size();
 
         movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
         movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
@@ -141,29 +145,41 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.loadNewlyAdded();
 
         assertThat(movies.size()).isEqualTo(34);
+        assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 
     @RepeatedTest(30)
     public void loadNewlyAdded_thenLoadSomeMoreNewlyAdded_test(){
         service.loadNewlyAdded();
+        int episodesSize = episodes.size();
 
         for(int i = 0; i < 10; i++){ // Remove 10 (random) movies
             Movie movie = movies.stream().findAny().orElseThrow();
             movies.remove(movie);
+
+            if(movie.getType().equals(Movie.MovieType.Series)){
+                episodes.removeIf(e -> e.getSeriesId().equals(movie.getId()));
+            }
         }
 
         service.loadNewlyAdded();
 
         assertThat(movies.size()).isEqualTo(34);
+        assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 
     @RepeatedTest(30)
     public void loadNewlyAdded_thenUnloadNonExisting_thenLoadSomeMoreNewlyAdded_test(){
         service.loadNewlyAdded();
+        int episodesSize = episodes.size();
 
         for(int i = 0; i < 10; i++){ // Remove 10 (random) movies
             Movie movie = movies.stream().findAny().orElseThrow();
             movies.remove(movie);
+
+            if(movie.getType().equals(Movie.MovieType.Series)){
+                episodes.removeIf(e -> e.getSeriesId().equals(movie.getId()));
+            }
         }
 
         movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
@@ -188,5 +204,6 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.unloadNonExisting();
 
         assertThat(movies.size()).isEqualTo(34);
+        assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 }
