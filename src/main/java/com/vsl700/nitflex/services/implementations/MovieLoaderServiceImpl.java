@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +29,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
     private SharedProperties sharedProperties;
 
-    private final BiFunction<String, String, String> relativizePaths =
+    private final BiFunction<String, String, String> pathRelativizer =
             (homePath, fullPath) -> Paths.get(homePath).relativize(Paths.get(fullPath)).toString();
 
     public MovieLoaderServiceImpl(MovieRepository movieRepo, EpisodeRepository episodeRepo, SharedProperties sharedProperties) {
@@ -46,31 +46,31 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     @Override
     public void load(String path, User requester) {
         // Check if it is either a collection or a nested folder
-        var allFiles = getFiles(path, (dir, name) -> true, false);
-        var dirs = allFiles.stream().filter(File::isDirectory).toList();
-        long dirsCount = dirs.size();
-        long moviesCount = getFiles(path, (dir, name) -> !isTrailer(name) && isVideoFile(name), false)
-                .stream().filter(File::isFile).count();
-        if(dirsCount >= 1 && moviesCount == 0){
+        if(isCollection(path)){
             // Handle the collection/nested folder
             // Each folder is treated as a separate Movie
+            var allFiles = getFiles(path, (dir, name) -> true, false);
+            var dirs = allFiles.stream().filter(File::isDirectory).toList();
+
             dirs.forEach(f -> load(f.getAbsolutePath()));
             return;
         }
 
         // Determine movie type
         Movie.MovieType type;
-        if(moviesCount > 1){
+        long filmsCount = getFiles(path, (dir, name) -> !isTrailer(name) && isVideoFile(name), false)
+                .stream().filter(File::isFile).count();
+        if(filmsCount > 1){
             type = Movie.MovieType.Series;
         }else{
             type = Movie.MovieType.Film;
         }
 
         // Create Movie object
-        String relativePath = relativizePaths
+        String relativePath = pathRelativizer
                 .apply(sharedProperties.getMoviesFolder(), path);
         String name = relativePath.substring(relativePath.lastIndexOf("\\") + 1);
-        long size = getFileSize(path);
+        long size = getFilesSize(path);
         Movie movie = new Movie(name, type, relativePath, size);
         movie.setRequester(requester);
 
@@ -87,30 +87,57 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     }
 
     @Override
-    public void loadAll(){
-        File file = new File(sharedProperties.getMoviesFolder());
-        List<File> movieFolders = Arrays.stream(Objects.requireNonNull(file.listFiles()))
+    public void loadNewlyAdded(){
+        loadNewlyAddedFromFolder(sharedProperties.getMoviesFolder());
+    }
+
+    @Override
+    public void unloadNonExisting() {
+        File home = new File(sharedProperties.getMoviesFolder());
+        List<File> movieFolders = Arrays.stream(Objects.requireNonNull(home.listFiles()))
+                .filter(File::isDirectory)
+                .toList();
+
+        List<Movie> oldMovieRecords = movieRepo.findAll().stream()
+                .filter(m -> movieFolders.stream()
+                        .noneMatch(mf -> pathRelativizer
+                                .apply(home.getAbsolutePath(), mf.getAbsolutePath())
+                                .equals(m.getPath())
+                                || isCollection(mf.getAbsolutePath())
+                                && getFiles(mf.getAbsolutePath(), null, false).stream()
+                                .anyMatch(mf1 -> pathRelativizer.apply(home.getAbsolutePath(), mf1.getAbsolutePath())
+                                        .equals(m.getPath()))))
+//                .filter(m -> !isCollection(m.getPath())
+//                                || getFiles(m.getPath(), null, false).stream()
+//                        .anyMatch(mf -> movieRepo.findByPath(pathRelativizer.apply(home.getAbsolutePath(), mf.getAbsolutePath())).isPresent()))
+                .toList();
+        movieRepo.deleteAll(oldMovieRecords);
+        oldMovieRecords.stream()
+                .filter(m -> m.getType().equals(Movie.MovieType.Series))
+                .forEach(m -> episodeRepo.deleteBySeriesId(m.getId()));
+    }
+
+    private void loadNewlyAddedFromFolder(String folderPath){
+        File home = new File(folderPath);
+        List<File> movieFolders = Arrays.stream(Objects.requireNonNull(home.listFiles()))
                 .filter(File::isDirectory)
                 .filter(f -> Objects.requireNonNull(f.listFiles()).length != 0)
                 .toList();
 
-        // FIXME: THE OPERATIONS BELOW (adding and removing movies from db) DON'T WORK RIGHT WITH COLLECTIONS!
-
-        // Remove records of no longer existing movies
-        List<Movie> movieRecords = movieRepo.findAll().stream()
-                .filter(m -> movieFolders.stream()
-                        .noneMatch(mf -> Paths.get(file.getAbsolutePath()).relativize(Paths.get(mf.getAbsolutePath()))
-                                .toString().equals(m.getPath())))
-                .toList();
-        movieRepo.deleteAll(movieRecords);
-        movieRecords.stream()
-                .filter(m -> m.getType().equals(Movie.MovieType.Series))
-                .forEach(m -> episodeRepo.deleteBySeriesId(m.getId()));
-
         // Register new-found movies
-        movieFolders.stream()                           // Have to give relativized path every time!
-                .filter(f -> movieRepo.findByPath(Paths.get(file.getAbsolutePath()).relativize(Paths.get(f.getAbsolutePath())).toString()).isEmpty())
-                .forEach(f -> load(f.getAbsolutePath()));
+        movieFolders.stream()
+                .filter(f -> movieRepo                              // Have to give relativized path every time!
+                        .findByPath(pathRelativizer
+                                .apply(sharedProperties.getMoviesFolder(), f.getAbsolutePath()))
+                        .isEmpty())
+                .forEach(f -> {
+                    if(isCollection(f.getAbsolutePath())){
+                        loadNewlyAddedFromFolder(f.getAbsolutePath());
+                        return;
+                    }
+
+                    load(f.getAbsolutePath());
+                });
     }
 
     private void loadFilm(Movie movie, String absPath) {
@@ -168,7 +195,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         return Integer.parseInt(episode);
     }
 
-    private long getFileSize(String path){
+    private long getFilesSize(String path){
         return getFiles(path, null, true)
                 .stream()
                 .filter(File::isFile)
@@ -188,6 +215,16 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         return null;
     }
 
+    private boolean isCollection(String path){
+        var allFiles = getFiles(path, (dir, name) -> true, false);
+        var dirs = allFiles.stream().filter(File::isDirectory).toList();
+        long dirsCount = dirs.size();
+        long moviesCount = getFiles(path, (dir, name) -> !isTrailer(name) && isVideoFile(name), false)
+                .stream().filter(File::isFile).count();
+
+        return dirsCount >= 1 && moviesCount == 0;
+    }
+
     private boolean isVideoFile(String fileName){
         return fileName.endsWith(".mp4") || fileName.endsWith(".mkv") || fileName.endsWith(".avi");
     }
@@ -199,7 +236,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     }
 
     private List<String> getFilePaths(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){
-        return getFiles(parentPath, filenameFilter, checkNestedFiles).stream().map(f -> relativizePaths.apply(parentPath, f.getAbsolutePath())).toList();
+        return getFiles(parentPath, filenameFilter, checkNestedFiles).stream().map(f -> pathRelativizer.apply(parentPath, f.getAbsolutePath())).toList();
     }
 
     private List<File> getFiles(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){

@@ -27,11 +27,6 @@ public class NitflexApplication {
 		return new SharedProperties();
 	}
 
-	@Bean
-	public InitialMoviesLoader initialMoviesLoader(){
-		return new InitialMoviesLoader();
-	}
-
 //	@Bean
 //	public CommandLineRunner movieAdderTest(UserRepository userRepo, MovieRepository movieRepo){
 //		return args -> {

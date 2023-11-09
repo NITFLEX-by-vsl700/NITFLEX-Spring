@@ -7,27 +7,27 @@ import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.services.implementations.MovieLoaderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@Disabled // These tests will only work on my machine!
 public class MovieLoaderServiceImplLoadAllTests {
 
     private MovieRepository movieRepo;
-
     private EpisodeRepository episodeRepo;
-
     private SharedProperties sharedProperties;
-
     private MovieLoaderService service;
+
+    private ArrayList<Movie> movies;
+    private ArrayList<Episode> episodes;
 
     @BeforeEach
     public void setUp(){
@@ -36,11 +36,8 @@ public class MovieLoaderServiceImplLoadAllTests {
         sharedProperties = mock(SharedProperties.class);
 
         service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, sharedProperties);
-    }
 
-    @Test
-    public void test(){
-        ArrayList<Movie> movies = new ArrayList<>();
+        movies = new ArrayList<>();
         doAnswer((invocation) -> {
             Movie movie = invocation.getArgument(0, Movie.class);
             if(movies.contains(movie))
@@ -54,13 +51,20 @@ public class MovieLoaderServiceImplLoadAllTests {
         doReturn(movies).when(movieRepo).findAll();
 
         doAnswer(invocation -> {
-            var moviesArg = invocation.getArgument(0, Iterable.class);
-            movies.removeIf(m -> Stream.of(moviesArg).anyMatch(m1 -> ((Movie) m1).getId().equals(m.getId())));
+            String path = invocation.getArgument(0, String.class);
+
+            return movies.stream().filter(m -> m.getPath().equals(path)).findFirst();
+        }).when(movieRepo).findByPath(any(String.class));
+
+        doAnswer(invocation -> {
+            Iterable<Movie> moviesArg = invocation.getArgument(0);
+            movies.removeIf(m -> StreamSupport.stream(moviesArg.spliterator(), false)
+                    .anyMatch(m1 -> m1.getId().equals(m.getId())));
 
             return null;
-        }).when(movieRepo).deleteAll(any(Iterable.class));
+        }).when(movieRepo).deleteAll(any());
 
-        ArrayList<Episode> episodes = new ArrayList<>();
+        episodes = new ArrayList<>();
         when(episodeRepo.save(any())).then((invocation) -> {
             Episode episode = invocation.getArgument(0, Episode.class);
             episodes.add(episode);
@@ -75,11 +79,114 @@ public class MovieLoaderServiceImplLoadAllTests {
         }).when(episodeRepo).deleteBySeriesId(any(String.class));
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
+    }
 
-        service.loadAll();
+    @Test
+    public void loadNewlyAdded_test(){
+        service.loadNewlyAdded();
 
         assertThat(movies.size()).isEqualTo(34);
+    }
 
-        // TODO: Test by adding and removing movies and then running 'service.loadAll()' again
+    @Test
+    public void unloadNonExisting_test(){
+        service.loadNewlyAdded();
+
+        movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
+        movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
+        Movie series =
+                movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
+        episodeRepo.save(new Episode(series.getId(), 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        Movie series2 =
+                movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
+        episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 1, 3, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 2, 1, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 2, 2, "S02E03.mkv"));
+
+        service.unloadNonExisting();
+
+        assertThat(movies.size()).isEqualTo(34);
+    }
+
+    @Test
+    public void unloadNonExisting_thenCheckForNewlyAdded_test(){
+        service.loadNewlyAdded();
+
+        movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
+        movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
+        Movie series =
+                movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
+        episodeRepo.save(new Episode(series.getId(), 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        Movie series2 =
+                movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
+        episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 1, 3, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 2, 1, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 2, 2, "S02E03.mkv"));
+
+        service.unloadNonExisting();
+        service.loadNewlyAdded();
+
+        assertThat(movies.size()).isEqualTo(34);
+    }
+
+    @RepeatedTest(30)
+    public void loadNewlyAdded_thenLoadSomeMoreNewlyAdded_test(){
+        service.loadNewlyAdded();
+
+        for(int i = 0; i < 10; i++){ // Remove 10 (random) movies
+            Movie movie = movies.stream().findAny().orElseThrow();
+            movies.remove(movie);
+        }
+
+        service.loadNewlyAdded();
+
+        assertThat(movies.size()).isEqualTo(34);
+    }
+
+    @RepeatedTest(30)
+    public void loadNewlyAdded_thenUnloadNonExisting_thenLoadSomeMoreNewlyAdded_test(){
+        service.loadNewlyAdded();
+
+        for(int i = 0; i < 10; i++){ // Remove 10 (random) movies
+            Movie movie = movies.stream().findAny().orElseThrow();
+            movies.remove(movie);
+        }
+
+        movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
+        movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
+        Movie series =
+                movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
+        episodeRepo.save(new Episode(series.getId(), 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        Movie series2 =
+                movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
+        episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 1, 3, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 2, 1, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), 2, 2, "S02E03.mkv"));
+
+        service.loadNewlyAdded();
+        service.unloadNonExisting();
+
+        assertThat(movies.size()).isEqualTo(34);
     }
 }
