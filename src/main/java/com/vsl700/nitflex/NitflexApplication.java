@@ -22,11 +22,6 @@ public class NitflexApplication {
 		return new ModelMapper();
 	}
 
-	@Bean
-	public SharedProperties settings(){
-		return new SharedProperties();
-	}
-
 //	@Bean
 //	public CommandLineRunner movieAdderTest(UserRepository userRepo, MovieRepository movieRepo){
 //		return args -> {
