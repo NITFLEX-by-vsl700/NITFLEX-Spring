@@ -2,8 +2,8 @@ package com.vsl700.nitflex.components;
 
 import com.vsl700.nitflex.services.MovieLoaderService;
 import jakarta.annotation.PostConstruct;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InitialMoviesLoader {
 
-    private static final Logger LOG = LogManager.getLogger(InitialMoviesLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InitialMoviesLoader.class);
 
     @Autowired
     private MovieLoaderService movieLoaderService;
