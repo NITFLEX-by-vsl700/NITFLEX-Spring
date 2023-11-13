@@ -7,23 +7,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class WebClientServiceImpl implements WebClientService {
-
-    private WebsiteCredentials.Zamunda zamundaCredentials;
-
-    public WebClientServiceImpl(WebsiteCredentials.Zamunda zamundaCredentials){
-        this.zamundaCredentials = zamundaCredentials;
-    }
-
     @Override
-    public String loginAndGetCookie(String url) {
+    public String loginAndGetCookie(String url, WebsiteCredentials websiteCredentials) {
         WebClient client = WebClient.builder()
                 .baseUrl(url)
                 .build();
 
         AtomicReference<String> result = new AtomicReference<>();
         client.post()
-                .attribute("username", zamundaCredentials.getUsername())
-                .attribute("password", zamundaCredentials.getPassword())
+                .attribute("username", websiteCredentials.getUsername())
+                .attribute("password", websiteCredentials.getPassword())
                 .exchangeToMono(response -> {
                     result.set(String.join(";", response.headers().header("Cookie")));
                     return response.bodyToMono(Void.class);

@@ -3,6 +3,7 @@ package com.vsl700.nitflex.services.implementations;
 import com.turn.ttorrent.client.Client;
 import com.turn.ttorrent.client.SharedTorrent;
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.components.WebsiteCredentials;
 import com.vsl700.nitflex.services.MovieDownloaderService;
 import com.vsl700.nitflex.services.WebClientService;
 import lombok.SneakyThrows;
@@ -21,19 +22,21 @@ import java.nio.file.Paths;
 public class MovieDownloaderServiceImpl implements MovieDownloaderService {
     private WebClientService webClientService;
     private SharedProperties sharedProperties;
+    private WebsiteCredentials.Zamunda zamundaCredentials;
 
     private static final String zamundaLoginPage = "https://zamunda.net/takelogin.php";
 
-    public MovieDownloaderServiceImpl(WebClientService webClientService, SharedProperties sharedProperties) {
+    public MovieDownloaderServiceImpl(WebClientService webClientService, SharedProperties sharedProperties, WebsiteCredentials.Zamunda zamundaCredentials) {
         this.webClientService = webClientService;
         this.sharedProperties = sharedProperties;
+        this.zamundaCredentials = zamundaCredentials;
     }
 
     @SneakyThrows
     @Override
     public void downloadFromPageURL(String pageUrl) {
         // Login and get necessary cookie
-        String cookie = webClientService.loginAndGetCookie(zamundaLoginPage);
+        String cookie = webClientService.loginAndGetCookie(zamundaLoginPage, zamundaCredentials);
 
         // Look for the .torrent file download link
         String downloadLink = null;

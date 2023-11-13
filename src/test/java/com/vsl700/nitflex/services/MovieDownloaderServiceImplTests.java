@@ -27,8 +27,8 @@ public class MovieDownloaderServiceImplTests {
 
     @BeforeEach
     public void setUp(){
-        webClientService = new WebClientServiceImpl(zamundaCredentials);
-        movieDownloaderService = new MovieDownloaderServiceImpl(webClientService, sharedProperties);
+        webClientService = new WebClientServiceImpl();
+        movieDownloaderService = new MovieDownloaderServiceImpl(webClientService, sharedProperties, zamundaCredentials);
 
         when(sharedProperties.getMoviesFolder()).then(invocation -> "D:\\Videos");
     }
