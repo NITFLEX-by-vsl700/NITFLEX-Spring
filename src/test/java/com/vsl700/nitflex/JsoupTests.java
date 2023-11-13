@@ -1,17 +1,11 @@
 package com.vsl700.nitflex;
 
-import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.BufferedReader;
@@ -20,13 +14,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import reactor.netty.http.client.HttpClient;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.netty.handler.codec.http.HttpHeaders.Values.KEEP_ALIVE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class JsoupTests {
 
@@ -52,7 +42,7 @@ public class JsoupTests {
 
     @Test
     @Disabled
-    public void findElementByCSSSelector_URL_Test() throws IOException { // This test WILL fail because of 'getZamundaContents'
+    public void findElementByCSSSelector_URL_Test() { // This test WILL fail because of 'getZamundaContents'
         String html = getZamundaContentsViaWebClient("https://zamunda.net/banan?id=747184&hit=1&t=movie");
 
         Document doc = Jsoup.parse(html);
@@ -75,7 +65,7 @@ public class JsoupTests {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                content.append(line + "\n");
+                content.append(line).append("\n");
             }
 
             bufferedReader.close();
