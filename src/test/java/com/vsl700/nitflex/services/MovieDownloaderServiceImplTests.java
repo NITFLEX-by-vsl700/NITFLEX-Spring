@@ -3,6 +3,7 @@ package com.vsl700.nitflex.services;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.components.WebsiteCredentials;
 import com.vsl700.nitflex.services.implementations.MovieDownloaderServiceImpl;
+import com.vsl700.nitflex.services.implementations.WebClientServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -21,17 +22,20 @@ public class MovieDownloaderServiceImplTests {
     @Mock
     private WebsiteCredentials.Zamunda zamundaCredentials;
 
+    private WebClientService webClientService;
     private MovieDownloaderService movieDownloaderService;
 
     @BeforeEach
     public void setUp(){
-        movieDownloaderService = new MovieDownloaderServiceImpl(sharedProperties, zamundaCredentials);
+        webClientService = new WebClientServiceImpl(zamundaCredentials);
+        movieDownloaderService = new MovieDownloaderServiceImpl(webClientService, sharedProperties);
 
         when(sharedProperties.getMoviesFolder()).then(invocation -> "D:\\Videos");
     }
 
     @Test
     public void test(){
+        System.out.println(sharedProperties.getMoviesFolder()); // Remove this line
         //movieDownloaderService.download("D:\\Downloads\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU");
     }
 
