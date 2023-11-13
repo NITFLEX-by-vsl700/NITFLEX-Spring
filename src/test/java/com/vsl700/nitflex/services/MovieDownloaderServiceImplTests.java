@@ -1,6 +1,7 @@
 package com.vsl700.nitflex.services;
 
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.components.WebsiteCredentials;
 import com.vsl700.nitflex.services.implementations.MovieDownloaderServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -17,12 +18,14 @@ public class MovieDownloaderServiceImplTests {
 
     @Mock
     private SharedProperties sharedProperties;
+    @Mock
+    private WebsiteCredentials.Zamunda zamundaCredentials;
 
     private MovieDownloaderService movieDownloaderService;
 
     @BeforeEach
     public void setUp(){
-        movieDownloaderService = new MovieDownloaderServiceImpl(sharedProperties);
+        movieDownloaderService = new MovieDownloaderServiceImpl(sharedProperties, zamundaCredentials);
 
         when(sharedProperties.getMoviesFolder()).then(invocation -> "D:\\Videos");
     }

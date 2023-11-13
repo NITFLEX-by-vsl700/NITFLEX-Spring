@@ -1,8 +1,8 @@
 package com.vsl700.nitflex;
 
-import com.vsl700.nitflex.components.InitialMoviesLoader;
-import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.components.WebsiteCredentials;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
