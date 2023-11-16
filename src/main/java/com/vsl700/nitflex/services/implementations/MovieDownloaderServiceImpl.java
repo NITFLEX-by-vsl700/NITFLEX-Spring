@@ -2,6 +2,7 @@ package com.vsl700.nitflex.services.implementations;
 
 import com.turn.ttorrent.client.Client;
 import com.turn.ttorrent.client.SharedTorrent;
+import com.vsl700.nitflex.components.InitialMoviesLoader;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.components.WebsiteCredentials;
 import com.vsl700.nitflex.services.MovieDownloaderService;
@@ -11,11 +12,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.net.InetAddress;
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @Service
@@ -23,6 +27,8 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
     private WebClientService webClientService;
     private SharedProperties sharedProperties;
     private WebsiteCredentials.Zamunda zamundaCredentials;
+
+    private static final Logger LOG = LoggerFactory.getLogger(InitialMoviesLoader.class);
 
     private static final String zamundaLoginPage = "https://zamunda.net/takelogin.php";
 
@@ -34,33 +40,51 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
 
     @SneakyThrows
     @Override
-    public void downloadFromPageURL(String pageUrl) {
+    public void downloadFromPageURL(String pageUrl) { // Zamunda.NET implementation
+        LOG.info("Downloading from URL: '%s'".formatted(pageUrl));
+
         // Login and get necessary cookie
-        String cookie = webClientService.loginAndGetCookie(zamundaLoginPage, zamundaCredentials);
+        LOG.info("Logging in as '%s'...".formatted(zamundaCredentials.getUsername()));
+        String cookie = webClientService.loginAndGetCookie(zamundaLoginPage,
+                "username",
+                "password",
+                zamundaCredentials);
+        if(!cookie.contains("uid")) // TODO: Add custom exception
+            throw new RuntimeException("Login failed!");
+
+        LOG.info("Login successful!");
 
         // Look for the .torrent file download link
-        String downloadLink = null;
-        String torrentFileName; // TODO: Think of a more legit way to set the torrentFileName
+        LOG.info("Looking for the .TORRENT file download link...");
+        URI tempURI = new URI(pageUrl);
+        String scheme = tempURI.getScheme();
+        String host = tempURI.getHost();
+        String downloadLinkPath = null;
+        String torrentFileName;
         do { // While we are not at the page with the .torrent file download link
-            String html = webClientService.getWebsiteContents(downloadLink == null ? pageUrl : pageUrl + downloadLink, cookie);
+            String html = webClientService.getWebsiteContents(downloadLinkPath == null ? pageUrl : scheme + "://" + host + downloadLinkPath, cookie);
             Document doc = Jsoup.parse(html);
             Element downloadLinkElement = doc.selectFirst("a.index.notranslate");
 
             assert downloadLinkElement != null;
             torrentFileName = "%s.torrent".formatted(downloadLinkElement.text());
-            downloadLink = downloadLinkElement.attr("href");
-        } while(!downloadLink.endsWith(".torrent"));
+            downloadLinkPath = downloadLinkElement.attr("href");
+            if(!downloadLinkPath.startsWith("/"))
+                downloadLinkPath = "/%s".formatted(downloadLinkPath);
+        } while(!downloadLinkPath.endsWith(".torrent"));
 
         // Download .torrent file content
-        String fileContent = webClientService.getWebsiteContents(pageUrl + downloadLink, cookie);
+        LOG.info("Downloading .TORRENT file...");
+        byte[] fileContent = webClientService.getContentsAsByteArray(scheme + "://" + host + downloadLinkPath, cookie);
+        //fileContent = new String(fileContent.getBytes(StandardCharsets.US_ASCII), StandardCharsets.US_ASCII);
 
         // Make a path for the new file
         String torrentFilePath = Paths.get(sharedProperties.getMoviesFolder(), torrentFileName).toString();
 
         // Save torrent file
-        BufferedWriter writer = new BufferedWriter(new FileWriter(torrentFilePath));
-        writer.write(fileContent);
-        writer.close();
+        Files.write(Path.of(torrentFilePath), fileContent);
+
+        LOG.info(".TORRENT file downloaded!");
 
         // Start downloading with the new torrent file
         downloadFromTorrentFilePath(torrentFilePath);
@@ -68,13 +92,14 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
 
     @Override
     public void downloadFromTorrentFilePath(String torrentFilePath) {
+        // TODO: Make it so that it creates a folder in case there's torrents that don't make folders for the movies
+        // (nested folders for every movie won't be a problem for the system)
         var client = createClient(torrentFilePath);
         client.download();
 
         new Thread(() -> {
             while(!client.getState().equals(Client.ClientState.DONE)
                     && !client.getState().equals(Client.ClientState.ERROR)){
-                client.info(); // It's not bad to keep some logs from the download
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
@@ -90,7 +115,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
     private Client createClient(String torrentFilePath){
         File parentDir = new File(sharedProperties.getMoviesFolder());
         if(!parentDir.exists() && !parentDir.mkdir()) {
-            // TODO: Add exception handling
+            // TODO: Add custom exception
             throw new RuntimeException("Access to %s denied!".formatted(parentDir.getAbsolutePath()));
         }
 

@@ -6,6 +6,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.BufferedReader;
@@ -81,7 +83,7 @@ public class JsoupTests {
                 //.clientConnector(new ReactorClientHttpConnector(HttpClient.create().followRedirect(true)))
                 .baseUrl(url)
                 .defaultHeader("Cookie", "uid={uid}; pass={pass}")
-                //.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
                 //.defaultUriVariables(Collections.singletonMap("url", "https://zamunda.net"))
                 .build();
 
