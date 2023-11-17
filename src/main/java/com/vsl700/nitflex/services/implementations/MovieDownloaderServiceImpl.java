@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.nio.file.Files;
@@ -76,39 +77,52 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
         // Download .torrent file content
         LOG.info("Downloading .TORRENT file...");
         byte[] fileContent = webClientService.getContentsAsByteArray(scheme + "://" + host + downloadLinkPath, cookie);
-        //fileContent = new String(fileContent.getBytes(StandardCharsets.US_ASCII), StandardCharsets.US_ASCII);
 
         // Make a path for the new file
-        String torrentFilePath = Paths.get(sharedProperties.getMoviesFolder(), torrentFileName).toString();
+        Path torrentFilePath = Paths.get(sharedProperties.getMoviesFolder(), torrentFileName);
 
         // Save torrent file
-        Files.write(Path.of(torrentFilePath), fileContent);
+        Files.write(torrentFilePath, fileContent);
 
         LOG.info(".TORRENT file downloaded!");
 
         // Start downloading with the new torrent file
-        downloadFromTorrentFilePath(torrentFilePath);
+        downloadFromTorrentFilePath(torrentFilePath.toString());
     }
 
     @Override
     public void downloadFromTorrentFilePath(String torrentFilePath) {
-        // TODO: Make it so that it creates a folder in case there's torrents that don't make folders for the movies
-        // (nested folders for every movie won't be a problem for the system)
         var client = createClient(torrentFilePath);
         client.download();
 
-        new Thread(() -> {
-            while(!client.getState().equals(Client.ClientState.DONE)
-                    && !client.getState().equals(Client.ClientState.ERROR)){
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+        client.waitForCompletion();
+        client.stop();
 
-            client.stop();
-        }).start();
+        // If the torrent was a 'single-file' and the downloaded video file is in the parent folder, we should move it
+        // from the parent folder and put it in its own folder (following the MovieLoaderService's policy)
+        if(!client.getTorrent().isMultifile()){
+            String fileName = client.getTorrent().getFilenames()
+                    .stream().findFirst().orElseThrow();
+
+            if(Path.of(fileName).getNameCount() > 1)
+                return;
+
+            // If the video file is not in its own folder
+            String movieFolderName = fileName.substring(0, fileName.lastIndexOf('.'));
+
+            File parentDir = new File(sharedProperties.getMoviesFolder());
+
+            File movieFolder = new File(parentDir, movieFolderName);
+            if (!movieFolder.mkdir()) // TODO: Add custom exception
+                throw new RuntimeException("Folder %s could not be created!".formatted(movieFolder.getAbsolutePath()));
+
+            File targetFile = new File(parentDir, fileName);
+            try {
+                Files.move(Path.of(targetFile.getAbsolutePath()), Path.of(movieFolder.getAbsolutePath(), fileName));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     @SneakyThrows

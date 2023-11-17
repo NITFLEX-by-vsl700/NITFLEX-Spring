@@ -77,18 +77,33 @@ public class MovieDownloaderServiceImplTests {
                 movieDownloaderService.downloadFromPageURL("https://zamunda.net/banan?id=747087&hit=1&t=movie"));
     }
 
-    @Test
-    public void downloadFromTorrentFilePath_Test() throws InterruptedException {
-        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\Oppenheimer.2023.1080p.BluRay.x265.DTS.HD.MA.5.1-DiN.torrent");
-
-        while(true) {Thread.sleep(1000);}
+    @ParameterizedTest
+    @ValueSource(strings = {"D:\\Videos\\Torrent Test\\Oppenheimer.2023.1080p.BluRay.x265.DTS.HD.MA.5.1-DiN.torrent",
+            "D:\\Videos\\Torrent Test\\The.Creator.2023.1080p.AMZN.WEB-DL.DDP5.1.H.264-LessConfusingThanTenet.mkv.torrent",
+            "D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent"})
+    public void downloadFromTorrentFilePath_Test(String path) {
+        movieDownloaderService.downloadFromTorrentFilePath(path);
     }
 
     @Test
-    public void downloadFromTorrentFilePath_Test2() throws InterruptedException {
+    public void downloadFromTorrentFilePath_singleFile_inParentFolder_Test() {
         movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Creator.2023.1080p.AMZN.WEB-DL.DDP5.1.H.264-LessConfusingThanTenet.mkv.torrent");
+    }
 
-        while(true) {Thread.sleep(1000);}
+    @Test
+    public void downloadFromTorrentFilePath_singleFile_inParentFolder_Test2() {
+        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi.torrent");
+    }
+
+    @Test
+    public void downloadFromTorrentFilePath_singleFile_inItsOwnFolder_Test() {
+        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265.torrent");
+    }
+
+    // Download the Movie with the least size to speed up testing
+    @Test
+    public void downloadFromTorrentFilePath_ShortDownload_Test() {
+        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent");
     }
 
 }

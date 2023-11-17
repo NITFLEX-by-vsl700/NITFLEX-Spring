@@ -9,7 +9,7 @@ public interface WebClientService {
      * @param usernameAttr the name of the query attribute that contains the username
      * @param passwordAttr the name of the query attribute that contains the password
      * @param websiteCredentials the credentials (username and password)
-     * @return
+     * @return the cookies returned by the response as a single String
      */
     String loginAndGetCookie(String url, String usernameAttr, String passwordAttr, WebsiteCredentials websiteCredentials);
 
