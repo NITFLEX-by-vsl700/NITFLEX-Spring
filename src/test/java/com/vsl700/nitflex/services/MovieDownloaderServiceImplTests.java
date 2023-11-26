@@ -106,4 +106,22 @@ public class MovieDownloaderServiceImplTests {
         movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent");
     }
 
+    @Test
+    public void downloadFromTorrentFilePath_ReturnString_Test() {
+        String actual = movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent");
+        assertThat(actual).isEqualTo("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW");
+    }
+
+    @Test
+    public void downloadFromTorrentFilePath_ReturnString_Test2() {
+        String actual = movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi.torrent");
+        assertThat(actual).isEqualTo("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara");
+    }
+
+    @Test
+    public void downloadFromTorrentFilePath_ReturnString_Test3() {
+        String actual = movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265.torrent");
+        assertThat(actual).isEqualTo("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265");
+    }
+
 }

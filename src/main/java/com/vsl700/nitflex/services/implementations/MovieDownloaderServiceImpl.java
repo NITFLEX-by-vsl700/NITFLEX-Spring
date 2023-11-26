@@ -41,7 +41,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
 
     @SneakyThrows
     @Override
-    public void downloadFromPageURL(String pageUrl) { // Zamunda.NET implementation
+    public String downloadFromPageURL(String pageUrl) { // Zamunda.NET implementation
         LOG.info("Downloading from URL: '%s'".formatted(pageUrl));
 
         // Login and get necessary cookie
@@ -87,16 +87,18 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
         LOG.info(".TORRENT file downloaded!");
 
         // Start downloading with the new torrent file
-        downloadFromTorrentFilePath(torrentFilePath.toString());
+        return downloadFromTorrentFilePath(torrentFilePath.toString());
     }
 
     @Override
-    public void downloadFromTorrentFilePath(String torrentFilePath) {
+    public String downloadFromTorrentFilePath(String torrentFilePath) {
         var client = createClient(torrentFilePath);
         client.download();
 
         client.waitForCompletion();
         client.stop();
+
+        String resultMovieFolder = Path.of(sharedProperties.getMoviesFolder(), client.getTorrent().getName()).toString();
 
         // If the torrent was a 'single-file' and the downloaded video file is in the parent folder, we should move it
         // from the parent folder and put it in its own folder (following the MovieLoaderService's policy)
@@ -105,7 +107,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
                     .stream().findFirst().orElseThrow();
 
             if(Path.of(fileName).getNameCount() > 1)
-                return;
+                return resultMovieFolder;
 
             // If the video file is not in its own folder
             String movieFolderName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -122,7 +124,11 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
+            resultMovieFolder = movieFolder.getAbsolutePath();
         }
+
+        return resultMovieFolder;
     }
 
     @SneakyThrows
