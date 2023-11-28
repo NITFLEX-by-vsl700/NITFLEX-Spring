@@ -69,7 +69,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         // Create Movie object
         String relativePath = pathRelativizer
                 .apply(sharedProperties.getMoviesFolder(), path);
-        String name = relativePath.substring(relativePath.lastIndexOf("\\") + 1);
+        String name = Paths.get(relativePath).getFileName().toString();
         long size = getFilesSize(path);
         Movie movie = new Movie(name, type, relativePath, size);
         movie.setRequester(requester);

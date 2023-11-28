@@ -85,8 +85,8 @@ public class MovieLoaderServiceImplLoadAllTests {
     public void loadNewlyAdded_test(){
         service.loadNewlyAdded();
 
-        assertThat(movies.size()).isEqualTo(34);
-        assertThat(episodes.size()).isEqualTo(147);
+        assertThat(movies.size()).isEqualTo(38);
+        assertThat(episodes.size()).isEqualTo(148);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class MovieLoaderServiceImplLoadAllTests {
 
         service.unloadNonExisting();
 
-        assertThat(movies.size()).isEqualTo(34);
+        assertThat(movies.size()).isEqualTo(38);
         assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 
@@ -144,7 +144,7 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.unloadNonExisting();
         service.loadNewlyAdded();
 
-        assertThat(movies.size()).isEqualTo(34);
+        assertThat(movies.size()).isEqualTo(38);
         assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 
@@ -164,7 +164,7 @@ public class MovieLoaderServiceImplLoadAllTests {
 
         service.loadNewlyAdded();
 
-        assertThat(movies.size()).isEqualTo(34);
+        assertThat(movies.size()).isEqualTo(38);
         assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 
@@ -203,7 +203,7 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.loadNewlyAdded();
         service.unloadNonExisting();
 
-        assertThat(movies.size()).isEqualTo(34);
+        assertThat(movies.size()).isEqualTo(38);
         assertThat(episodes.size()).isEqualTo(episodesSize);
     }
 }
