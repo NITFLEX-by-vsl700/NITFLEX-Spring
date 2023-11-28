@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,6 +118,19 @@ public class JsoupTests {
         for (Element headline : newsHeadlines) {
             System.out.printf("%s\n\t%s%n", headline.attr("title"), headline.absUrl("href"));
         }
+    }
+
+    @Test
+    @Disabled
+    public void findElementByCSSSelector3_URL_Test() {
+        String html = getZamundaContentsViaWebClient("https://zamunda.net/bananas");
+        Document doc = Jsoup.parse(html);
+        System.out.println(doc.title());
+        Elements table = doc.select("#div1 > table > tbody > tr");
+        table.stream().skip(1).forEach(e ->
+                System.out.println(Objects.requireNonNull(e.selectFirst("td:nth-child(2) > a > b")).text()));
+
+        assertThat(table.size()).isEqualTo(11);
     }
 
 }
