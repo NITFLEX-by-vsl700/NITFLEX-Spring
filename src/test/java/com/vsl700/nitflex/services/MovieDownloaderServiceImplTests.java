@@ -14,6 +14,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
 
+import java.io.File;
+import java.net.URI;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -63,10 +65,10 @@ public class MovieDownloaderServiceImplTests {
         doAnswer((invocation) -> {
             flag.set(true);
             return null;
-        }).when(movieDownloaderService).downloadFromTorrentFilePath(anyString());
+        }).when(movieDownloaderService).downloadFromTorrentFilePath(any());
 
         assertDoesNotThrow(() ->
-                movieDownloaderService.downloadFromPageURL(url));
+                movieDownloaderService.downloadFromPageURL(new URI(url)));
 
         assertThat(flag.get()).isTrue();
     }
@@ -74,7 +76,7 @@ public class MovieDownloaderServiceImplTests {
     @Test
     public void downloadFromPageURL_Full_Test() {
         assertDoesNotThrow(() ->
-                movieDownloaderService.downloadFromPageURL("https://zamunda.net/banan?id=747087&hit=1&t=movie"));
+                movieDownloaderService.downloadFromPageURL(new URI("https://zamunda.net/banan?id=747087&hit=1&t=movie")));
     }
 
     @ParameterizedTest
@@ -82,45 +84,45 @@ public class MovieDownloaderServiceImplTests {
             "D:\\Videos\\Torrent Test\\The.Creator.2023.1080p.AMZN.WEB-DL.DDP5.1.H.264-LessConfusingThanTenet.mkv.torrent",
             "D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent"})
     public void downloadFromTorrentFilePath_Test(String path) {
-        movieDownloaderService.downloadFromTorrentFilePath(path);
+        movieDownloaderService.downloadFromTorrentFilePath(new File(path));
     }
 
     @Test
     public void downloadFromTorrentFilePath_singleFile_inParentFolder_Test() {
-        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Creator.2023.1080p.AMZN.WEB-DL.DDP5.1.H.264-LessConfusingThanTenet.mkv.torrent");
+        movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\The.Creator.2023.1080p.AMZN.WEB-DL.DDP5.1.H.264-LessConfusingThanTenet.mkv.torrent"));
     }
 
     @Test
     public void downloadFromTorrentFilePath_singleFile_inParentFolder_Test2() {
-        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi.torrent");
+        movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi.torrent"));
     }
 
     @Test
     public void downloadFromTorrentFilePath_singleFile_inItsOwnFolder_Test() {
-        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265.torrent");
+        movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265.torrent"));
     }
 
     // Download the Movie with the least size to speed up testing
     @Test
     public void downloadFromTorrentFilePath_ShortDownload_Test() {
-        movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent");
+        movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent"));
     }
 
     @Test
     public void downloadFromTorrentFilePath_ReturnString_Test() {
-        String actual = movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent");
+        String actual = movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW.torrent"));
         assertThat(actual).isEqualTo("D:\\Videos\\Torrent Test\\The.Killer.2023.WEB.H264-RAW");
     }
 
     @Test
     public void downloadFromTorrentFilePath_ReturnString_Test2() {
-        String actual = movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi.torrent");
+        String actual = movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi.torrent"));
         assertThat(actual).isEqualTo("D:\\Videos\\Torrent Test\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara");
     }
 
     @Test
     public void downloadFromTorrentFilePath_ReturnString_Test3() {
-        String actual = movieDownloaderService.downloadFromTorrentFilePath("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265.torrent");
+        String actual = movieDownloaderService.downloadFromTorrentFilePath(new File("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265.torrent"));
         assertThat(actual).isEqualTo("D:\\Videos\\Torrent Test\\Baby.Driver.2017.1080p.Bluray.x265");
     }
 

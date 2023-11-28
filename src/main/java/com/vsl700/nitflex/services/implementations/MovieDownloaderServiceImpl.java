@@ -41,8 +41,8 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
 
     @SneakyThrows
     @Override
-    public String downloadFromPageURL(String pageUrl) { // Zamunda.NET implementation
-        LOG.info("Downloading from URL: '%s'".formatted(pageUrl));
+    public String downloadFromPageURL(URI page) { // Zamunda.NET implementation
+        LOG.info("Downloading from URL: '%s'".formatted(page));
 
         // Login and get necessary cookie
         LOG.info("Logging in as '%s'...".formatted(zamundaCredentials.getUsername()));
@@ -57,9 +57,9 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
 
         // Look for the .torrent file download link
         LOG.info("Looking for the .TORRENT file download link...");
-        URI tempURI = new URI(pageUrl);
-        String scheme = tempURI.getScheme();
-        String host = tempURI.getHost();
+        String pageUrl = page.toString();
+        String scheme = page.getScheme();
+        String host = page.getHost();
         String downloadLinkPath = null;
         String torrentFileName;
         do { // While we are not at the page with the .torrent file download link
@@ -87,12 +87,12 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
         LOG.info(".TORRENT file downloaded!");
 
         // Start downloading with the new torrent file
-        return downloadFromTorrentFilePath(torrentFilePath.toString());
+        return downloadFromTorrentFilePath(torrentFilePath.toFile());
     }
 
     @Override
-    public String downloadFromTorrentFilePath(String torrentFilePath) {
-        var client = createClient(torrentFilePath);
+    public String downloadFromTorrentFilePath(File torrentFile) {
+        var client = createClient(torrentFile);
         client.download();
 
         client.waitForCompletion();
@@ -132,7 +132,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
     }
 
     @SneakyThrows
-    private Client createClient(String torrentFilePath){
+    private Client createClient(File torrentFile){
         File parentDir = new File(sharedProperties.getMoviesFolder());
         if(!parentDir.exists() && !parentDir.mkdir()) {
             // TODO: Add custom exception
@@ -140,7 +140,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
         }
 
         return new Client(InetAddress.getLocalHost(), SharedTorrent.fromFile(
-                new File(torrentFilePath),
+                torrentFile,
                 parentDir
         ));
     }
