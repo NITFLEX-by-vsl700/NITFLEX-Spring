@@ -13,4 +13,5 @@ public class SharedProperties {
     private String moviesFolder;
     private int downloadInterval;
     private String movieRequestPrivilege;
+    private int movieSizeLimit;
 }
