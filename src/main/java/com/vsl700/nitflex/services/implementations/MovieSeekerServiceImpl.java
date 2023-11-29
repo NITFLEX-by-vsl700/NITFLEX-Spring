@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.services.implementations;
 
+import com.vsl700.nitflex.components.InitialMoviesLoader;
 import com.vsl700.nitflex.components.WebsiteCredentials;
 import com.vsl700.nitflex.services.MovieSeekerService;
 import com.vsl700.nitflex.services.WebClientService;
@@ -7,17 +8,18 @@ import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.util.List;
+import java.net.URL;
 import java.util.Objects;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class MovieSeekerServiceImpl implements MovieSeekerService {
     private WebClientService webClientService;
     private WebsiteCredentials.Zamunda zamundaCredentials;
+
+    private static final Logger LOG = LoggerFactory.getLogger(MovieSeekerServiceImpl.class);
 
     private static final String zamundaURL = "https://zamunda.net";
     private static final String zamundaCatalogURL = "https://zamunda.net/bananas";
@@ -30,7 +32,9 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
 
     @SneakyThrows
     @Override
-    public URI findMovieURL() {
+    public URL findMovieURL() {
+        // Login and get necessary cookie
+        LOG.info("Logging in as '%s'...".formatted(zamundaCredentials.getUsername()));
         String cookie = webClientService.loginAndGetCookie(zamundaLoginPage,
                 "username",
                 "password",
@@ -38,19 +42,28 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
         if(!cookie.contains("uid")) // TODO: Add custom exception
             throw new RuntimeException("Login failed!");
 
+        LOG.info("Login successful!");
+
+        // Load the Zamunda Top10 torrents table
+        LOG.info("Looking for a movie to download...");
         String html = webClientService.getWebsiteContents(zamundaCatalogURL, cookie);
         Document doc = Jsoup.parse(html);
         var tableContentTableRows = doc.select("#div1 > table > tbody > tr").stream().skip(1).map(TableRow::new);
 
+        // Filter out the table elements that don't meet the system's requirements
         var filtered = tableContentTableRows
                 .filter(t -> t.typeOk) // Torrent type filter
                 // TODO Add more filters for the other restrictions
                 .toList();
 
+        // Pick a random torrent from the filtered table
         TableRow chosenMovieTableRow = filtered.stream()
                 .toList().get(new Random().nextInt(filtered.size()));
+        URL url = new URL(zamundaURL + chosenMovieTableRow.link);
+        LOG.info("And we have a winner! ( %s )".formatted(url));
 
-        return new URI(zamundaURL + chosenMovieTableRow.link);
+        // Return the torrent's review page link
+        return url;
     }
 
     private static class TableRow {

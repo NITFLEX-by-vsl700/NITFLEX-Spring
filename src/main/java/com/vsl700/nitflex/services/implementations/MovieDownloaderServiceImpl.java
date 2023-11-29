@@ -11,14 +11,14 @@ import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URI;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,7 +29,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
     private SharedProperties sharedProperties;
     private WebsiteCredentials.Zamunda zamundaCredentials;
 
-    private static final Logger LOG = LoggerFactory.getLogger(InitialMoviesLoader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MovieDownloaderServiceImpl.class);
 
     private static final String zamundaLoginPage = "https://zamunda.net/takelogin.php";
 
@@ -41,7 +41,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
 
     @SneakyThrows
     @Override
-    public String downloadFromPageURL(URI page) { // Zamunda.NET implementation
+    public String downloadFromPageURL(URL page) { // Zamunda.NET implementation
         LOG.info("Downloading from URL: '%s'".formatted(page));
 
         // Login and get necessary cookie
@@ -58,7 +58,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
         // Look for the .torrent file download link
         LOG.info("Looking for the .TORRENT file download link...");
         String pageUrl = page.toString();
-        String scheme = page.getScheme();
+        String scheme = page.getProtocol();
         String host = page.getHost();
         String downloadLinkPath = null;
         String torrentFileName;

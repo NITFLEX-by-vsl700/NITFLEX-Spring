@@ -11,10 +11,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.net.URI;
+import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static reactor.core.publisher.Mono.when;
 
 @Disabled
 @ExtendWith(MockitoExtension.class)
@@ -38,7 +37,7 @@ public class MovieSeekerServiceImplTests {
     @Test
     public void doesNotThrow_Test(){
         assertDoesNotThrow(() -> {
-            URI link = movieSeekerService.findMovieURL();
+            URL link = movieSeekerService.findMovieURL();
             System.out.println(link);
         });
     }

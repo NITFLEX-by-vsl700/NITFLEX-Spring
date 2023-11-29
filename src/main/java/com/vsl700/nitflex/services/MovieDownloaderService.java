@@ -1,7 +1,7 @@
 package com.vsl700.nitflex.services;
 
 import java.io.File;
-import java.net.URI;
+import java.net.URL;
 import java.util.function.Consumer;
 
 public interface MovieDownloaderService {
@@ -11,7 +11,7 @@ public interface MovieDownloaderService {
      * @param onDownloadFinished the method to be invoked after movie download completes. Arguments accepted:<br>
      *                           <li> movieFolder - the just-downloaded movie's folder (absolute path)
      */
-    default void downloadFromPageURLAsync(URI pageUrl, Consumer<String> onDownloadFinished){
+    default void downloadFromPageURLAsync(URL pageUrl, Consumer<String> onDownloadFinished){
         new Thread(() -> {
             String movieFolder = downloadFromPageURL(pageUrl);
             onDownloadFinished.accept(movieFolder);
@@ -23,7 +23,7 @@ public interface MovieDownloaderService {
      * @param pageUrl the URL of the movie page
      * @return the full path to the newly downloaded movie
      */
-    String downloadFromPageURL(URI pageUrl);
+    String downloadFromPageURL(URL pageUrl);
 
     /**
      * Downloads a movie from the given torrent file at the specified path asynchronously, and then invokes the

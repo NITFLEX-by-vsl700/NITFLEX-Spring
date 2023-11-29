@@ -15,12 +15,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
 
 import java.io.File;
-import java.net.URI;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @Disabled
@@ -68,7 +67,7 @@ public class MovieDownloaderServiceImplTests {
         }).when(movieDownloaderService).downloadFromTorrentFilePath(any());
 
         assertDoesNotThrow(() ->
-                movieDownloaderService.downloadFromPageURL(new URI(url)));
+                movieDownloaderService.downloadFromPageURL(new URL(url)));
 
         assertThat(flag.get()).isTrue();
     }
@@ -76,7 +75,7 @@ public class MovieDownloaderServiceImplTests {
     @Test
     public void downloadFromPageURL_Full_Test() {
         assertDoesNotThrow(() ->
-                movieDownloaderService.downloadFromPageURL(new URI("https://zamunda.net/banan?id=747087&hit=1&t=movie")));
+                movieDownloaderService.downloadFromPageURL(new URL("https://zamunda.net/banan?id=747087&hit=1&t=movie")));
     }
 
     @ParameterizedTest

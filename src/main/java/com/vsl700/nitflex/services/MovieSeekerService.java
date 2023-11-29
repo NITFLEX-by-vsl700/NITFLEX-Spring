@@ -1,6 +1,6 @@
 package com.vsl700.nitflex.services;
 
-import java.net.URI;
+import java.net.URL;
 
 /**
  * Looks for a new Movie to be downloaded
@@ -8,7 +8,7 @@ import java.net.URI;
 public interface MovieSeekerService {
     /**
      * Looks for a new Movie to be downloaded and returns the URL to its page
-     * @return the link to a new movie's page
+     * @return the address to a new movie's page
      */
-    URI findMovieURL();
+    URL findMovieURL();
 }
