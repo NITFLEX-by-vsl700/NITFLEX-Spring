@@ -5,6 +5,10 @@ import com.turn.ttorrent.client.SharedTorrent;
 import com.vsl700.nitflex.components.InitialMoviesLoader;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.components.WebsiteCredentials;
+import com.vsl700.nitflex.exceptions.InvalidDownloadPageException;
+import com.vsl700.nitflex.exceptions.InvalidTorrentException;
+import com.vsl700.nitflex.exceptions.MovieTorrentingException;
+import com.vsl700.nitflex.exceptions.WebClientLoginException;
 import com.vsl700.nitflex.services.MovieDownloaderService;
 import com.vsl700.nitflex.services.WebClientService;
 import lombok.SneakyThrows;
@@ -52,8 +56,8 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
                 "username",
                 "password",
                 zamundaCredentials);
-        if(!cookie.contains("uid")) // TODO: Add custom exception
-            throw new RuntimeException("Login failed!");
+        if(!cookie.contains("uid"))
+            throw new WebClientLoginException();
 
         LOG.info("Login successful!");
 
@@ -76,7 +80,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
                 String[] sizeStrParts = sizeStr.split(" ");
                 float size = sizeStrParts[1].equals("MB") ? Float.parseFloat(sizeStrParts[0]) / 1024 : Float.parseFloat(sizeStrParts[0]);
                 if(sharedProperties.getMovieSizeLimit() != -1 && size > sharedProperties.getMovieSizeLimit())
-                    throw new RuntimeException("Requested movie exceeds the size limit!"); // TODO: Add custom exception
+                    throw new InvalidTorrentException("Requested movie exceeds the size limit!");
 
                 // Type check
                 String typeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(8) > td:nth-child(2)"))
@@ -94,14 +98,14 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
                     case "Филми/Документални":
                     case "Blu-ray":
                     case "Филми/3D": break;
-                    default: throw new RuntimeException("Invalid torrent type! (%s)".formatted(typeStr)); // TODO: Add custom exception
+                    default: throw new InvalidTorrentException("Invalid torrent type: '%s'".formatted(typeStr));
                 }
             }
 
             // Find the download link
             Element downloadLinkElement = doc.selectFirst("a.index.notranslate");
             if(downloadLinkElement == null)
-                throw new RuntimeException("Invalid download page!"); // TODO: Add custom exception (InvalidDownloadPageException)
+                throw new InvalidDownloadPageException();
             torrentFileName = "%s.torrent".formatted(downloadLinkElement.text());
             downloadLinkPath = downloadLinkElement.attr("href");
             if(!downloadLinkPath.startsWith("/"))
@@ -149,8 +153,8 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
             File parentDir = new File(sharedProperties.getMoviesFolder());
 
             File movieFolder = new File(parentDir, movieFolderName);
-            if (!movieFolder.mkdir()) // TODO: Add custom exception
-                throw new RuntimeException("Folder %s could not be created!".formatted(movieFolder.getAbsolutePath()));
+            if (!movieFolder.mkdir())
+                throw new MovieTorrentingException("Folder %s could not be created!".formatted(movieFolder.getAbsolutePath()));
 
             File targetFile = new File(parentDir, fileName);
             try {
@@ -169,8 +173,7 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
     private Client createClient(File torrentFile){
         File parentDir = new File(sharedProperties.getMoviesFolder());
         if(!parentDir.exists() && !parentDir.mkdir()) {
-            // TODO: Add custom exception
-            throw new RuntimeException("Access to %s denied!".formatted(parentDir.getAbsolutePath()));
+            throw new MovieTorrentingException("Access to %s denied!".formatted(parentDir.getAbsolutePath()));
         }
 
         return new Client(InetAddress.getLocalHost(), SharedTorrent.fromFile(

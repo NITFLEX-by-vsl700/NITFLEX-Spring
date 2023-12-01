@@ -2,6 +2,8 @@ package com.vsl700.nitflex.services.implementations;
 
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.components.WebsiteCredentials;
+import com.vsl700.nitflex.exceptions.OutOfLuckException;
+import com.vsl700.nitflex.exceptions.WebClientLoginException;
 import com.vsl700.nitflex.services.MovieSeekerService;
 import com.vsl700.nitflex.services.WebClientService;
 import lombok.SneakyThrows;
@@ -44,8 +46,8 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
                 "username",
                 "password",
                 zamundaCredentials);
-        if(!cookie.contains("uid")) // TODO: Add custom exception
-            throw new RuntimeException("Login failed!");
+        if(!cookie.contains("uid"))
+            throw new WebClientLoginException();
 
         LOG.info("Login successful!");
 
@@ -67,8 +69,8 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
                 .toList();
 
         // Pick a random torrent from the filtered table
-        if(filtered.isEmpty()) // TODO: Add custom exception
-            throw new RuntimeException("Could not pick a movie to download :( (html: %s)".formatted(html));
+        if(filtered.isEmpty())
+            throw new OutOfLuckException("Could not pick a movie to download :( (html: %s)".formatted(html));
 
         TableRow chosenMovieTableRow = filtered.stream()
                 .toList().get(new Random().nextInt(filtered.size()));
@@ -78,7 +80,7 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
         chosenMovieTableRow = filtered.stream()
                 .filter(t -> t.name.equals(chosenMovieTorrentName)) // Get equivalent torrents (table elements with the same names)
                 .max((t1, t2) -> Float.compare(t1.size, t2.size)) // Get the torrent with the best quality (largest size)
-                .orElseThrow(); // TODO: Add custom exception
+                .orElseThrow();
 
         URL url = new URL(zamundaURL + chosenMovieTableRow.link);
         LOG.info("And we have a winner! ( %s )".formatted(url));

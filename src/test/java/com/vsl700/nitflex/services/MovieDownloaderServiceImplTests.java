@@ -2,6 +2,7 @@ package com.vsl700.nitflex.services;
 
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.components.WebsiteCredentials;
+import com.vsl700.nitflex.exceptions.InvalidTorrentException;
 import com.vsl700.nitflex.services.implementations.MovieDownloaderServiceImpl;
 import com.vsl700.nitflex.services.implementations.WebClientServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,12 +102,14 @@ public class MovieDownloaderServiceImplTests {
         doReturn(15).when(sharedProperties).getMovieSizeLimit();
 
         // Assert
-        assertThrows(RuntimeException.class, () ->
+        assertThrows(InvalidTorrentException.class, () ->
                 movieDownloaderService.downloadFromPageURL(new URL("https://zamunda.net/banan?id=747087&hit=1&t=movie"))); // 20GB
     }
 
     @Test
     public void downloadFromPageURL_Full_Test() {
+        doReturn(-1).when(sharedProperties).getMovieSizeLimit();
+
         assertDoesNotThrow(() ->
                 movieDownloaderService.downloadFromPageURL(new URL("https://zamunda.net/banan?id=747087&hit=1&t=movie")));
     }
