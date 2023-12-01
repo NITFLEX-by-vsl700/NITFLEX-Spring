@@ -12,6 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.net.URL;
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Service
 public class MovieSeekerServiceImpl implements MovieSeekerService {
     private WebClientService webClientService;
     private WebsiteCredentials.Zamunda zamundaCredentials;
