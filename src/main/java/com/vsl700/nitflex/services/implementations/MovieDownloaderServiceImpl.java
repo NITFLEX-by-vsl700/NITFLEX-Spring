@@ -19,9 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 @Service
 public class MovieDownloaderServiceImpl implements MovieDownloaderService {
@@ -63,11 +65,43 @@ public class MovieDownloaderServiceImpl implements MovieDownloaderService {
         String downloadLinkPath = null;
         String torrentFileName;
         do { // While we are not at the page with the .torrent file download link
-            String html = webClientService.getWebsiteContents(downloadLinkPath == null ? pageUrl : scheme + "://" + host + downloadLinkPath, cookie);
+            String html = webClientService.getWebsiteContents(downloadLinkPath == null ? pageUrl : scheme + "://" + host + downloadLinkPath, cookie, Charset.forName("windows-1251"));
             Document doc = Jsoup.parse(html);
-            Element downloadLinkElement = doc.selectFirst("a.index.notranslate");
 
-            assert downloadLinkElement != null;
+            // If this is the first iteration, check torrent type (whether it's a movie) & movie size
+            if(downloadLinkPath == null){
+                // Size check
+                String sizeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(12) > td:nth-child(2)"))
+                        .text();
+                String[] sizeStrParts = sizeStr.split(" ");
+                float size = sizeStrParts[1].equals("MB") ? Float.parseFloat(sizeStrParts[0]) / 1024 : Float.parseFloat(sizeStrParts[0]);
+                if(sharedProperties.getMovieSizeLimit() != -1 && size > sharedProperties.getMovieSizeLimit())
+                    throw new RuntimeException("Requested movie exceeds the size limit!"); // TODO: Add custom exception
+
+                // Type check
+                String typeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(8) > td:nth-child(2)"))
+                        .text();
+                switch (typeStr){
+                    case "Филми/SD":
+                    case "Филми/HD":
+                    case "Анимации/Аниме":
+                    case "Сериали":
+                    case "Сериали/HD":
+                    case "Сериали/Русия":
+                    case "Филми/DVD-R":
+                    case "Филми/Русия":
+                    case "Филми/БГ":
+                    case "Филми/Документални":
+                    case "Blu-ray":
+                    case "Филми/3D": break;
+                    default: throw new RuntimeException("Invalid torrent type! (%s)".formatted(typeStr)); // TODO: Add custom exception
+                }
+            }
+
+            // Find the download link
+            Element downloadLinkElement = doc.selectFirst("a.index.notranslate");
+            if(downloadLinkElement == null)
+                throw new RuntimeException("Invalid download page!"); // TODO: Add custom exception (InvalidDownloadPageException)
             torrentFileName = "%s.torrent".formatted(downloadLinkElement.text());
             downloadLinkPath = downloadLinkElement.attr("href");
             if(!downloadLinkPath.startsWith("/"))

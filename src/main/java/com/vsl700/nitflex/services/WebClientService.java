@@ -2,6 +2,8 @@ package com.vsl700.nitflex.services;
 
 import com.vsl700.nitflex.components.WebsiteCredentials;
 
+import java.nio.charset.Charset;
+
 public interface WebClientService {
     /**
      * Performs a post request to the specified url and returns the cookies as a single String
@@ -20,6 +22,18 @@ public interface WebClientService {
      * @return response body content as a String
      */
     String getWebsiteContents(String url, String cookie);
+
+    /**
+     * Makes a request to the specified url and returns its response body as a String in the specified charset.
+     * Convenient when parsing HTML with charset different from UTF-8 (like Windows-1251)
+     * @param url
+     * @param cookie
+     * @param charset the charset of the website contents
+     * @return response body content as a specifically encoded String
+     */
+    default String getWebsiteContents(String url, String cookie, Charset charset){
+        return new String(getContentsAsByteArray(url, cookie), charset);
+    }
 
     /**
      * Makes a request to the specified url and returns its response body as a byte array.

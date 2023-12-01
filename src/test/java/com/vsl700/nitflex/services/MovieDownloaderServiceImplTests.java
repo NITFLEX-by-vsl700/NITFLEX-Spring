@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @Disabled
@@ -55,21 +56,53 @@ public class MovieDownloaderServiceImplTests {
         //doNothing().when(movieDownloaderService).downloadFromTorrentFilePath(anyString());
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"https://zamunda.net/banan?id=747087&hit=1&t=movie",
-                            "https://zamunda.net/banan?id=747384&hit=1&t=movie",
-                            "https://zamunda.net/banan?id=747134&hit=1&t=movie"})
-    public void downloadFromPageURL_Only_Test(String url){
+    @Test
+    public void downloadFromPageURL_Only_Test(){
+        // Setup
         AtomicBoolean flag = new AtomicBoolean(false);
         doAnswer((invocation) -> {
             flag.set(true);
             return null;
         }).when(movieDownloaderService).downloadFromTorrentFilePath(any());
 
+        doReturn(-1).when(sharedProperties).getMovieSizeLimit();
+
+        // Assert
+        assertDoesNotThrow(() ->
+                movieDownloaderService.downloadFromPageURL(new URL("https://zamunda.net/banan?id=747087&hit=1&t=movie")));
+
+        assertThat(flag.get()).isTrue();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"https://zamunda.net/banan?id=747087&hit=1&t=movie",
+                            "https://zamunda.net/banan?id=747384&hit=1&t=movie",
+                            "https://zamunda.net/banan?id=747134&hit=1&t=movie"})
+    public void downloadFromPageURL_Only_RepeatedTest(String url){
+        // Setup
+        AtomicBoolean flag = new AtomicBoolean(false);
+        doAnswer((invocation) -> {
+            flag.set(true);
+            return null;
+        }).when(movieDownloaderService).downloadFromTorrentFilePath(any());
+
+        doReturn(-1).when(sharedProperties).getMovieSizeLimit();
+
+        // Assert
         assertDoesNotThrow(() ->
                 movieDownloaderService.downloadFromPageURL(new URL(url)));
 
         assertThat(flag.get()).isTrue();
+    }
+
+    @Test
+    public void downloadFromPageURL_Only_Throws_MovieSize_Test(){
+        // Setup
+        doReturn(15).when(sharedProperties).getMovieSizeLimit();
+
+        // Assert
+        assertThrows(RuntimeException.class, () ->
+                movieDownloaderService.downloadFromPageURL(new URL("https://zamunda.net/banan?id=747087&hit=1&t=movie"))); // 20GB
     }
 
     @Test

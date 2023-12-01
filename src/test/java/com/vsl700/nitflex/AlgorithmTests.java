@@ -3,8 +3,13 @@ package com.vsl700.nitflex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AlgorithmTests {
 
@@ -115,6 +120,14 @@ public class AlgorithmTests {
         }
 
         return matches;
+    }
+
+    @Test
+    public void stringComparing_differentCharsets_Test(){
+        String utf8Str = new String("привет".getBytes(), StandardCharsets.UTF_8);
+        String win1251Str = new String("привет".getBytes(Charset.forName("windows-1251")), Charset.forName("windows-1251"));
+
+        assertEquals(utf8Str, win1251Str);
     }
 
 }

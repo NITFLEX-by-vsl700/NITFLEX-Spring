@@ -111,24 +111,27 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
 
             link = Objects.requireNonNull(element.selectFirst("td:nth-child(2) > a")).attr("href");
 
-            size = Float.parseFloat(
-                    Objects.requireNonNull(element.selectFirst("td:nth-child(4)"))
-                            .text().split(" ")[0] // i.e. "2.40 GB" will turn into {"2.40", "GB"}, and we'll take the number
-            );
+            String[] strs = Objects.requireNonNull(element.selectFirst("td:nth-child(4)"))
+                    .text().split(" "); // i.e. "2.40 GB" will turn into {"2.40", "GB"},
+                                              // and we'll take the number for the 'size'.
+                                              // Also, if it's in MB we'll turn it into GB
+            size = strs[1].equals("MB") ? Float.parseFloat(strs[0]) / 1024 : Float.parseFloat(strs[0]);
 
             String typeImgSrc = Objects.requireNonNull(element.selectFirst("td:nth-child(1) > img"))
                     .attr("src");
 
-            typeOk = typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_sd.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movs_hdtv.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_dvdr.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_xvidrus.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_episodes_tveps.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_episodes_tveps_hd.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_3d.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_science.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_anime_anime.gif")
-                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_bluray.gif");
+            typeOk = typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_sd.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_movies_sd.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movs_hdtv.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_movs_hdtv.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_dvdr.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_movies_dvdr.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_xvidrus.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_movies_xvidrus.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_xvidbg.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_movies_xvidbg.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_episodes_tveps.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_episodes_tveps.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_episodes_tveps_hd.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_episodes_tveps_hd.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_3d.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_3d.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_movies_science.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_movies_science.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_anime_anime.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_anime_anime.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_bluray.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_bluray.gif")
+                    || typeImgSrc.equals("https://zamunda.net/pic/img/pic/cat_episodes_tveps_rus.gif") || typeImgSrc.equals("https://zamunda.net/pic/pic/cat_episodes_tveps_rus.gif");
         }
     }
 }
