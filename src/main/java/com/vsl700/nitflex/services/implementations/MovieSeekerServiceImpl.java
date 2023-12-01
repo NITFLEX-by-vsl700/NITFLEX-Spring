@@ -57,8 +57,8 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
         LOG.info("Looking for a movie to download...");
         String html = webClientService.getWebsiteContents(zamundaCatalogURL, cookie);
         Document doc = Jsoup.parse(html);
-        var tableContentTableRows = doc.select("#div1 > table > tbody > tr").stream().
-                skip(1) // Skip the table's header
+        var tableContentTableRows = doc.select("#div1 > table > tbody > tr").stream()
+                .skip(1) // Skip the table's header
                 .map(TableRow::new)
                 .toList();
 
