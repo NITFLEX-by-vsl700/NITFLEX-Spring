@@ -3,8 +3,13 @@ package com.vsl700.nitflex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AlgorithmTests {
 
@@ -62,11 +67,11 @@ public class AlgorithmTests {
 
     @Test
     public void episodeRegex_Test6(){
-        String seasonEpisode1 = "S102E109";
-        String seasonEpisode2 = "S02E10";
-        String seasonEpisode3 = "S02E1004";
+        String seasonEpisode1 = "fdsafsda S102E109";
+        String seasonEpisode2 = "fdsaS02E10";
+        String seasonEpisode3 = "fdsaaS02E1004";
 
-        String regex = "S[0-9]+E[0-9]+"; // '\\d' instead of '[0-9]' also works!
+        String regex = "S\\d+E\\d+"; // '\\d' instead of '[0-9]' also works!
 
         int matches1 = regexMatches(regex, seasonEpisode1);
         int matches2 = regexMatches(regex, seasonEpisode2);
@@ -76,6 +81,25 @@ public class AlgorithmTests {
             Assertions.assertEquals(1, matches1);
             Assertions.assertEquals(1, matches2);
             Assertions.assertEquals(1, matches3);
+        });
+    }
+
+    @Test
+    public void episodeRegex_String_matches_Test(){
+        String seasonEpisode1 = "fdsaf S102E109";
+        String seasonEpisode2 = "fdsS02E10";
+        String seasonEpisode3 = "fdsaS02E1004";
+
+        String regex = "S\\d+E\\d+"; // '\\d' instead of '[0-9]' also works!
+
+        boolean matches1 = seasonEpisode1.matches(regex);
+        boolean matches2 = seasonEpisode2.matches(regex);
+        boolean matches3 = seasonEpisode3.matches(regex);
+
+        Assertions.assertAll(() -> {
+            Assertions.assertFalse(matches1);
+            Assertions.assertFalse(matches2);
+            Assertions.assertFalse(matches3);
         });
     }
 
@@ -96,6 +120,14 @@ public class AlgorithmTests {
         }
 
         return matches;
+    }
+
+    @Test
+    public void stringComparing_differentCharsets_Test(){
+        String utf8Str = new String("привет".getBytes(), StandardCharsets.UTF_8);
+        String win1251Str = new String("привет".getBytes(Charset.forName("windows-1251")), Charset.forName("windows-1251"));
+
+        assertEquals(utf8Str, win1251Str);
     }
 
 }
