@@ -1,6 +1,7 @@
 package com.vsl700.nitflex.services;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.function.Consumer;
 
 public interface URLMovieDownloaderService {
@@ -10,10 +11,10 @@ public interface URLMovieDownloaderService {
      * @param onDownloadFinished the method to be invoked after movie download completes. Arguments accepted:<br>
      *                           <li> movieFolder - the just-downloaded movie's folder (absolute path)
      */
-    default void downloadFromPageURLAsync(URL pageUrl, Consumer<String> onDownloadFinished){
+    default void downloadFromPageURLAsync(URL pageUrl, Consumer<Path> onDownloadFinished){
         new Thread(() -> {
-            String movieFolder = downloadFromPageURL(pageUrl);
-            onDownloadFinished.accept(movieFolder);
+            Path movieFolderPath = downloadFromPageURL(pageUrl);
+            onDownloadFinished.accept(movieFolderPath);
         }).start();
     }
 
@@ -22,5 +23,5 @@ public interface URLMovieDownloaderService {
      * @param pageUrl the URL of the movie page
      * @return the full path to the newly downloaded movie
      */
-    String downloadFromPageURL(URL pageUrl);
+    Path downloadFromPageURL(URL pageUrl);
 }

@@ -43,7 +43,7 @@ public class URLMovieDownloaderServiceImpl implements URLMovieDownloaderService 
 
     @SneakyThrows
     @Override
-    public String downloadFromPageURL(URL page) { // Zamunda.NET implementation
+    public Path downloadFromPageURL(URL page) { // Zamunda.NET implementation
         LOG.info("Downloading from URL: '%s'".formatted(page));
 
         // Login and get necessary cookie
@@ -121,6 +121,6 @@ public class URLMovieDownloaderServiceImpl implements URLMovieDownloaderService 
         LOG.info(".TORRENT file downloaded!");
 
         // Start downloading with the new torrent file
-        return torrentMovieDownloaderService.downloadFromTorrentFilePath(torrentFilePath.toFile());
+        return torrentMovieDownloaderService.downloadFromTorrentFilePath(torrentFilePath);
     }
 }

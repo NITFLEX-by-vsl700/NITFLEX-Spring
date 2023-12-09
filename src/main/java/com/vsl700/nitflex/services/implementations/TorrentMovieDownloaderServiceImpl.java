@@ -23,14 +23,14 @@ public class TorrentMovieDownloaderServiceImpl implements TorrentMovieDownloader
     }
 
     @Override
-    public String downloadFromTorrentFilePath(File torrentFile) {
-        var client = createClient(torrentFile);
+    public Path downloadFromTorrentFilePath(Path torrentFilePath) {
+        var client = createClient(torrentFilePath);
         client.download();
 
         client.waitForCompletion();
         client.stop();
 
-        String resultMovieFolder = Path.of(sharedProperties.getMoviesFolder(), client.getTorrent().getName()).toString();
+        Path resultMovieFolder = Path.of(sharedProperties.getMoviesFolder(), client.getTorrent().getName());
 
         // If the torrent was a 'single-file' and the downloaded video file is in the parent folder, we should move it
         // from the parent folder and put it in its own folder (following the MovieLoaderService's policy)
@@ -57,18 +57,20 @@ public class TorrentMovieDownloaderServiceImpl implements TorrentMovieDownloader
                 throw new RuntimeException(e);
             }
 
-            resultMovieFolder = movieFolder.getAbsolutePath();
+            resultMovieFolder = Path.of(movieFolder.getAbsolutePath());
         }
 
         return resultMovieFolder;
     }
 
     @SneakyThrows
-    private Client createClient(File torrentFile){
+    private Client createClient(Path torrentFilePath){
         File parentDir = new File(sharedProperties.getMoviesFolder());
         if(!parentDir.exists() && !parentDir.mkdir()) {
             throw new MovieTorrentingException("Access to %s denied!".formatted(parentDir.getAbsolutePath()));
         }
+
+        File torrentFile = torrentFilePath.toFile();
 
         return new Client(InetAddress.getLocalHost(), SharedTorrent.fromFile(
                 torrentFile,

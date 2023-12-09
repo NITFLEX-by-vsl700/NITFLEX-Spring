@@ -10,6 +10,7 @@ import com.vsl700.nitflex.services.MovieLoaderService;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,26 +40,27 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     }
 
     @Override
-    public void load(String path){
+    public void load(Path path){
         load(path, null);
     }
 
     @Override
-    public void load(String path, User requester) {
+    public void load(Path path, User requester) {
         // Check if it is either a collection or a nested folder
-        if(isCollection(path)){
+        String pathStr = path.toString(); // TODO Finish refactoring (substitute the String methods you call with Path)
+        if(isCollection(pathStr)){
             // Handle the collection/nested folder
             // Each folder is treated as a separate Movie
-            var allFiles = getFiles(path, (dir, name) -> true, false);
+            var allFiles = getFiles(pathStr, (dir, name) -> true, false);
             var dirs = allFiles.stream().filter(File::isDirectory).toList();
 
-            dirs.forEach(f -> load(f.getAbsolutePath()));
+            dirs.forEach(f -> load(Path.of(f.getAbsolutePath())));
             return;
         }
 
         // Determine movie type
         Movie.MovieType type;
-        long filmsCount = getFiles(path, (dir, name) -> !isTrailer(name) && isVideoFile(name), false)
+        long filmsCount = getFiles(pathStr, (dir, name) -> !isTrailer(name) && isVideoFile(name), false)
                 .stream().filter(File::isFile).count();
         if(filmsCount > 1){
             type = Movie.MovieType.Series;
@@ -68,9 +70,9 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
         // Create Movie object
         String relativePath = pathRelativizer
-                .apply(sharedProperties.getMoviesFolder(), path);
+                .apply(sharedProperties.getMoviesFolder(), pathStr);
         String name = Paths.get(relativePath).getFileName().toString();
-        long size = getFilesSize(path);
+        long size = getFilesSize(pathStr);
         Movie movie = new Movie(name, type, relativePath, size);
         movie.setRequester(requester);
 
@@ -78,8 +80,8 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
         // Load the Movie
         switch(type){
-            case Film -> loadFilm(movie, path);
-            case Series -> loadSeries(movie, path);
+            case Film -> loadFilm(movie, pathStr);
+            case Series -> loadSeries(movie, pathStr);
         }
 
         // Save the Movie
@@ -137,7 +139,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
                         return;
                     }
 
-                    load(f.getAbsolutePath());
+                    load(Path.of(f.getAbsolutePath()));
                 });
     }
 

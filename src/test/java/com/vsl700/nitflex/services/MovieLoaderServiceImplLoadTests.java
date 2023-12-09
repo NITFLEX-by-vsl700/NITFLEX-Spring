@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -53,7 +54,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO");
+        service.load(Path.of("D:\\Videos\\The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -79,7 +80,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO");
+        service.load(Path.of("D:\\Videos\\Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -105,7 +106,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\Baby.Driver.2017.1080p.Bluray.x265");
+        service.load(Path.of("D:\\Videos\\Baby.Driver.2017.1080p.Bluray.x265"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -131,7 +132,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA");
+        service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -159,7 +160,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR");
+        service.load(Path.of("D:\\Videos\\The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR"));
 
         // Test 1st movie from collection
         Movie resultMovie1 = movies.stream().filter(m -> m.getName().equals("The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR"))
@@ -206,7 +207,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\TEST_NESTED");
+        service.load(Path.of("D:\\Videos\\TEST_NESTED"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -239,7 +240,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\Wednesday.S01.1080p.NF.WEBRip.DDP5.1.Atmos.x264-SMURF");
+        service.load(Path.of("D:\\Videos\\Wednesday.S01.1080p.NF.WEBRip.DDP5.1.Atmos.x264-SMURF"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -286,7 +287,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\TEST_SERIES");
+        service.load(Path.of("D:\\Videos\\TEST_SERIES"));
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -343,7 +344,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load("D:\\Videos\\TEST_SERIES_SEP_FOLDER");
+        service.load(Path.of("D:\\Videos\\TEST_SERIES_SEP_FOLDER"));
 
         // Test 1st movie from collection
         Movie resultMovie1 = movies.stream().filter(m -> m.getName().equals("Season 1")).findFirst()
