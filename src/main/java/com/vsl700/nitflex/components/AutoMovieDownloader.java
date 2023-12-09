@@ -1,8 +1,8 @@
 package com.vsl700.nitflex.components;
 
-import com.vsl700.nitflex.services.MovieDownloaderService;
 import com.vsl700.nitflex.services.MovieLoaderService;
 import com.vsl700.nitflex.services.MovieSeekerService;
+import com.vsl700.nitflex.services.URLMovieDownloaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class AutoMovieDownloader {
     @Autowired
     private MovieSeekerService movieSeekerService;
     @Autowired
-    private MovieDownloaderService movieDownloaderService;
+    private URLMovieDownloaderService urlMovieDownloaderService;
     @Autowired
     private MovieLoaderService movieLoaderService;
 
@@ -27,6 +27,6 @@ public class AutoMovieDownloader {
             timeUnit = TimeUnit.DAYS)
     public void run(){
         LOG.info("Auto-download triggered!");
-        movieLoaderService.load(movieDownloaderService.downloadFromPageURL(movieSeekerService.findMovieURL()));
+        movieLoaderService.load(urlMovieDownloaderService.downloadFromPageURL(movieSeekerService.findMovieURL()));
     }
 }
