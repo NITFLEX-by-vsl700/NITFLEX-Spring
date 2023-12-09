@@ -15,7 +15,7 @@ class NitflexApplicationTests {
 	}
 
 	@Test
-	void test(@Autowired WebsiteCredentials.Zamunda credentials){
+	void credentialsLoad(@Autowired WebsiteCredentials.Zamunda credentials){
 		assertThat(credentials.getPassword()).isNotNull();
 	}
 

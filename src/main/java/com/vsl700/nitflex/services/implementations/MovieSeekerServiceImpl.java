@@ -6,6 +6,7 @@ import com.vsl700.nitflex.exceptions.OutOfLuckException;
 import com.vsl700.nitflex.exceptions.WebClientLoginException;
 import com.vsl700.nitflex.services.MovieSeekerService;
 import com.vsl700.nitflex.services.WebClientService;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@AllArgsConstructor
 public class MovieSeekerServiceImpl implements MovieSeekerService {
     private WebClientService webClientService;
     private WebsiteCredentials.Zamunda zamundaCredentials;
@@ -32,12 +34,6 @@ public class MovieSeekerServiceImpl implements MovieSeekerService {
     private static final String zamundaURL = "https://zamunda.net";
     private static final String zamundaCatalogURL = "https://zamunda.net/bananas";
     private static final String zamundaLoginPage = "https://zamunda.net/takelogin.php";
-
-    public MovieSeekerServiceImpl(WebClientService webClientService, WebsiteCredentials.Zamunda zamundaCredentials, SharedProperties sharedProperties) {
-        this.webClientService = webClientService;
-        this.zamundaCredentials = zamundaCredentials;
-        this.sharedProperties = sharedProperties;
-    }
 
     @SneakyThrows
     @Override

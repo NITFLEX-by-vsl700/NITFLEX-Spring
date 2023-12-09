@@ -7,6 +7,7 @@ import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.services.MovieLoaderService;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -17,11 +18,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
+@AllArgsConstructor
 public class MovieLoaderServiceImpl implements MovieLoaderService {
 
     private MovieRepository movieRepo;
@@ -32,12 +33,6 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
     private final BiFunction<String, String, String> pathRelativizer =
             (homePath, fullPath) -> Paths.get(homePath).relativize(Paths.get(fullPath)).toString();
-
-    public MovieLoaderServiceImpl(MovieRepository movieRepo, EpisodeRepository episodeRepo, SharedProperties sharedProperties) {
-        this.movieRepo = movieRepo;
-        this.episodeRepo = episodeRepo;
-        this.sharedProperties = sharedProperties;
-    }
 
     @Override
     public void load(Path path){

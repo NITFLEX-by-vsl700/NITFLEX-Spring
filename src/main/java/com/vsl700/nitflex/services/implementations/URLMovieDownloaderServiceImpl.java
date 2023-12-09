@@ -8,6 +8,7 @@ import com.vsl700.nitflex.exceptions.WebClientLoginException;
 import com.vsl700.nitflex.services.TorrentMovieDownloaderService;
 import com.vsl700.nitflex.services.URLMovieDownloaderService;
 import com.vsl700.nitflex.services.WebClientService;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 @Service
+@AllArgsConstructor
 public class URLMovieDownloaderServiceImpl implements URLMovieDownloaderService {
     private WebClientService webClientService;
     private TorrentMovieDownloaderService torrentMovieDownloaderService;
@@ -33,13 +35,6 @@ public class URLMovieDownloaderServiceImpl implements URLMovieDownloaderService 
     private static final Logger LOG = LoggerFactory.getLogger(URLMovieDownloaderServiceImpl.class);
 
     private static final String zamundaLoginPage = "https://zamunda.net/takelogin.php";
-
-    public URLMovieDownloaderServiceImpl(WebClientService webClientService, TorrentMovieDownloaderService torrentMovieDownloaderService, SharedProperties sharedProperties, WebsiteCredentials.Zamunda zamundaCredentials) {
-        this.webClientService = webClientService;
-        this.torrentMovieDownloaderService = torrentMovieDownloaderService;
-        this.sharedProperties = sharedProperties;
-        this.zamundaCredentials = zamundaCredentials;
-    }
 
     @SneakyThrows
     @Override

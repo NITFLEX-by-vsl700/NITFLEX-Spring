@@ -5,6 +5,7 @@ import com.turn.ttorrent.client.SharedTorrent;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.exceptions.MovieTorrentingException;
 import com.vsl700.nitflex.services.TorrentMovieDownloaderService;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +16,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Service
+@AllArgsConstructor
 public class TorrentMovieDownloaderServiceImpl implements TorrentMovieDownloaderService {
     private SharedProperties sharedProperties;
-
-    public TorrentMovieDownloaderServiceImpl(SharedProperties sharedProperties) {
-        this.sharedProperties = sharedProperties;
-    }
 
     @Override
     public Path downloadFromTorrentFilePath(Path torrentFilePath) {
