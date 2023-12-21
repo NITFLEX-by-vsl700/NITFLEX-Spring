@@ -18,13 +18,13 @@ public class AccountController {
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("/user")
+    @GetMapping("account/user")
     public UserDTO getUser(){
         var user = userRepo.findAll().stream().findFirst().orElse(null);
         return modelMapper.map(user, UserDTO.class);
     }
 
-    @GetMapping
+    @GetMapping("account/users")
     @ResponseStatus(HttpStatus.OK)
     public Iterable<UserDTO> getAllUsers(){
         return userRepo.findAll().stream().map(user -> modelMapper.map(user, UserDTO.class)).toList();
