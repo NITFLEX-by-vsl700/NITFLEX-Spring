@@ -192,4 +192,19 @@ public class FFMpegTests {
 
         fail(); // If everything is 0, the test should fail
     }
+
+    @Test
+    public void frameGrabber_audio_performance_Test() throws FrameGrabber.Exception { // 26 secs
+        short[] arr;
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
+            grabber.start();
+
+            Frame frame;
+            while((frame = grabber.grab()) != null){
+                grabber.grabSamples();
+            }
+
+            grabber.stop();
+        }
+    }
 }
