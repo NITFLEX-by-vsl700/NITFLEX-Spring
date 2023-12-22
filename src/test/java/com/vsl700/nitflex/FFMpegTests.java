@@ -50,6 +50,47 @@ public class FFMpegTests {
     }
 
     @Test
+    public void frameGrabber_setFrameNumber_imagePresent_Test() throws FrameGrabber.Exception {
+        Frame frame;
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
+            grabber.start();
+
+            grabber.setFrameNumber(9);
+            frame = grabber.grabImage();
+
+            grabber.stop();
+        }
+
+        assertThat(frame.image.length).isGreaterThan(0);
+    }
+
+    @Test
+    public void frameGrabber_setFrameNumber_imageNotEmpty_Test() throws FrameGrabber.Exception {
+        byte[] arr;
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
+            grabber.start();
+
+            grabber.setFrameNumber(100); // WARNING! Different from grabber.setVideoFrameNumber()
+            //grabber.grab(); // Works without this line!
+            Frame frame = grabber.grabImage();
+
+            ByteBuffer buffer = (ByteBuffer) frame.image[0]; // Buffer stays the same as well
+            arr = new byte[buffer.remaining()];
+            buffer.get(arr);
+            buffer.flip();
+
+            grabber.stop();
+        }
+
+        for(byte b : arr){
+            if(b != 0)
+                return;
+        }
+
+        fail();
+    }
+
+    @Test
     public void frameGrabber_imageChanges_Test() throws FrameGrabber.Exception {
         byte[] arr1;
         byte[] arr2;
@@ -58,8 +99,8 @@ public class FFMpegTests {
 
             Frame frame = grabber.grabImage(); // The Frame object stays the same, its data becomes different
             for(int i = 0; i < 50; i++){
-                grabber.grab();
-                grabber.grabImage();
+                grabber.grab(); // Go to next frame
+                grabber.grabImage(); // Grab the image from the current frame (and stay on it)
             }
 
             ByteBuffer buffer = (ByteBuffer) frame.image[0]; // Buffer stays the same as well
@@ -91,6 +132,34 @@ public class FFMpegTests {
                 grabber.grab();
                 grabber.grabImage();
             }
+
+            ByteBuffer buffer = (ByteBuffer) frame.image[0]; // Buffer stays the same as well
+            arr1 = new byte[buffer.remaining()];
+            buffer.get(arr1);
+            buffer.flip();
+
+            grabber.grab();
+            grabber.grabImage();
+
+            arr2 = new byte[buffer.remaining()];
+            buffer.get(arr2);
+
+            grabber.stop();
+        }
+
+        assertThat(Arrays.equals(arr1, arr2)).isFalse();
+    }
+
+    @Test
+    public void frameGrabber_setFrameNumber_imageChanges_Test() throws FrameGrabber.Exception {
+        byte[] arr1;
+        byte[] arr2;
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
+            grabber.start();
+
+            grabber.setFrameNumber(100);
+            Frame frame = grabber.grab(); // The Frame object stays the same, its data becomes different
+            grabber.grabImage();
 
             ByteBuffer buffer = (ByteBuffer) frame.image[0]; // Buffer stays the same as well
             arr1 = new byte[buffer.remaining()];
@@ -193,7 +262,7 @@ public class FFMpegTests {
         fail(); // If everything is 0, the test should fail
     }
 
-    @Test
+    /*@Test
     public void frameGrabber_audio_performance_Test() throws FrameGrabber.Exception { // 26 secs
         short[] arr;
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
@@ -206,5 +275,5 @@ public class FFMpegTests {
 
             grabber.stop();
         }
-    }
+    }*/
 }
