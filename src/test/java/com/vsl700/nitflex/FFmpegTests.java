@@ -14,10 +14,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Disabled
-public class FFMpegTests {
+public class FFmpegTests {
     @Test
     public void frameGrabber_imagePresent_Test() throws FrameGrabber.Exception {
-        Frame frame;
+        Frame frame; // TODO: Dispose the frame object
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv")){
             grabber.start();
 
@@ -34,7 +34,7 @@ public class FFMpegTests {
 
     @Test
     public void frameGrabber_imagePresent_Test2() throws FrameGrabber.Exception {
-        Frame frame;
+        Frame frame; // TODO: Dispose the frame object
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
             grabber.start();
 
@@ -51,7 +51,7 @@ public class FFMpegTests {
 
     @Test
     public void frameGrabber_setFrameNumber_imagePresent_Test() throws FrameGrabber.Exception {
-        Frame frame;
+        Frame frame; // TODO: Dispose the frame object
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
             grabber.start();
 
@@ -72,7 +72,7 @@ public class FFMpegTests {
 
             grabber.setFrameNumber(100); // WARNING! Different from grabber.setVideoFrameNumber()
             //grabber.grab(); // Works without this line!
-            Frame frame = grabber.grabImage();
+            Frame frame = grabber.grabImage(); // TODO: Dispose the frame object
 
             ByteBuffer buffer = (ByteBuffer) frame.image[0]; // Buffer stays the same as well
             arr = new byte[buffer.remaining()];
@@ -114,7 +114,7 @@ public class FFMpegTests {
             arr2 = new byte[buffer.remaining()];
             buffer.get(arr2);
 
-            grabber.stop();
+            grabber.stop(); // TODO: Dispose the frame object
         }
 
         assertThat(Arrays.equals(arr1, arr2)).isFalse();
@@ -144,7 +144,7 @@ public class FFMpegTests {
             arr2 = new byte[buffer.remaining()];
             buffer.get(arr2);
 
-            grabber.stop();
+            grabber.stop(); // TODO: Dispose the frame object
         }
 
         assertThat(Arrays.equals(arr1, arr2)).isFalse();
@@ -172,7 +172,7 @@ public class FFMpegTests {
             arr2 = new byte[buffer.remaining()];
             buffer.get(arr2);
 
-            grabber.stop();
+            grabber.stop(); // TODO: Dispose the frame object
         }
 
         assertThat(Arrays.equals(arr1, arr2)).isFalse();
@@ -184,7 +184,7 @@ public class FFMpegTests {
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA\\Tetris.2023.1080p.WEBRip.x264-LAMA.mp4")){
             grabber.start();
 
-            Frame frame = grabber.grab();
+            Frame frame = grabber.grab(); // TODO: Dispose the frame object
             for(int i = 0; i < 100; i++){
                 grabber.grab();
                 grabber.grabSamples();
@@ -212,7 +212,7 @@ public class FFMpegTests {
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv")){
             grabber.start();
 
-            Frame frame = grabber.grab();
+            Frame frame = grabber.grab(); // TODO: Dispose the frame object
             for(int i = 0; i < 100; i++){
                 grabber.grab();
                 grabber.grabSamples();
@@ -240,7 +240,7 @@ public class FFMpegTests {
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber("D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi")){
             grabber.start();
 
-            Frame frame = grabber.grab();
+            Frame frame = grabber.grab(); // TODO: Dispose the frame object
             for(int i = 0; i < 100; i++){
                 grabber.grab();
                 grabber.grabSamples();
