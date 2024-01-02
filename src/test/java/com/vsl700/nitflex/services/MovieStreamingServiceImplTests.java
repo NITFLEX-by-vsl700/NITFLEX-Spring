@@ -30,6 +30,16 @@ public class MovieStreamingServiceImplTests {
     }
 
     @Test
+    public void streamVideo_Test2(){
+        var actual = movieStreamingService.grabFrames(
+                Path.of("D:\\Videos\\L Homme Orchestre (1970)\\L Homme Orchestre.avi"),
+                100,
+                50);
+
+        assertThat(actual.size()).isEqualTo(50);
+    }
+
+    @Test
     public void streamVideo_framesNotEmpty_Test(){
         var actual = movieStreamingService.grabFrames(
                 Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv"),
