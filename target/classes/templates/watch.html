@@ -6,22 +6,28 @@
     <title>Watch</title>
     <style>
         #my-video{
-            width: 640px;
-            height: 480px;
+            width: 860px;
+            height: 359px;
         }
     </style>
 </head>
 <body>
-    <input id="videoLink" type="hidden" th:value="@{/stream/{id}(id=${videoFileId})}" />
-    <video id="my-video"
-           class="video-js"
-           controls
-           preload="auto"
-           width="640"
-           height="264"
-           th:src="@{/stream/{id}(id=${videoFileId})}">
-    </video>
+    <input id="videoId" type="hidden" th:value="${videoFileId}" />
+    <canvas id="my-video" class="nitflex-player">
 
-    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    </canvas>
+
+    <script src="/video_player.js"></script>
+<!--    <input id="videoLink" type="hidden" th:value="@{/stream/{id}(id=${videoFileId})}" />-->
+<!--    <video id="my-video"-->
+<!--           class="video-js"-->
+<!--           controls-->
+<!--           preload="auto"-->
+<!--           width="640"-->
+<!--           height="264"-->
+<!--           th:src="@{/stream/{id}(id=${videoFileId})}">-->
+<!--    </video>-->
+
+<!--    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>-->
 </body>
 </html>

@@ -1,12 +1,14 @@
 package com.vsl700.nitflex.services.implementations;
 
 import com.vsl700.nitflex.services.MovieStreamingService;
-import org.bytedeco.javacv.FFmpegFrameGrabber;
-import org.bytedeco.javacv.Frame;
-import org.bytedeco.javacv.FrameGrabber;
+import org.bytedeco.javacv.*;
+import org.bytedeco.opencv.opencv_core.Mat;
 import org.springframework.stereotype.Service;
 
-import java.nio.ByteBuffer;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ShortBuffer;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,7 +20,8 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
     public List<byte[]> grabFrames(Path moviePath, int beginFrame, int length) {
         List<byte[]> result = new ArrayList<>();
         String moviePathStr = moviePath.toString();
-        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr)){
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr);
+            OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat()){
             grabber.start();
 
             int framesCount = grabber.getLengthInVideoFrames();
@@ -29,16 +32,20 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
             grabber.setFrameNumber(beginFrame); // WARNING! Different from grabber.setVideoFrameNumber()
             for(int i = beginFrame; i < beginFrame + length; i++, grabber.grab()){
                 Frame frame = grabber.grabImage();
-                ByteBuffer buffer = (ByteBuffer) frame.image[0]; // Buffer stays the same as well
-                var arr = new byte[buffer.remaining()];
-                buffer.get(arr);
-                buffer.flip();
 
-                result.add(arr);
+                Mat mat = converter.convertToMat(frame);
+                BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(mat);
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "jpg", outputStream);
+
+                byte[] imageData = outputStream.toByteArray();
+
+                result.add(imageData);
             }// TODO: Dispose the frame object
 
             grabber.stop();
-        } catch (FrameGrabber.Exception e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 

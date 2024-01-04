@@ -12,8 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -30,7 +32,7 @@ public class StreamingController {
     @GetMapping("stream/{id}")
     public ResponseEntity<Resource> streamVideoFileById(@PathVariable String id){
         // Films only!!!
-        // MovieStreamingService::getVideoFilePathById
+        // TODO (maybe): MovieStreamingService::getVideoFilePathById
         Movie movie = movieRepository.findById(id)
                 .orElseThrow();
         String moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath())
@@ -42,21 +44,23 @@ public class StreamingController {
                 .body(new FileSystemResource(moviePath));
     }
 
-    @GetMapping("stream/video/{id}")
-    public List<byte[]> streamVideoById(@PathVariable String id, @RequestParam int beginFrame, @RequestParam int length){
+    @GetMapping(value="stream/video/{id}")
+    public List<String> streamVideoById(@PathVariable String id, @RequestParam int beginFrame, @RequestParam int length){
         // Films only!!!
-        // MovieStreamingService::getVideoFilePathById
+        // TODO (maybe): MovieStreamingService::getVideoFilePathById
         Movie movie = movieRepository.findById(id)
                 .orElseThrow();
         Path moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath());
 
-        return movieStreamingService.grabFrames(moviePath, beginFrame, length);
+        return movieStreamingService.grabFrames(moviePath, beginFrame, length).stream()
+                .map(bytes -> Base64.getEncoder().encodeToString(bytes))
+                .toList();
     }
 
     @GetMapping("stream/audio/{id}")
     public List<short[]> streamAudioById(@PathVariable String id, @RequestParam int beginFrame, @RequestParam int length){
         // Films only!!!
-        // MovieStreamingService::getVideoFilePathById
+        // TODO (maybe): MovieStreamingService::getVideoFilePathById
         Movie movie = movieRepository.findById(id)
                 .orElseThrow();
         Path moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath());
