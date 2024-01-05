@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -57,6 +58,28 @@ public class MovieStreamingServiceImplTests {
     }
 
     @Test
+    public void streamVideo_framesAreNotSame_Test(){
+        Path moviePath = Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv");
+        int beginFrame = 10000;
+        int length = 50;
+        var framesArray1 = movieStreamingService.grabFrames(
+                moviePath,
+                beginFrame,
+                length);
+
+        var framesArray2 = movieStreamingService.grabFrames(
+                moviePath,
+                beginFrame + length,
+                length);
+
+        for(byte[] frameBytes : framesArray1){
+            if(framesArray2.stream().anyMatch(arr -> Arrays.equals(frameBytes, arr))) {
+                fail();
+            }
+        }
+    }
+
+    @Test
     public void streamAudio_Test(){
         var actual = movieStreamingService.grabAudioFromFrames(
                 Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv"),
@@ -96,5 +119,29 @@ public class MovieStreamingServiceImplTests {
                 Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv"));
 
         assertThat(actual).isEqualTo(5468802000L);
+    }
+
+    @Test
+    public void movieImageWidth_Test(){
+        var actual = movieStreamingService.getMovieImageWidth(
+                Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv"));
+
+        assertThat(actual).isEqualTo(1920);
+    }
+
+    @Test
+    public void movieImageHeight_Test(){
+        var actual = movieStreamingService.getMovieImageHeight(
+                Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv"));
+
+        assertThat(actual).isEqualTo(802);
+    }
+
+    @Test
+    public void movieFrameRate_Test(){
+        var actual = movieStreamingService.getMovieFrameRate(
+                Path.of("D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv"));
+
+        assertThat(actual).isEqualTo(23.976);
     }
 }

@@ -1,11 +1,12 @@
-var videoLink = document.getElementById("videoId").value;
+var videoId = document.getElementById("videoId").value;
 var canvasElement = document.getElementById('my-video');
 var ctx = canvasElement.getContext("2d");
-var imageCount = 50; // Replace with the actual number of images
+var minFramesCount = 50;
 var frames = [];
+var metadata = { duration: 0, frames: 0, frameRate: 0, width: 1920, height: 1080 };
 var paused = false;
+var init = false;
 var ready = false;
-var playerSized = false;
 
 const frame = function(bytes) {
     const BYTES = bytes;
@@ -14,78 +15,95 @@ const frame = function(bytes) {
     return {BYTES, PREV, NEXT};
 }
 
-async function loadImages(){
-    await fetch(`/stream/video/${videoLink}?beginFrame=${10000}&length=${imageCount}`)
+async function initPlayer(){
+    canvasElement.addEventListener("click", () => {
+        paused = !paused;
+        if(paused === false)
+            playImagesAsVideo();
+    });
+
+    async function loadMeta(){
+        await fetch(`/stream/info/${videoId}`)
+            .then(response => response.text())
+            .then(jsonResponse => {
+            let obj = JSON.parse(jsonResponse);
+
+            metadata.duration = obj.duration;
+            metadata.frames = obj.frames;
+            metadata.frameRate = obj.frameRate;
+            metadata.width = obj.frameWidth;
+            metadata.height = obj.frameHeight;
+        })
+    }
+    await loadMeta();
+
+    ctx.width = canvasElement.width = metadata.width;
+    ctx.height = canvasElement.height = metadata.height;
+    init = true;
+
+    playImagesAsVideo();
+}
+
+async function loadImages(beginFrame, length){
+    await fetch(`/stream/video/${videoId}?beginFrame=${beginFrame}&length=${length}`)
         .then(response => response.text())
         .then(jsonResponse => {
             let obj = JSON.parse(jsonResponse);
+            let tempIndex = beginFrame;
             obj.forEach(f => {
                 const newFrame = frame(f);
-                if(frames.length > 1){
-                    let last = frames[frames.length - 2];
+
+                let last = frames[tempIndex - 1];
+                if(last != undefined){
                     newFrame.PREV = last;
                     last.NEXT = newFrame;
                 }
 
-                frames.push(newFrame);
+                let next = frames[tempIndex + 1];
+                if(next != undefined){
+                    newFrame.NEXT = next;
+                    next.PREV = newFrame;
+                }
+
+                frames[tempIndex] = newFrame;
+                tempIndex++;
             });
         })
-    // await fetch(`/stream/video/${videoLink}?beginFrame=${10000}&length=${imageCount}`)
-    //     .then(response => response.arrayBuffer())
-    //     .then(buffer => {
-    //         frames.push(frame(new Uint8Array(buffer)));
-    //     })
 
     ready = true;
 }
 
+var index = 10000;
 function playImagesAsVideo() {
-    var index = 0;
-    var interval = setInterval(function() {
-        if(paused || !ready)
+    function drawNextFrame(){
+        if(paused)
             return;
 
-        if (index === imageCount) {
-            //clearInterval(interval);
-            index = 0;
+        if(frames.length < minFramesCount || !init){
+            setTimeout(drawNextFrame, 100);
+            return;
+        }
+
+        if (frames[index] === undefined/*index === metadata.frames*/) {
+            paused = true;
+            index = 10000;
+            return;
         }
 
         let imageObj = new Image();
         imageObj.src = "data:image/jpeg;base64,"+frames[index].BYTES;
         imageObj.onload = function(){
-            if(!playerSized){ // Lazy loading (of the render size)
-                ctx.width = canvasElement.width = imageObj.width;
-                ctx.height = canvasElement.height = imageObj.height;
-                playerSized = true;
-            }
-
             ctx.drawImage(imageObj,0,0);
         }
-//        let imageData = ctx.getImageData(0, 0, width, height);
-//        let data = imageData.data;
-//
-//        for (let y = 0; y < height; y++) {
-//            for (let x = 0; x < width; x++) {
-//                let i = (y * width + x) * 4;
-//                let i1 = (y * width + x) * 3;
-//                // Set the color of the pixel
-//                data[i] = frames[index].BYTES[i1]; // Red value (0-255)
-//                data[i + 1] = frames[index].BYTES[i1 + 1]; // Green value (0-255)
-//                data[i + 2] = frames[index].BYTES[i1 + 2]; // Blue value (0-255)
-//                data[i + 3] = 255; // Alpha value (0-255, 255 is fully opaque)
-//            }
-//        }
-//
-//        ctx.putImageData(imageData, 0, 0);
 
         index++;
-    
-    }, 1000/25); // TODO: Make sure it stops when video is paused
+        setTimeout(drawNextFrame, 1000 / metadata.frameRate);
+    }
+
+    drawNextFrame();
 }
 
-loadImages();
-playImagesAsVideo();
-
-canvasElement.addEventListener("click", () => {
-    paused = !paused;
-});
+initPlayer();
+loadImages(10000, 50);
+loadImages(10050, 50);
+loadImages(10100, 50);

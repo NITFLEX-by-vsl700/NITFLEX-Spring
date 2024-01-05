@@ -8,4 +8,7 @@ public interface MovieStreamingService {
     List<short[]> grabAudioFromFrames(Path moviePath, int beginFrame, int length);
     long getMovieDuration(Path moviePath);
     int getMovieFramesCount(Path moviePath);
+    int getMovieImageWidth(Path moviePath);
+    int getMovieImageHeight(Path moviePath);
+    double getMovieFrameRate(Path moviePath);
 }

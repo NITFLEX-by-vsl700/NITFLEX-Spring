@@ -3,6 +3,7 @@ package com.vsl700.nitflex.services.implementations;
 import com.vsl700.nitflex.services.MovieStreamingService;
 import org.bytedeco.javacv.*;
 import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_videoio.VideoCapture;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -21,7 +22,21 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
         List<byte[]> result = new ArrayList<>();
         String moviePathStr = moviePath.toString();
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr);
-            OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat()){
+            OpenCVFrameConverter.ToMat converter = new OpenCVFrameConverter.ToMat();
+            /*VideoCapture videoCapture = new VideoCapture(moviePathStr)*/){
+            /*videoCapture.set(1, beginFrame);
+            for(int i = beginFrame; i < beginFrame + length; i++){
+                Mat mat = new Mat();
+                videoCapture.read(mat);
+                BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(mat);
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "jpg", outputStream);
+
+                byte[] imageData = outputStream.toByteArray();
+
+                result.add(imageData);
+            }*/
             grabber.start();
 
             int framesCount = grabber.getLengthInVideoFrames();
@@ -29,8 +44,8 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
                 throw new RuntimeException("Frames count: %d; beginFrame: %d; length: %d"
                         .formatted(framesCount, beginFrame, length)); // TODO: Add custom exception
 
-            grabber.setFrameNumber(beginFrame); // WARNING! Different from grabber.setVideoFrameNumber()
-            for(int i = beginFrame; i < beginFrame + length; i++, grabber.grab()){
+            grabber.setVideoFrameNumber(beginFrame); // WARNING! Different from grabber.setVideoFrameNumber()
+            for(int i = beginFrame; i < beginFrame + length; i++){
                 Frame frame = grabber.grabImage();
 
                 Mat mat = converter.convertToMat(frame);
@@ -64,8 +79,8 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
                 throw new RuntimeException("Frames count: %d; beginFrame: %d; length: %d"
                         .formatted(framesCount, beginFrame, length)); // TODO: Add custom exception
 
-            grabber.setFrameNumber(beginFrame); // WARNING! May be different from grabber.setAudioFrameNumber()
-            for(int i = beginFrame; i < beginFrame + length; i++, grabber.grab()){
+            grabber.setVideoFrameNumber(beginFrame); // WARNING! May be different from grabber.setAudioFrameNumber()
+            for(int i = beginFrame; i < beginFrame + length; i++){
                 Frame frame = grabber.grabSamples();
                 ShortBuffer buffer = (ShortBuffer) frame.samples[0]; // Buffer stays the same as well
                 var arr = new short[buffer.remaining()];
@@ -105,6 +120,51 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
         try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr)){
             grabber.start();
             result = grabber.getLengthInVideoFrames();
+            grabber.stop();
+        } catch (FrameGrabber.Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public int getMovieImageWidth(Path moviePath) {
+        int result;
+        String moviePathStr = moviePath.toString();
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr)){
+            grabber.start();
+            result = grabber.getImageWidth();
+            grabber.stop();
+        } catch (FrameGrabber.Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public int getMovieImageHeight(Path moviePath) {
+        int result;
+        String moviePathStr = moviePath.toString();
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr)){
+            grabber.start();
+            result = grabber.getImageHeight();
+            grabber.stop();
+        } catch (FrameGrabber.Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public double getMovieFrameRate(Path moviePath) {
+        double result;
+        String moviePathStr = moviePath.toString();
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr)){
+            grabber.start();
+            result = grabber.getFrameRate();
             grabber.stop();
         } catch (FrameGrabber.Exception e) {
             throw new RuntimeException(e);

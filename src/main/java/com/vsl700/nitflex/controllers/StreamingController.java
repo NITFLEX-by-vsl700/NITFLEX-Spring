@@ -2,6 +2,7 @@ package com.vsl700.nitflex.controllers;
 
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.dto.MovieMetadataDTO;
 import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.services.MovieStreamingService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +67,23 @@ public class StreamingController {
         Path moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath());
 
         return movieStreamingService.grabAudioFromFrames(moviePath, beginFrame, length);
+    }
+
+    @GetMapping("stream/info/{id}")
+    public MovieMetadataDTO movieMetadata(@PathVariable String id){
+        // Films only!!!
+        // TODO (maybe): MovieStreamingService::getVideoFilePathById
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow();
+        Path moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath());
+
+        var result = new MovieMetadataDTO();
+        result.setDuration(movieStreamingService.getMovieDuration(moviePath));
+        result.setFrames(movieStreamingService.getMovieFramesCount(moviePath));
+        result.setFrameRate(movieStreamingService.getMovieFrameRate(moviePath));
+        result.setFrameWidth(movieStreamingService.getMovieImageWidth(moviePath));
+        result.setFrameHeight(movieStreamingService.getMovieImageHeight(moviePath));
+
+        return result;
     }
 }
