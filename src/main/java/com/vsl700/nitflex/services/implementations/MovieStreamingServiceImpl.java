@@ -18,6 +18,60 @@ import java.util.List;
 @Service
 public class MovieStreamingServiceImpl implements MovieStreamingService {
     @Override
+    public byte[] grabFramesAsMP4(Path moviePath, int beginFrame, int length) {
+        byte[] result;
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        String moviePathStr = moviePath.toString();
+        try(FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(moviePathStr)){
+            /*videoCapture.set(1, beginFrame);
+            for(int i = beginFrame; i < beginFrame + length; i++){
+                Mat mat = new Mat();
+                videoCapture.read(mat);
+                BufferedImage bufferedImage = Java2DFrameUtils.toBufferedImage(mat);
+
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                ImageIO.write(bufferedImage, "jpg", outputStream);
+
+                byte[] imageData = outputStream.toByteArray();
+
+                result.add(imageData);
+            }*/
+            grabber.start();
+
+            int framesCount = grabber.getLengthInVideoFrames();
+            if(beginFrame > framesCount || beginFrame + length > framesCount)
+                throw new RuntimeException("Frames count: %d; beginFrame: %d; length: %d"
+                        .formatted(framesCount, beginFrame, length)); // TODO: Add custom exception
+
+            // Initialize video recorder
+            FFmpegLogCallback.set();
+            FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(outputStream, grabber.getImageWidth(), grabber.getImageHeight());
+            recorder.setVideoCodecName("divx");
+            recorder.setFormat("avi");
+            recorder.setVideoBitrate(grabber.getVideoBitrate());
+            recorder.setFrameRate(grabber.getFrameRate());
+            recorder.start();
+
+            // Start grabbing & recording
+            grabber.setVideoFrameNumber(beginFrame); // WARNING! Different from grabber.setVideoFrameNumber()
+            for(int i = beginFrame; i < beginFrame + length; i++){
+                Frame frame = grabber.grabImage();
+                recorder.record(frame);
+            }// TODO: Dispose the frame object
+
+            recorder.stop();
+            recorder.close();
+            grabber.stop();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        result = outputStream.toByteArray();
+
+        return result;
+    }
+
+    @Override
     public List<byte[]> grabFrames(Path moviePath, int beginFrame, int length) {
         List<byte[]> result = new ArrayList<>();
         String moviePathStr = moviePath.toString();

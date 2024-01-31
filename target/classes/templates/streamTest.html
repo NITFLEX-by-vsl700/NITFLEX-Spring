@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <script src="/ffmpeg.js"></script>
+    <script src="/index.js"></script>
+    <title>Stream Test</title>
+</head>
+<body>
+    <input id="videoId" type="hidden" th:value="${videoFileId}" />
+    <canvas id="my-video" class="nitflex-player"></canvas>
+
+    <script>
+        const { fetchFile } = FFmpegUtil;
+        const { FFmpeg } = FFmpegWASM;
+        let ffmpeg = null;
+
+        const transcode = async (url, beginFrame, length) => {
+            // FFmpeg initialization
+            if (ffmpeg === null) {
+                ffmpeg = new FFmpeg();
+                ffmpeg.on("log", ({ message }) => {
+                    console.log(message);
+                })
+                await ffmpeg.load({
+                    coreURL: "/ffmpeg-core.js",
+                });
+            }
+
+            // Download video piece
+            const name = "input_video.avi";
+            await ffmpeg.writeFile(name, await fetchFile(url));
+
+            // Stream & process the video frames
+            console.time('exec');
+            //await ffmpeg.exec(['-i', url, '-vf', `select='between(n,${beginFrame},${beginFrame + length})'`, '-c:v', 'copy', '-c:a', 'copy', 'output_frame_%03d.png']);
+            await ffmpeg.exec(['-i', name, '-c:v', 'copy', '-c:a', 'copy', `output_frame_${beginFrame}_${length}_%03d.png`])
+            console.timeEnd('exec');
+
+            return ffmpeg.listDir("/").then(arr => arr.filter(e => e.includes('output_frame'))) // This returns ALL frames ever outputted!!!
+        }
+    </script>
+    <script>
+        var videoId = document.getElementById("videoId").value;
+        var canvasElement = document.getElementById('my-video');
+        var ctx = canvasElement.getContext("2d");
+        var minFramesCount = 50;
+        var frames = [];
+        var metadata = { duration: 0, frames: 0, frameRate: 0, width: 1920, height: 1080 };
+        var paused = false;
+        var init = false;
+        var ready = false;
+
+        const streamUrl = 'http://localhost:8080/stream';
+
+        const frame = function(bytes) {
+            const BYTES = bytes;
+            const PREV = NEXT = null;
+
+            return {BYTES, PREV, NEXT};
+        }
+
+        async function initPlayer(){
+            canvasElement.addEventListener("click", () => {
+                paused = !paused;
+                if(paused === false)
+                playImagesAsVideo();
+            });
+
+            async function loadMeta(){
+                await fetch(streamUrl + `/info/${videoId}`)
+                    .then(response => response.text())
+                    .then(jsonResponse => {
+                    let obj = JSON.parse(jsonResponse);
+
+                    metadata.duration = obj.duration;
+                    metadata.frames = obj.frames;
+                    metadata.frameRate = obj.frameRate;
+                    metadata.width = obj.frameWidth;
+                    metadata.height = obj.frameHeight;
+                })
+            }
+            await loadMeta();
+
+            ctx.width = canvasElement.width = metadata.width;
+            ctx.height = canvasElement.height = metadata.height;
+            init = true;
+
+            playImagesAsVideo();
+        }
+
+        async function loadImages(beginFrame, length){
+            await transcode(streamUrl + `/videopiece/${videoId}`)
+                .then(fileArray => {
+                let tempIndex = beginFrame;
+                fileArray.forEach(async f => {
+                    const data = await ffmpeg.readFile(f.name());
+                    const blob = new Blob([data.buffer], { type: 'image/png' });
+                    const newFrame = frame(URL.createObjectURL(blob));
+
+                    let last = frames[tempIndex - 1];
+                    if(last != undefined){
+                        newFrame.PREV = last;
+                        last.NEXT = newFrame;
+                    }
+
+                    let next = frames[tempIndex + 1];
+                    if(next != undefined){
+                        newFrame.NEXT = next;
+                        next.PREV = newFrame;
+                    }
+
+                    frames[tempIndex] = newFrame;
+                    tempIndex++;
+                });
+            })
+
+            ready = true;
+        }
+
+        var index = 10000;
+        function playImagesAsVideo() {
+            function drawNextFrame(){
+                if(paused)
+                return;
+
+                if(frames.length < minFramesCount || !init){
+                    setTimeout(drawNextFrame, 100);
+                    return;
+                }
+
+                if (frames[index] === undefined/*index === metadata.frames*/) {
+                    paused = true;
+                    index = 10000;
+                    return;
+                }
+
+                let imageObj = new Image();
+                imageObj.src = /*"data:image/png,"+*/frames[index].BYTES;
+                imageObj.onload = function(){
+                    ctx.drawImage(imageObj,0,0);
+                }
+
+                index++;
+                setTimeout(drawNextFrame, 1000 / metadata.frameRate);
+            }
+
+            drawNextFrame();
+        }
+
+        initPlayer();
+        loadImages(10000, 50);
+        // loadImages(10050, 50);
+        // loadImages(10100, 50);
+    </script>
+</body>
+</html>

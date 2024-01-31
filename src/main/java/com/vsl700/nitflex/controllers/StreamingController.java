@@ -45,6 +45,15 @@ public class StreamingController {
                 .body(new FileSystemResource(moviePath));
     }
 
+    @GetMapping("stream/videopiece/{id}")
+    public String streamVideoPieceById(@PathVariable String id, @RequestParam int beginFrame, @RequestParam int length){
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow();
+        Path moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath());
+
+        return Base64.getEncoder().encodeToString(movieStreamingService.grabFramesAsMP4(moviePath, beginFrame, length));
+    }
+
     @GetMapping(value="stream/video/{id}")
     public List<String> streamVideoById(@PathVariable String id, @RequestParam int beginFrame, @RequestParam int length){
         // Films only!!!

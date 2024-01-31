@@ -11,6 +11,6 @@ public class WatchController {
     @GetMapping("watch/{id}")
     public String watchPage(@PathVariable String id, Model model){
         model.addAttribute("videoFileId", id);
-        return "watch";
+        return "streamTest";
     }
 }

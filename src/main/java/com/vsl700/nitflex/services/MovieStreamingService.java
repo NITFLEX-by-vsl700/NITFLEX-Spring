@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface MovieStreamingService {
+    byte[] grabFramesAsMP4(Path moviePath, int beginFrame, int length);
     List<byte[]> grabFrames(Path moviePath, int beginFrame, int length);
     List<short[]> grabAudioFromFrames(Path moviePath, int beginFrame, int length);
     long getMovieDuration(Path moviePath);
