@@ -40,7 +40,7 @@ public class MovieStreamingServiceImpl implements MovieStreamingService {
             grabber.start();
 
             int framesCount = grabber.getLengthInVideoFrames();
-            if(beginFrame > framesCount || beginFrame + length > framesCount)
+            if(beginFrame + length > framesCount)
                 throw new RuntimeException("Frames count: %d; beginFrame: %d; length: %d"
                         .formatted(framesCount, beginFrame, length)); // TODO: Add custom exception
 
