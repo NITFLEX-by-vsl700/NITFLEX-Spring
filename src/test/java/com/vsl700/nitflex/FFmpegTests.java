@@ -123,7 +123,8 @@ public class FFmpegTests {
             "D:\\Videos\\Blacklight.2022.BRRip.XviD.AC3-EVO\\Blacklight.2022.BRRip.XviD.AC3-EVO.avi\nD:\\Videos\\Conversion_Tests\\Blacklight.2022.BRRip.XviD.AC3-EVO",
             "D:\\Videos\\The Gods Must be Crazy\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi\nD:\\Videos\\Conversion_Tests\\The Gods Must be Crazy",
             "D:\\Videos\\The Blue Lagoon BG Audio\\The Blue Lagoon (1980) 576p.BD-Rip.x264 + EN n BG audio - REFLUX.mkv\nD:\\Videos\\Conversion_Tests\\The Blue Lagoon (1980) 576p.BD-Rip.x264 + EN n BG audio - REFLUX",
-            "D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.mkv\nD:\\Videos\\Conversion_Tests\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"
+            "D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.mkv\nD:\\Videos\\Conversion_Tests\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN",
+            "D:\\Videos\\L Homme Orchestre (1970)\\L Homme Orchestre.avi\nD:\\Videos\\Conversion_Tests\\L Homme Orchestre (1970)"
     })
     public void videoPiece_dashingTest(String videoPaths) throws IOException, InterruptedException {
         // Get the path of the FFmpeg executable, provided by the Jave2 library and appropriate for the OS
