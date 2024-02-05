@@ -117,7 +117,13 @@ public class FFmpegTests {
     @ParameterizedTest
     @ValueSource(strings = {
             "D:\\Videos\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD.avi\nD:\\Videos\\Conversion_Tests\\The.Commuter.2018.BRRip.XviD.AC3.DUAL-SlzD",
-            "D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv\nD:\\Videos\\Conversion_Tests\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU"
+            "D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv\nD:\\Videos\\Conversion_Tests\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU",
+            "D:\\Videos\\Upgrade.2018.1080p.BluRay.x264.BGAUDIO-SlzD\\Upgrade.2018.1080p.BluRay.x264.BGAUDIO-SlzD.mkv\nD:\\Videos\\Conversion_Tests\\Upgrade.2018.1080p.BluRay.x264.BGAUDIO-SlzD",
+            "D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA\\Tetris.2023.1080p.WEBRip.x264-LAMA.mp4\nD:\\Videos\\Conversion_Tests\\Tetris.2023.1080p.WEBRip.x264-LAMA",
+            "D:\\Videos\\Blacklight.2022.BRRip.XviD.AC3-EVO\\Blacklight.2022.BRRip.XviD.AC3-EVO.avi\nD:\\Videos\\Conversion_Tests\\Blacklight.2022.BRRip.XviD.AC3-EVO",
+            "D:\\Videos\\The Gods Must be Crazy\\The.Gods.Must.Be.Crazy.1980.WEBRip.BG.Audio-Stasoiakara.avi\nD:\\Videos\\Conversion_Tests\\The Gods Must be Crazy",
+            "D:\\Videos\\The Blue Lagoon BG Audio\\The Blue Lagoon (1980) 576p.BD-Rip.x264 + EN n BG audio - REFLUX.mkv\nD:\\Videos\\Conversion_Tests\\The Blue Lagoon (1980) 576p.BD-Rip.x264 + EN n BG audio - REFLUX",
+            "D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.mkv\nD:\\Videos\\Conversion_Tests\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"
     })
     public void videoPiece_dashingTest(String videoPaths) throws IOException, InterruptedException {
         // Get the path of the FFmpeg executable, provided by the Jave2 library and appropriate for the OS
@@ -128,15 +134,16 @@ public class FFmpegTests {
         String inputPath = videoPathsArr[0];
         String outputPath = videoPathsArr[1]; // You have to create the directory first, error otherwise
 
-        int exitCode = execCommand("%s -ss 00:06:42.000 -to 00:06:52.170 -i \"%s\" -c:a aac -c:v libx264 -ac 2 -map 0:v -map 0:a -adaptation_sets \"id=0,streams=v id=1,streams=a\" -f dash -init_seg_name \"%s\\init-$RepresentationID$.m4s\" -media_seg_name \"%s\\chunk-$RepresentationID$-$Number%s$.m4s\" \"%s\\output_manifest.mpd\"".formatted(executablePath.toString(), inputPath, outputPath, outputPath, "%05d", outputPath));
+        int exitCode = execCommand("%s -ss 00:06:42.000 -to 00:06:52.170 -i \"%s\" -c:a aac -c:v libx264 -pix_fmt yuv420p -vf format=yuv420p -ac 2 -map 0:v:0 -map 0:a -adaptation_sets \"id=0,streams=v id=1,streams=a\" -f dash -init_seg_name \"%s\\init-$RepresentationID$.m4s\" -media_seg_name \"%s\\chunk-$RepresentationID$-$Number%s$.m4s\" \"%s\\output_manifest.mpd\"".formatted(executablePath.toString(), inputPath, outputPath, outputPath, "%05d", outputPath));
         assertThat(exitCode).isEqualTo(0);
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv\nD:\\Videos\\Conversion_Tests\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU"
+            "D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv\nD:\\Videos\\Conversion_Tests\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU",
+            "D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.mkv\nD:\\Videos\\Conversion_Tests\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"
     })
-    public void videoPiece_SubtitlesOnly_dashingTest(String videoPaths) throws IOException, InterruptedException {
+    public void videoPiece_SubtitlesOnly_dashingTest(String videoPaths) throws IOException, InterruptedException { // This test will fail if the video has no subtitles at all!
         // Get the path of the FFmpeg executable, provided by the Jave2 library and appropriate for the OS
         Path executablePath = Path.of(new DefaultFFMPEGLocator().getFFMPEGExecutablePath());
 
