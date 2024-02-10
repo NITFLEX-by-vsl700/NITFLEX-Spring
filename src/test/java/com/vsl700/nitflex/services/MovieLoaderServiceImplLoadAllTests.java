@@ -3,15 +3,15 @@ package com.vsl700.nitflex.services;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
+import com.vsl700.nitflex.repo.SubtitleRepository;
 import com.vsl700.nitflex.services.implementations.MovieLoaderServiceImpl;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,19 +23,22 @@ public class MovieLoaderServiceImplLoadAllTests {
 
     private MovieRepository movieRepo;
     private EpisodeRepository episodeRepo;
+    private SubtitleRepository subtitleRepo;
     private SharedProperties sharedProperties;
     private MovieLoaderService service;
 
     private ArrayList<Movie> movies;
     private ArrayList<Episode> episodes;
+    private ArrayList<Subtitle> subtitles;
 
     @BeforeEach
     public void setUp(){
         movieRepo = mock(MovieRepository.class);
         episodeRepo = mock(EpisodeRepository.class);
+        subtitleRepo = mock(SubtitleRepository.class);
         sharedProperties = mock(SharedProperties.class);
 
-        service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, sharedProperties);
+        service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, subtitleRepo, sharedProperties);
 
         movies = new ArrayList<>();
         doAnswer((invocation) -> {
@@ -78,6 +81,20 @@ public class MovieLoaderServiceImplLoadAllTests {
             return null;
         }).when(episodeRepo).deleteBySeriesId(any(String.class));
 
+        subtitles = new ArrayList<>();
+        when(subtitleRepo.save(any())).then((invocation) -> {
+            Subtitle subtitle = invocation.getArgument(0, Subtitle.class);
+            subtitles.add(subtitle);
+            return subtitle;
+        });
+
+        doAnswer(invocation -> {
+            String movieId = invocation.getArgument(0, String.class);
+            subtitles.removeIf(s -> s.getMovieId().equals(movieId));
+
+            return null;
+        }).when(subtitleRepo).deleteByMovieId(any(String.class));
+
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
     }
 
@@ -85,17 +102,20 @@ public class MovieLoaderServiceImplLoadAllTests {
     public void loadNewlyAdded_test(){
         service.loadNewlyAdded();
 
-        assertThat(movies.size()).isEqualTo(38);
-        assertThat(episodes.size()).isEqualTo(148);
+        assertThat(movies.size()).isEqualTo(41);
+        assertThat(episodes.size()).isEqualTo(166);
     }
 
     @Test
     public void unloadNonExisting_test(){
         service.loadNewlyAdded();
+        int moviesSize = movies.size();
         int episodesSize = episodes.size();
+        int subtitlesSize = subtitles.size();
 
         movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
-        movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        Movie film = movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        subtitleRepo.save(new Subtitle(film.getId(), "subs.srt", "subs.srt"));
         movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
         Movie series =
                 movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
@@ -104,6 +124,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
         episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
         episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E01.srt", "S01E01.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E02.srt", "S01E02.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E03.srt", "S01E03.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S02E01.srt", "S02E01.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S02E02.srt", "S02E02.srt"));
         Movie series2 =
                 movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
         episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
@@ -114,17 +139,23 @@ public class MovieLoaderServiceImplLoadAllTests {
 
         service.unloadNonExisting();
 
-        assertThat(movies.size()).isEqualTo(38);
-        assertThat(episodes.size()).isEqualTo(episodesSize);
+        Assertions.assertAll(() -> {
+            assertThat(movies.size()).isEqualTo(moviesSize);
+            assertThat(episodes.size()).isEqualTo(episodesSize);
+            assertThat(subtitles.size()).isEqualTo(subtitlesSize);
+        });
     }
 
     @Test
     public void unloadNonExisting_thenCheckForNewlyAdded_test(){
         service.loadNewlyAdded();
+        int moviesSize = movies.size();
         int episodesSize = episodes.size();
+        int subtitlesSize = subtitles.size();
 
         movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
-        movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        Movie film = movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        subtitleRepo.save(new Subtitle(film.getId(), "subs.srt", "subs.srt"));
         movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
         Movie series =
                 movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
@@ -133,6 +164,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
         episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
         episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E01.srt", "S01E01.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E02.srt", "S01E02.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E03.srt", "S01E03.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S02E01.srt", "S02E01.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S02E02.srt", "S02E02.srt"));
         Movie series2 =
                 movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
         episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
@@ -144,46 +180,63 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.unloadNonExisting();
         service.loadNewlyAdded();
 
-        assertThat(movies.size()).isEqualTo(38);
-        assertThat(episodes.size()).isEqualTo(episodesSize);
+        Assertions.assertAll(() -> {
+            assertThat(movies.size()).isEqualTo(moviesSize);
+            assertThat(episodes.size()).isEqualTo(episodesSize);
+            assertThat(subtitles.size()).isEqualTo(subtitlesSize);
+        });
     }
 
     @RepeatedTest(30)
     public void loadNewlyAdded_thenLoadSomeMoreNewlyAdded_test(){
         service.loadNewlyAdded();
+        int moviesSize = movies.size();
         int episodesSize = episodes.size();
+        int subtitlesSize = subtitles.size();
 
+        Random rnd = new Random();
         for(int i = 0; i < 10; i++){ // Remove 10 (random) movies
-            Movie movie = movies.stream().findAny().orElseThrow();
+            Movie movie = movies.get(rnd.nextInt(movies.size()));
             movies.remove(movie);
 
             if(movie.getType().equals(Movie.MovieType.Series)){
                 episodes.removeIf(e -> e.getSeriesId().equals(movie.getId()));
             }
+
+            subtitles.removeIf(s -> s.getMovieId().equals(movie.getId()));
         }
 
         service.loadNewlyAdded();
 
-        assertThat(movies.size()).isEqualTo(38);
-        assertThat(episodes.size()).isEqualTo(episodesSize);
+        Assertions.assertAll(() -> {
+            assertThat(movies.size()).isEqualTo(moviesSize);
+            assertThat(episodes.size()).isEqualTo(episodesSize);
+            assertThat(subtitles.size()).isEqualTo(subtitlesSize);
+        });
     }
 
     @RepeatedTest(30)
     public void loadNewlyAdded_thenUnloadNonExisting_thenLoadSomeMoreNewlyAdded_test(){
         service.loadNewlyAdded();
+        int moviesSize = movies.size();
         int episodesSize = episodes.size();
+        int subtitlesSize = subtitles.size();
 
+        Random rnd = new Random();
         for(int i = 0; i < 10; i++){ // Remove 10 (random) movies
-            Movie movie = movies.stream().findAny().orElseThrow();
+            Movie movie = movies.get(rnd.nextInt(movies.size()));
             movies.remove(movie);
 
             if(movie.getType().equals(Movie.MovieType.Series)){
                 episodes.removeIf(e -> e.getSeriesId().equals(movie.getId()));
             }
+
+            subtitles.removeIf(s -> s.getMovieId().equals(movie.getId()));
         }
 
         movieRepo.save(new Movie("Not existing movie", Movie.MovieType.Film, "not.existing.movie", 45L));
-        movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        Movie film = movieRepo.save(new Movie("Not existing movie 2", Movie.MovieType.Film, "not.existing.movie2", 45L));
+        subtitleRepo.save(new Subtitle(film.getId(), "subs.srt", "subs.srt"));
         movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
         Movie series =
                 movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
@@ -192,6 +245,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
         episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
         episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E01.srt", "S01E01.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E02.srt", "S01E02.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S01E03.srt", "S01E03.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S02E01.srt", "S02E01.srt"));
+        subtitleRepo.save(new Subtitle(series.getId(), "S02E02.srt", "S02E02.srt"));
         Movie series2 =
                 movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
         episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
@@ -203,7 +261,10 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.loadNewlyAdded();
         service.unloadNonExisting();
 
-        assertThat(movies.size()).isEqualTo(38);
-        assertThat(episodes.size()).isEqualTo(episodesSize);
+        Assertions.assertAll(() -> {
+            assertThat(movies.size()).isEqualTo(moviesSize);
+            assertThat(episodes.size()).isEqualTo(episodesSize);
+            assertThat(subtitles.size()).isEqualTo(subtitlesSize);
+        });
     }
 }
