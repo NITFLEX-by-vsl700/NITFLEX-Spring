@@ -36,6 +36,10 @@ public class Movie{
     @Setter(AccessLevel.NONE)
     private List<Episode> episodes;
 
+    @DocumentReference
+    @Setter(AccessLevel.NONE)
+    private List<Subtitle> subtitles;
+
     public enum MovieType{
         Film,
         Series

@@ -3,9 +3,11 @@ package com.vsl700.nitflex.services.implementations;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
+import com.vsl700.nitflex.repo.SubtitleRepository;
 import com.vsl700.nitflex.services.MovieLoaderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,10 +31,38 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
     private EpisodeRepository episodeRepo;
 
+    private SubtitleRepository subtitleRepo;
+
     private SharedProperties sharedProperties;
 
     private final BiFunction<String, String, String> pathRelativizer =
             (homePath, fullPath) -> Paths.get(homePath).relativize(Paths.get(fullPath)).toString();
+
+    private static final String[] subtitleFileExtensions = {
+            "srt",
+            "sub",
+            "sbv",
+            "ass",
+            "ssa",
+            "vtt",
+            "idx",
+            "usf",
+            "stl",
+            "aqt",
+            "jss",
+            "txt",
+            "mpl",
+            "psb",
+            "dks",
+            "pjs",
+            "cdg",
+            "rt",
+            "svcd",
+            "ttml",
+            "vplayer",
+            "giz",
+            "vsf"
+    };
 
     @Override
     public void load(Path path){
@@ -81,6 +111,9 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
         // Save the Movie
         movieRepo.save(movie);
+
+        // Load the subtitles
+        loadSubtitles(movie, pathStr);
     }
 
     @Override
@@ -113,6 +146,8 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         oldMovieRecords.stream()
                 .filter(m -> m.getType().equals(Movie.MovieType.Series))
                 .forEach(m -> episodeRepo.deleteBySeriesId(m.getId()));
+        oldMovieRecords
+                .forEach(m -> subtitleRepo.deleteByMovieId(m.getId()));
     }
 
     private void loadNewlyAddedFromFolder(String folderPath){
@@ -136,6 +171,16 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
                     load(Path.of(f.getAbsolutePath()));
                 });
+    }
+
+    private void loadSubtitles(Movie movie, String absPath){
+        getFilePaths(absPath, (dir, name) ->
+                isSubtitleFile(name)
+        , true).forEach(s -> {
+            String fileName = Path.of(s).getFileName().toString();
+            Subtitle subtitle = new Subtitle(movie.getId(), fileName.substring(0, fileName.lastIndexOf('.')), s);
+            subtitleRepo.save(subtitle);
+        });
     }
 
     private void loadFilm(Movie movie, String absPath) {
@@ -223,6 +268,10 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         return dirsCount >= 1 && moviesCount == 0;
     }
 
+    private boolean isSubtitleFile(String fileName){
+        return Arrays.stream(subtitleFileExtensions).anyMatch(e -> fileName.endsWith(".%s".formatted(e)));
+    }
+
     private boolean isVideoFile(String fileName){
         return fileName.endsWith(".mp4") || fileName.endsWith(".mkv") || fileName.endsWith(".avi");
     }
@@ -249,7 +298,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         if(!checkNestedFiles)
             return result;
 
-        result.stream().filter(File::isDirectory).toList().forEach(e -> {
+        Arrays.stream(Objects.requireNonNull(file.listFiles())).filter(File::isDirectory).toList().forEach(e -> {
             result.addAll(getFiles(e.getAbsolutePath(), filenameFilter, checkNestedFiles).stream().toList());
         });
 

@@ -3,8 +3,10 @@ package com.vsl700.nitflex.services;
 import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
+import com.vsl700.nitflex.repo.SubtitleRepository;
 import com.vsl700.nitflex.services.implementations.MovieLoaderServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,13 +35,89 @@ public class MovieLoaderServiceImplLoadTests {
     private EpisodeRepository episodeRepo;
 
     @Mock
+    private SubtitleRepository subtitleRepo;
+
+    @Mock
     private SharedProperties sharedProperties;
 
     private MovieLoaderService service;
 
     @BeforeEach
     public void setUp(){
-        service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, sharedProperties);
+        service = new MovieLoaderServiceImpl(movieRepo, episodeRepo, subtitleRepo, sharedProperties);
+    }
+
+    @Test
+    public void regularMovie_subtitles_inNestedFolder_Test(){
+        AtomicReference<Movie> resultMovie = new AtomicReference<>();
+
+        when(movieRepo.save(any())).then((invocation) -> {
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
+            resultMovie.set(movie);
+            return movie;
+        });
+
+        ArrayList<Subtitle> subtitles = new ArrayList<>();
+        when(subtitleRepo.save(any())).then((invocation) -> {
+            Subtitle subtitle = invocation.getArgument(0, Subtitle.class);
+            subtitles.add(subtitle);
+            return subtitle;
+        });
+
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
+
+        service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
+
+        assertThat(subtitles.size()).isEqualTo(43);
+
+        var resultSubtitle = subtitles.stream()
+                .filter(s -> s.getPath().equals("Subs\\2_English.srt"))
+                .findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(resultSubtitle).isNotNull();
+            assertThat(resultSubtitle.getName()).isEqualTo("2_English");
+            assertThat(resultSubtitle.getPath()).isEqualTo("Subs\\2_English.srt");
+            assertThat(resultSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
+        });
+    }
+
+    @Test
+    public void regularMovie_subtitles_inParentMovieFolder_Test(){
+        AtomicReference<Movie> resultMovie = new AtomicReference<>();
+
+        when(movieRepo.save(any())).then((invocation) -> {
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
+            resultMovie.set(movie);
+            return movie;
+        });
+
+        ArrayList<Subtitle> subtitles = new ArrayList<>();
+        when(subtitleRepo.save(any())).then((invocation) -> {
+            Subtitle subtitle = invocation.getArgument(0, Subtitle.class);
+            subtitles.add(subtitle);
+            return subtitle;
+        });
+
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
+
+        service.load(Path.of("D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"));
+
+        assertThat(subtitles.size()).isEqualTo(1);
+
+        var resultSubtitle = subtitles.stream()
+                .findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(resultSubtitle).isNotNull();
+            assertThat(resultSubtitle.getName()).isEqualTo("The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN");
+            assertThat(resultSubtitle.getPath()).isEqualTo("The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.srt");
+            assertThat(resultSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
+        });
     }
 
     @Test
@@ -48,6 +126,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(movieRepo.save(any())).then((invocation) -> {
             Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
             resultMovie.set(movie);
             return movie;
         });
@@ -73,6 +152,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(movieRepo.save(any())).then((invocation) -> {
             var movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
             resultMovie.set(movie);
 
             return movie;
@@ -98,9 +178,9 @@ public class MovieLoaderServiceImplLoadTests {
         AtomicReference<Movie> resultMovie = new AtomicReference<>();
 
         when(movieRepo.save(any())).then((invocation) -> {
-            var movie = invocation.getArgument(0, Movie.class);
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
             resultMovie.set(movie);
-
             return movie;
         });
 
@@ -124,9 +204,9 @@ public class MovieLoaderServiceImplLoadTests {
         AtomicReference<Movie> resultMovie = new AtomicReference<>();
 
         when(movieRepo.save(any())).then((invocation) -> {
-            var movie = invocation.getArgument(0, Movie.class);
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
             resultMovie.set(movie);
-
             return movie;
         });
 
@@ -154,6 +234,7 @@ public class MovieLoaderServiceImplLoadTests {
             if(movies.contains(movie))
                 return movie;
 
+            movie.setId("850fd9g9b90gibgf0dju9");
             movies.add(movie);
             return movie;
         });
@@ -201,6 +282,7 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(movieRepo.save(any())).then((invocation) -> {
             Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
             resultMovie.set(movie);
             return movie;
         });
