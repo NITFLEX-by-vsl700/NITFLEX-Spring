@@ -37,6 +37,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     private EpisodeRepository episodeRepo;
     private SubtitleRepository subtitleRepo;
 
+    @SneakyThrows
     @Override
     public void transcode(Movie movie) {
         if(movie.isTranscoded())
@@ -67,13 +68,6 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         movieRepo.save(movie);
 
         // Remove original files
-        videoFiles.forEach(p -> {
-            try {
-                Files.delete(Path.of(p));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
         subtitleFiles.forEach(p -> {
             try {
                 Files.delete(Path.of(p));
@@ -81,6 +75,24 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
                 throw new RuntimeException(e);
             }
         });
+        videoFiles.forEach(p -> {
+            try {
+                Files.delete(Path.of(p));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        // Recalculate Movie size
+        long size;
+        try(var stream = Files.walk(Path.of(movie.getPath()))) {
+                size = stream.filter(Files::isDirectory)
+                    .mapToLong(Files::size)
+                    .sum();
+        }
+
+        movie.setSize(size);
+        movieRepo.save(movie);
     }
 
     private void transcodeFilm(Movie movie){
@@ -88,7 +100,8 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         extractAndSaveSubtitlesFromVideoFile(movie.getFilmPath(), movie.getId());
 
         // Transcoding the film file
-        movie.setFilmPath(transcodeVideoFile(movie.getFilmPath()));
+        if(!isPathOfTranscodedVideoFile(movie.getFilmPath()))
+            movie.setFilmPath(transcodeVideoFile(movie.getFilmPath()));
 
         // If there's no trailer, return
         if(movie.getTrailerPath() == null)
@@ -98,7 +111,8 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         extractAndSaveSubtitlesFromVideoFile(movie.getTrailerPath(), movie.getId());
 
         // Transcoding the trailer file
-        movie.setTrailerPath(transcodeVideoFile(movie.getTrailerPath()));
+        if(!isPathOfTranscodedVideoFile(movie.getTrailerPath()))
+            movie.setTrailerPath(transcodeVideoFile(movie.getTrailerPath()));
     }
 
     private void transcodeSeries(Movie movie){
@@ -122,7 +136,8 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         extractAndSaveSubtitlesFromVideoFile(movie.getTrailerPath(), movie.getId());
 
         // Transcoding the trailer file
-        movie.setTrailerPath(transcodeVideoFile(movie.getTrailerPath()));
+        if(!isPathOfTranscodedVideoFile(movie.getTrailerPath()))
+            movie.setTrailerPath(transcodeVideoFile(movie.getTrailerPath()));
     }
 
     private void transcodeSubtitles(Movie movie){
@@ -179,7 +194,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         String outputPathStr = generateVideoFileOutputPath(path);
 
         // Remove output file if already exists (to prevent FFmpeg executable from crashing)
-        Path outputPath = Path.of(outputPathStr);
+        Path outputPath = Path.of(outputPathStr, extractedSubtitlesNameStandard.formatted(subtitleStreamNumber));
         if(Files.exists(outputPath)) {
             try {
                 Files.delete(outputPath);
