@@ -286,7 +286,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         return getFiles(parentPath, filenameFilter, checkNestedFiles).stream().map(f -> pathRelativizer.apply(parentPath, f.getAbsolutePath())).toList();
     }
 
-    private List<File> getFiles(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){
+    private List<File> getFiles(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){ // TODO Consider using Files::walk
         File file = new File(parentPath);
 
         var listFiles = file.listFiles(filenameFilter);
