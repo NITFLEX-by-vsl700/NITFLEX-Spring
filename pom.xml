@@ -49,6 +49,13 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.16.2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>68.2</version>
+		</dependency>
+
+
 		<!-- https://mvnrepository.com/artifact/com.turn/ttorrent-core -->
 		<dependency>
 			<groupId>com.turn</groupId>

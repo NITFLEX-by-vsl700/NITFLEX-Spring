@@ -1,7 +1,8 @@
 package com.vsl700.nitflex.services.implementations;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
 import com.vsl700.nitflex.components.SharedProperties;
-import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.repo.EpisodeRepository;
@@ -18,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -29,7 +29,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     private static final String subtitleStreamTranscodeCommandTemplate = "-i \"%s\" -vn -an -c:s webvtt -map 0:s:%s -f webvtt \"%s^%s\""
             .formatted("%s", "%d", "%s", extractedSubtitlesNameStandard)
             .replace("^", File.separator);
-    private static final String subtitleFileTranscodeCommandTemplate = "-i \"%s\" -c:s webvtt -f webvtt \"%s\"";
+    private static final String subtitleFileTranscodeCommandTemplate = "-sub_charenc %s -i \"%s\" -c:s webvtt -f webvtt \"%s\"";
 
     private MovieRepository movieRepo;
     private EpisodeRepository episodeRepo;
@@ -228,15 +228,35 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     }
 
     private String transcodeSubtitleFile(String path){
-        // Ensure that the subtitles file uses the UTF-8 charset
+        // Detect charset of input file
+        String charset = getCharsetOfFile(path);
 
         String outputPath = path.substring(0, path.lastIndexOf('.')) + ".vtt";
 
-        int exitCode = execFFmpegCommand(subtitleFileTranscodeCommandTemplate.formatted(path, outputPath));
+        int exitCode = execFFmpegCommand(subtitleFileTranscodeCommandTemplate.formatted(charset, path, outputPath));
         if(exitCode != 0)
             throw new RuntimeException("Transcoding of subtitle file \"%s\" failed!".formatted(path)); // TODO Add custom exception
 
         return outputPath;
+    }
+
+    private String getCharsetOfFile(String path) {
+        String charset;
+        try (FileInputStream fis = new FileInputStream(path)) {
+            byte[] data = fis.readAllBytes();
+
+            CharsetDetector detector = new CharsetDetector();
+            detector.setText(data);
+
+            CharsetMatch match = detector.detect();
+            if(match == null)
+                throw new RuntimeException("Could recognize charset of %s".formatted(path));
+
+            charset = match.getName();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return charset;
     }
 
     private boolean extractAndTranscodeSubtitlesFromVideoFile(String path, int subtitleStreamNumber){

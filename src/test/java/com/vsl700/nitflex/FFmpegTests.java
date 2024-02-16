@@ -142,7 +142,8 @@ public class FFmpegTests {
     @ParameterizedTest
     @ValueSource(strings = {
             "D:\\Videos\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU.mkv\nD:\\Videos\\Conversion_Tests\\Retribution.2023.1080p.WEB-DL.DDP5.1.Atmos.H.264-IWiLLFiNDyouANDiWiLLKiLLYOU",
-            "D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.mkv\nD:\\Videos\\Conversion_Tests\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"
+            "D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.mkv\nD:\\Videos\\Conversion_Tests\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN",
+            "D:\\Videos\\Shanghai.Knights.2003.720p.BluRay.DTS.x264-EbP\\Shanghai.Knights.2003.720p.BluRay.DTS.x264-EbP (1)-001.mkv\nD:\\Videos\\Conversion_Tests\\subtitles_test_shanghai_knights"
     })
     public void videoPiece_SubtitlesOnly_dashingTest(String videoPaths) throws IOException, InterruptedException { // This test will fail if the video has no subtitles at all!
         // Get the path of the FFmpeg executable, provided by the Jave2 library and appropriate for the OS
