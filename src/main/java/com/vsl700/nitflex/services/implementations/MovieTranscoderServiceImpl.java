@@ -12,10 +12,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ws.schild.jave.DefaultFFMPEGLocator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -177,7 +174,40 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         if(exitCode != 0)
             throw new RuntimeException("Transcoding of video file \"%s\" failed!".formatted(path)); // TODO Add custom exception
 
+        correctMPDValues(outputPath);
+
         return outputPath;
+    }
+
+    /**
+     * Correct the 'initialization' and 'media' values of the video and audio streams in the MPD file
+     */
+    @SneakyThrows
+    private void correctMPDValues(String path){
+        Path manifestFilePath = Path.of(path, "manifest.mpd");
+        StringBuilder manifestContent = new StringBuilder(Files.readString(manifestFilePath));
+
+        String initStart = "initialization=\"";
+        String initEnd = "init-";
+        String mediaStart = "media=\"";
+        String mediaEnd = "chunk-";
+        int initStartIndex = manifestContent.indexOf(initStart) + initStart.length();
+        int initEndIndex = manifestContent.indexOf(initEnd);
+        int mediaStartIndex = manifestContent.indexOf(mediaStart) + mediaStart.length();
+        int mediaEndIndex = manifestContent.indexOf(mediaEnd);
+
+        while(initStartIndex > initStart.length()){
+            manifestContent.delete(initStartIndex + 1, initEndIndex);
+            manifestContent.delete(mediaStartIndex + 1, mediaEndIndex);
+
+            // Update indexes
+            initStartIndex = manifestContent.indexOf(initStart, initStartIndex + 1) + initStart.length();
+            initEndIndex = manifestContent.indexOf(initEnd, initEndIndex + 1);
+            mediaStartIndex = manifestContent.indexOf(mediaStart, mediaStartIndex + 1) + mediaEnd.length();
+            mediaEndIndex = manifestContent.indexOf(mediaEnd, mediaEndIndex + 1);
+        }
+
+        Files.write(manifestFilePath, manifestContent.toString().getBytes());
     }
 
     private String transcodeSubtitleFile(String path){
