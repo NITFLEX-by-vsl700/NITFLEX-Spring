@@ -250,7 +250,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
 
             CharsetMatch match = detector.detect();
             if(match == null)
-                throw new RuntimeException("Could recognize charset of %s".formatted(path));
+                throw new RuntimeException("Could not recognize charset of %s".formatted(path));
 
             charset = match.getName();
         } catch (IOException e) {
