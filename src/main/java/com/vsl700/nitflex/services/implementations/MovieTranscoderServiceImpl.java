@@ -50,7 +50,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         switch (movie.getType()){
             case Film -> videoFiles.add(Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath()).toString());
             case Series -> videoFiles.addAll(episodeRepo.findAllBySeriesId(movie.getId()).stream()
-                    .map(e -> Path.of(movie.getPath(), e.getEpisodePath()).toString())
+                    .map(e -> Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), e.getEpisodePath()).toString())
                     .toList());
         }
 
