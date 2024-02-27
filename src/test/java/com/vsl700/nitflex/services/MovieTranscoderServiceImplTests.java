@@ -142,6 +142,7 @@ public class MovieTranscoderServiceImplTests {
         });
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos\\nitflex");
+        when(sharedProperties.isTranscodingEnabled()).thenReturn(true);
     }
 
     @Test

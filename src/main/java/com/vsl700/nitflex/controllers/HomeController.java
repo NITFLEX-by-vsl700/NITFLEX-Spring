@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.dto.MovieDTO;
 import com.vsl700.nitflex.repo.MovieRepository;
 import org.modelmapper.ModelMapper;
@@ -16,10 +17,14 @@ public class HomeController {
     private MovieRepository movieRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private SharedProperties sharedProperties;
 
     @GetMapping
     public String index(Model model){
-        List<MovieDTO> movies = movieRepository.findAll().stream().map(m -> modelMapper.map(m, MovieDTO.class))
+        List<MovieDTO> movies = movieRepository.findAll().stream()
+                .filter(m -> m.isTranscoded() || !sharedProperties.isTranscodingEnabled())
+                .map(m -> modelMapper.map(m, MovieDTO.class))
                 .toList();
         model.addAttribute("movies", movies);
         return "index";

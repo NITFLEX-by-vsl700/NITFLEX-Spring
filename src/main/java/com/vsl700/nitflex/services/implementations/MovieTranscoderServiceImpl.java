@@ -39,7 +39,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     @SneakyThrows
     @Override
     public void transcode(Movie movie) {
-        if(movie.isTranscoded())
+        if(movie.isTranscoded() || !sharedProperties.isTranscodingEnabled())
             return;
 
         // Save all original video and subtitle file paths

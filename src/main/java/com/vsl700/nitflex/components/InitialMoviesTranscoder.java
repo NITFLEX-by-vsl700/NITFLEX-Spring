@@ -18,9 +18,14 @@ public class InitialMoviesTranscoder {
     private MovieRepository movieRepo;
     @Autowired
     private MovieTranscoderService movieTranscoderService;
+    @Autowired
+    private SharedProperties sharedProperties;
 
     @EventListener
     public void eventListener(ApplicationReadyEvent event){
+        if(!sharedProperties.isTranscodingEnabled())
+            return;
+
         LOG.info("Transcoding non-transcoded movies...");
         movieRepo.findAll().forEach(m -> {
             LOG.info("Checking %s...".formatted(m.getName()));
