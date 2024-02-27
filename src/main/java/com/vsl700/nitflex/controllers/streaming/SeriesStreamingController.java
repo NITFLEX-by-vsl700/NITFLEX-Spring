@@ -1,7 +1,9 @@
-package com.vsl700.nitflex.controllers;
+package com.vsl700.nitflex.controllers.streaming;
 
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -9,7 +11,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,17 +23,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 @RestController
-public class StreamingController {
+public class SeriesStreamingController {
     @Autowired
     private MovieRepository movieRepository;
 
     @Autowired
+    private EpisodeRepository episodeRepository;
+
+    @Autowired
     private SharedProperties sharedProperties;
 
-    @GetMapping("stream/film/{id}/{dashFilePath}")
-    public ResponseEntity<Resource> getFilmDashFile(@PathVariable String id, @PathVariable String dashFilePath){
+    @GetMapping("stream/series/{id}/{episodeId}/{dashFilePath}")
+    public ResponseEntity<Resource> getEpisodeDashFile(@PathVariable String id, @PathVariable String episodeId, @PathVariable String dashFilePath){
         Movie movie = movieRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(); // TODO Add custom exception
+
+        if(!movie.getType().equals(Movie.MovieType.Series))
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build(); // TODO Add custom exception
 
         // Validate the given dash file path
         try {
@@ -43,7 +52,10 @@ public class StreamingController {
                     .build(); // TODO Add custom exception (InvalidDashFileException)
         }
 
-        Path fullDashFilePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath(), dashFilePath);
+        Episode episode = episodeRepository.findById(episodeId)
+                .orElseThrow(); // TODO Add custom exception
+
+        Path fullDashFilePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), episode.getEpisodePath(), dashFilePath);
 
         // Prevent any 500 Internal Server errors if resulting path is invalid for Nitflex streaming
         if(!Files.exists(fullDashFilePath) || Files.isDirectory(fullDashFilePath))
@@ -57,7 +69,11 @@ public class StreamingController {
         else if(dashFilePath.endsWith(".m4s"))
             contentType = MediaType.parseMediaType("video/mp4");
 
-        assert contentType != null; // TODO Substitute with the Bad Request snippet, later with a custom exception (InvalidDashFileException)
+        if(contentType == null)
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build(); // TODO Add custom exception (InvalidDashFileException)
+
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(contentType)
@@ -76,22 +92,30 @@ public class StreamingController {
                 .body(new FileSystemResource(moviePath));
     }*/
 
-    @GetMapping("stream/raw/film/{id}")
-    public ResponseEntity<Resource> getFilmById(@PathVariable String id) throws URISyntaxException {
+    @GetMapping("stream/raw/series/{id}/{episodeId}")
+    public ResponseEntity<Resource> getEpisodeVideoFile(@PathVariable String id, @PathVariable String episodeId) throws URISyntaxException {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow();
+                .orElseThrow(); // TODO Add custom exception
+
+        if(!movie.getType().equals(Movie.MovieType.Series))
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .build(); // TODO Add custom exception
 
         if(movie.isTranscoded())
             return ResponseEntity
                     .status(HttpStatus.MOVED_PERMANENTLY)
-                    .location(new URI("/stream/film/%s/manifest.mpd".formatted(id)))
+                    .location(new URI("/stream/series/%s/%s/manifest.mpd".formatted(id, episodeId)))
                     .build();
 
-        Path moviePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath());
+        Episode episode = episodeRepository.findById(episodeId)
+                .orElseThrow(); // TODO Add custom exception
+
+        Path episodePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), episode.getEpisodePath());
 
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(new FileSystemResource(moviePath));
+                .body(new FileSystemResource(episodePath));
     }
 }
