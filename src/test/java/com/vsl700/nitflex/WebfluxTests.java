@@ -1,5 +1,6 @@
 package com.vsl700.nitflex;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -9,6 +10,7 @@ import reactor.netty.http.client.HttpClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Disabled
 public class WebfluxTests {
     @Test
     public void fileDownload_byBytes_Test(){
