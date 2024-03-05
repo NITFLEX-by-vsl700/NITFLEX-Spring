@@ -20,7 +20,7 @@ public class HomeController {
     @Autowired
     private SharedProperties sharedProperties;
 
-    @GetMapping
+    //@GetMapping
     public String index(Model model){
         List<MovieDTO> movies = movieRepository.findAll().stream()
                 .filter(m -> m.isTranscoded() || !sharedProperties.isTranscodingEnabled())

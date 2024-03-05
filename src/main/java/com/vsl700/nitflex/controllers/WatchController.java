@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 // Watch page
 @Controller
 public class WatchController {
-    @GetMapping("watch/{id}")
+    //@GetMapping("watch/{id}")
     public String watchPage(@PathVariable String id, Model model){
         model.addAttribute("videoFileId", id);
         return "watch";
