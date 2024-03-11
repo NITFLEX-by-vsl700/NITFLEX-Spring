@@ -113,6 +113,7 @@
 					<nodeVersion>v21.6.1</nodeVersion>
 					<npmVersion>10.2.4</npmVersion>
 					<workingDirectory>src/main/resources/static/</workingDirectory>
+					<skip>true</skip>
 				</configuration>
 				<executions>
 					<execution>

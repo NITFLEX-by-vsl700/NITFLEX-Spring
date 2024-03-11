@@ -11,6 +11,7 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route index path='/' Component={Home}/>
+      <Route path='/index.html' Component={Home}/>
     </Routes>
   </BrowserRouter>
 );
