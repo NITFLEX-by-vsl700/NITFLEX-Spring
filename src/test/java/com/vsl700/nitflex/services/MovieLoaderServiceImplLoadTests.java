@@ -22,9 +22,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-@Disabled // These tests will only work on my machine!
+@Disabled // These tests don't work on production machines!
 @ExtendWith(MockitoExtension.class)
 public class MovieLoaderServiceImplLoadTests {
 
@@ -80,6 +81,7 @@ public class MovieLoaderServiceImplLoadTests {
             assertThat(resultSubtitle).isNotNull();
             assertThat(resultSubtitle.getName()).isEqualTo("2_English");
             assertThat(resultSubtitle.getPath()).isEqualTo("Subs\\2_English.srt");
+            assertThat(resultSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Undetermined);
             assertThat(resultSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
         });
     }
@@ -116,7 +118,118 @@ public class MovieLoaderServiceImplLoadTests {
             assertThat(resultSubtitle).isNotNull();
             assertThat(resultSubtitle.getName()).isEqualTo("The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN");
             assertThat(resultSubtitle.getPath()).isEqualTo("The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN.srt");
+            assertThat(resultSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Film);
             assertThat(resultSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
+        });
+    }
+
+    @Test
+    public void series_UndeterminedTrailerSubs_Test(){
+        AtomicReference<Movie> resultMovie = new AtomicReference<>();
+
+        when(movieRepo.save(any())).then((invocation) -> {
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
+            resultMovie.set(movie);
+            return movie;
+        });
+
+        ArrayList<Subtitle> subtitles = new ArrayList<>();
+        when(subtitleRepo.save(any())).then((invocation) -> {
+            Subtitle subtitle = invocation.getArgument(0, Subtitle.class);
+            subtitles.add(subtitle);
+            return subtitle;
+        });
+
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\NITFLEX Tests\\nitflex-origins");
+
+        service.load(Path.of("D:\\NITFLEX Tests\\nitflex-origins\\seriesTrailerInternalExternalSubtitles2"));
+
+        assertThat(subtitles.size()).isEqualTo(7);
+
+        var undeterminedSubtitle = subtitles.stream()
+                .filter(s -> s.getPath().equals("Subs\\English.srt"))
+                .findFirst()
+                .orElseThrow();
+
+        var trailerSubtitle = subtitles.stream()
+                .filter(s -> s.getPath().equals("sample.srt"))
+                .findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(undeterminedSubtitle).isNotNull();
+            assertThat(undeterminedSubtitle.getName()).isEqualTo("English");
+            assertThat(undeterminedSubtitle.getPath()).isEqualTo("Subs\\English.srt");
+            assertThat(undeterminedSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Undetermined);
+            assertThat(undeterminedSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
+
+            assertThat(trailerSubtitle).isNotNull();
+            assertThat(trailerSubtitle.getName()).isEqualTo("sample");
+            assertThat(trailerSubtitle.getPath()).isEqualTo("sample.srt");
+            assertThat(trailerSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Trailer);
+            assertThat(trailerSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
+        });
+    }
+
+    @Test
+    public void series_EpisodeTrailerSubs_Test(){
+        AtomicReference<Movie> resultMovie = new AtomicReference<>();
+
+        when(movieRepo.save(any())).then((invocation) -> {
+            Movie movie = invocation.getArgument(0, Movie.class);
+            movie.setId("850fd9g9b90gibgf0dju9");
+            resultMovie.set(movie);
+            return movie;
+        });
+
+        ArrayList<Episode> episodes = new ArrayList<>();
+        when(episodeRepo.save(any())).then((invocation) -> {
+            Episode episode = invocation.getArgument(0, Episode.class);
+            episodes.add(episode);
+            return episode;
+        });
+
+        when(episodeRepo.findAllBySeriesId(anyString())).then(invocation -> {
+            String seriesId = invocation.getArgument(0, String.class);
+            return episodes.stream().filter(e -> e.getSeriesId().equals(seriesId)).toList();
+        });
+
+        ArrayList<Subtitle> subtitles = new ArrayList<>();
+        when(subtitleRepo.save(any())).then((invocation) -> {
+            Subtitle subtitle = invocation.getArgument(0, Subtitle.class);
+            subtitles.add(subtitle);
+            return subtitle;
+        });
+
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\NITFLEX Tests\\nitflex-origins");
+
+        service.load(Path.of("D:\\NITFLEX Tests\\nitflex-origins\\seriesTrailerSubtitles2"));
+
+        assertThat(subtitles.size()).isEqualTo(6);
+
+        var episodeSubtitle = subtitles.stream()
+                .filter(s -> s.getPath().equals("S01E01.srt"))
+                .findFirst()
+                .orElseThrow();
+
+        var trailerSubtitle = subtitles.stream()
+                .filter(s -> s.getPath().equals("sample.srt"))
+                .findFirst()
+                .orElseThrow();
+
+        Assertions.assertAll(() -> {
+            assertThat(episodeSubtitle).isNotNull();
+            assertThat(episodeSubtitle.getName()).isEqualTo("S01E01");
+            assertThat(episodeSubtitle.getPath()).isEqualTo("S01E01.srt");
+            assertThat(episodeSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
+            assertThat(episodeSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
+
+            assertThat(trailerSubtitle).isNotNull();
+            assertThat(trailerSubtitle.getName()).isEqualTo("sample");
+            assertThat(trailerSubtitle.getPath()).isEqualTo("sample.srt");
+            assertThat(trailerSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Trailer);
+            assertThat(trailerSubtitle.getMovieId()).isEqualTo(resultMovie.get().getId());
         });
     }
 

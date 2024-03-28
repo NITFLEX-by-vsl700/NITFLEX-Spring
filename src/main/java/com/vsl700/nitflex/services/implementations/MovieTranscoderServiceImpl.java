@@ -107,7 +107,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     private void transcodeFilm(Movie movie){
         String filmFilePath = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getFilmPath()).toString();
         // Transcode subtitles from film file
-        extractAndSaveSubtitlesFromVideoFile(filmFilePath, movie);
+        extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType.Film, filmFilePath, movie);
 
         // Transcoding the film file
         if(!isPathOfTranscodedVideoFile(filmFilePath))
@@ -119,7 +119,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
 
         String trailerFilePath = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getTrailerPath()).toString();
         // Transcode subtitles from trailer file
-        extractAndSaveSubtitlesFromVideoFile(trailerFilePath, movie);
+        extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType.Trailer, trailerFilePath, movie);
 
         // Transcoding the trailer file
         if(!isPathOfTranscodedVideoFile(trailerFilePath))
@@ -131,7 +131,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         episodeRepo.findAllBySeriesId(movie.getId()).forEach(e -> {
             String episodeFilePath = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), e.getEpisodePath()).toString();
             // Transcode subtitles from episode file
-            extractAndSaveSubtitlesFromVideoFile(episodeFilePath, movie);
+            extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType.Episode, episodeFilePath, movie);
 
             // Transcode episode file
             if(!isPathOfTranscodedVideoFile(episodeFilePath)) {
@@ -146,7 +146,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
 
         String trailerFilePath = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), movie.getTrailerPath()).toString();
         // Transcode subtitles from trailer file
-        extractAndSaveSubtitlesFromVideoFile(trailerFilePath, movie);
+        extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType.Trailer, trailerFilePath, movie);
 
         // Transcoding the trailer file
         if(!isPathOfTranscodedVideoFile(trailerFilePath))
@@ -162,11 +162,11 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
                 });
     }
 
-    private void extractAndSaveSubtitlesFromVideoFile(String path, Movie movie){
+    private void extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType type, String path, Movie movie){
         String outputVideoFilePath = generateVideoFileOutputPath(path);
         String outputSubtitleFilePath;
         for(int i = 0; subtitleRepo.findByPath(outputSubtitleFilePath = Path.of(outputVideoFilePath, extractedSubtitlesNameStandard.formatted(i)).toString()).isEmpty() && extractAndTranscodeSubtitlesFromVideoFile(path, i); i++){
-            Subtitle extractedSubtitle = new Subtitle(movie.getId(), "Extracted (%d)".formatted(i), Path.of(sharedProperties.getMoviesFolder(), movie.getPath()).relativize(Path.of(outputSubtitleFilePath)).toString());
+            Subtitle extractedSubtitle = new Subtitle(movie.getId(), type, "Extracted (%d)".formatted(i), Path.of(sharedProperties.getMoviesFolder(), movie.getPath()).relativize(Path.of(outputSubtitleFilePath)).toString());
             subtitleRepo.save(extractedSubtitle);
         }
     }

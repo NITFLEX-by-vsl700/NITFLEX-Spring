@@ -141,7 +141,7 @@ public class MovieTranscoderServiceImplTests {
             return subtitles.stream().filter(s -> s.getPath().equals(path)).findFirst();
         });
 
-        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos\\nitflex");
+        when(sharedProperties.getMoviesFolder()).thenReturn("D:\\NITFLEX Tests\\nitflex");
         when(sharedProperties.isTranscodingEnabled()).thenReturn(true);
     }
 
@@ -171,8 +171,8 @@ public class MovieTranscoderServiceImplTests {
 
         movieTranscoderService.transcode(movie);
 
-        String filmManifestContent = Files.readString(Path.of("D:\\Videos\\nitflex\\filmTrailer\\2024-01-28 14-35-19\\manifest.mpd"));
-        String trailerManifestContent = Files.readString(Path.of("D:\\Videos\\nitflex\\filmTrailer\\sample\\manifest.mpd"));
+        String filmManifestContent = Files.readString(Path.of("D:\\NITFLEX Tests\\nitflex\\filmTrailer\\2024-01-28 14-35-19\\manifest.mpd"));
+        String trailerManifestContent = Files.readString(Path.of("D:\\NITFLEX Tests\\nitflex\\filmTrailer\\sample\\manifest.mpd"));
 
         Assertions.assertAll(() -> {
             assertThat(countWordOccurrences(filmManifestContent, "initialization=\"init-$RepresentationID$.m4s\"")).isEqualTo(2);
@@ -188,12 +188,12 @@ public class MovieTranscoderServiceImplTests {
         movie.setFilmPath("2024-01-28 14-35-19.mkv");
         movieRepo.save(movie);
 
-        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), "English", "Subs\\English.srt");
-        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), "French", "Subs\\French.srt");
-        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), "Chinese", "Subs\\Chinese.srt");
-        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), "hacker-din", "Subs2\\hacker-din.srt");
-        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
-        Subtitle subtitle = new Subtitle(movie.getId(), "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
+        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "English", "Subs\\English.srt");
+        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "French", "Subs\\French.srt");
+        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "Chinese", "Subs\\Chinese.srt");
+        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din", "Subs2\\hacker-din.srt");
+        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
+        Subtitle subtitle = new Subtitle(movie.getId(), Subtitle.SubtitleType.Film, "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
         subtitleRepo.save(nestedSubtitle1);
         subtitleRepo.save(nestedSubtitle2);
         subtitleRepo.save(nestedSubtitle3);
@@ -227,12 +227,12 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), "English", "Subs\\English.srt");
-        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), "French", "Subs\\French.srt");
-        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), "Chinese", "Subs\\Chinese.srt");
-        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), "hacker-din", "Subs2\\hacker-din.srt");
-        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
-        Subtitle subtitle = new Subtitle(movie.getId(), "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
+        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "English", "Subs\\English.srt");
+        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "French", "Subs\\French.srt");
+        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "Chinese", "Subs\\Chinese.srt");
+        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din", "Subs2\\hacker-din.srt");
+        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
+        Subtitle subtitle = new Subtitle(movie.getId(), Subtitle.SubtitleType.Film, "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
         subtitleRepo.save(nestedSubtitle1);
         subtitleRepo.save(nestedSubtitle2);
         subtitleRepo.save(nestedSubtitle3);
@@ -371,11 +371,11 @@ public class MovieTranscoderServiceImplTests {
         episodeRepo.save(episode4);
         episodeRepo.save(episode5);
 
-        Subtitle subtitle1 = new Subtitle(movie.getId(), "S01E01", "S01E01.srt");
-        Subtitle subtitle2 = new Subtitle(movie.getId(), "S01E02", "S01E02.srt");
-        Subtitle subtitle3 = new Subtitle(movie.getId(), "S01E03", "S01E03.srt");
-        Subtitle subtitle4 = new Subtitle(movie.getId(), "S02E01", "S02E01.srt");
-        Subtitle subtitle5 = new Subtitle(movie.getId(), "S02E02", "S02E02.srt");
+        Subtitle subtitle1 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S01E01", "S01E01.srt");
+        Subtitle subtitle2 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S01E02", "S01E02.srt");
+        Subtitle subtitle3 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S01E03", "S01E03.srt");
+        Subtitle subtitle4 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S02E01", "S02E01.srt");
+        Subtitle subtitle5 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S02E02", "S02E02.srt");
         subtitleRepo.save(subtitle1);
         subtitleRepo.save(subtitle2);
         subtitleRepo.save(subtitle3);
@@ -421,11 +421,11 @@ public class MovieTranscoderServiceImplTests {
         episodeRepo.save(episode4);
         episodeRepo.save(episode5);
 
-        Subtitle subtitle1 = new Subtitle(movie.getId(), "S01E01", "S01E01.srt");
-        Subtitle subtitle2 = new Subtitle(movie.getId(), "S01E02", "S01E02.srt");
-        Subtitle subtitle3 = new Subtitle(movie.getId(), "S01E03", "S01E03.srt");
-        Subtitle subtitle4 = new Subtitle(movie.getId(), "S02E01", "S02E01.srt");
-        Subtitle subtitle5 = new Subtitle(movie.getId(), "S02E02", "S02E02.srt");
+        Subtitle subtitle1 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S01E01", "S01E01.srt");
+        Subtitle subtitle2 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S01E02", "S01E02.srt");
+        Subtitle subtitle3 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S01E03", "S01E03.srt");
+        Subtitle subtitle4 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S02E01", "S02E01.srt");
+        Subtitle subtitle5 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "S02E02", "S02E02.srt");
         subtitleRepo.save(subtitle1);
         subtitleRepo.save(subtitle2);
         subtitleRepo.save(subtitle3);
@@ -474,6 +474,7 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitles.size()).isEqualTo(1);
 
             assertThat(extractedSubtitle.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle.getType()).isEqualTo(Subtitle.SubtitleType.Film);
             assertThat(extractedSubtitle.getPath()).isEqualTo("output_video_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle.getName()).isEqualTo("Extracted (0)");
         });
@@ -507,14 +508,17 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitles.size()).isEqualTo(3);
 
             assertThat(extractedSubtitle1.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle1.getPath()).isEqualTo("output_video_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle1.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle2.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle2.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle2.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle2.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle3.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle3.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle3.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_1.vtt");
             assertThat(extractedSubtitle3.getName()).isEqualTo("Extracted (1)");
         });
@@ -527,12 +531,12 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), "English", "Subs\\English.srt");
-        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), "French", "Subs\\French.srt");
-        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), "Chinese", "Subs\\Chinese.srt");
-        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), "hacker-din", "Subs2\\hacker-din.srt");
-        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
-        Subtitle subtitle = new Subtitle(movie.getId(), "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
+        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "English", "Subs\\English.srt");
+        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "French", "Subs\\French.srt");
+        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "Chinese", "Subs\\Chinese.srt");
+        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din", "Subs2\\hacker-din.srt");
+        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
+        Subtitle subtitle = new Subtitle(movie.getId(), Subtitle.SubtitleType.Film, "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
         subtitleRepo.save(nestedSubtitle1);
         subtitleRepo.save(nestedSubtitle2);
         subtitleRepo.save(nestedSubtitle3);
@@ -568,12 +572,12 @@ public class MovieTranscoderServiceImplTests {
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
 
-        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), "English", "Subs\\English.srt");
-        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), "French", "Subs\\French.srt");
-        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), "Chinese", "Subs\\Chinese.srt");
-        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), "hacker-din", "Subs2\\hacker-din.srt");
-        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
-        Subtitle subtitle = new Subtitle(movie.getId(), "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
+        Subtitle nestedSubtitle1 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "English", "Subs\\English.srt");
+        Subtitle nestedSubtitle2 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "French", "Subs\\French.srt");
+        Subtitle nestedSubtitle3 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "Chinese", "Subs\\Chinese.srt");
+        Subtitle nestedSubtitle4 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din", "Subs2\\hacker-din.srt");
+        Subtitle nestedSubtitle5 = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "hacker-din_eng", "Subs2\\hacker-din_eng.srt");
+        Subtitle subtitle = new Subtitle(movie.getId(), Subtitle.SubtitleType.Undetermined, "2024-01-28 14-35-19", "2024-01-28 14-35-19.srt");
         subtitleRepo.save(nestedSubtitle1);
         subtitleRepo.save(nestedSubtitle2);
         subtitleRepo.save(nestedSubtitle3);
@@ -599,14 +603,17 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitles.size()).isEqualTo(9);
 
             assertThat(extractedSubtitle1.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle1.getPath()).isEqualTo("output_video_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle1.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle2.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle2.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle2.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle3.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle3.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_1.vtt");
             assertThat(extractedSubtitle3.getName()).isEqualTo("Extracted (1)");
 
