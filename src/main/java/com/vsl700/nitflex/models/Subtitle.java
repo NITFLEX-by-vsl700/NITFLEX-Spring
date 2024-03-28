@@ -16,8 +16,18 @@ public class Subtitle {
     private String id;
     @NonNull
     private String movieId;
+    private String episodeId;
+    @NonNull
+    private SubtitleType type;
     @NonNull
     private String name;
     @NonNull
     private String path;
+
+    public enum SubtitleType {
+        Film,
+        Episode,
+        Trailer,
+        Undetermined
+    }
 }

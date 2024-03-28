@@ -15,4 +15,5 @@ public class SharedProperties {
     private String movieRequestPrivilege;
     private int movieSizeLimit;
     private boolean transcodingEnabled;
+    private String[] frontEndUrls;
 }
