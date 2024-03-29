@@ -561,16 +561,19 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitles.size()).isEqualTo(3);
 
             assertThat(extractedSubtitle1.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getEpisodeId()).isEqualTo(episode1.getId());
             assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle1.getPath()).isEqualTo("output_video_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle1.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle2.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle2.getEpisodeId()).isEqualTo(episode2.getId());
             assertThat(extractedSubtitle2.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle2.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle2.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle3.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle3.getEpisodeId()).isEqualTo(episode2.getId());
             assertThat(extractedSubtitle3.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle3.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_1.vtt");
             assertThat(extractedSubtitle3.getName()).isEqualTo("Extracted (1)");
@@ -656,17 +659,20 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitles.size()).isEqualTo(9);
 
             assertThat(extractedSubtitle1.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getEpisodeId()).isEqualTo(episode1.getId());
             assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle1.getPath()).isEqualTo("output_video_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle1.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle2.getMovieId()).isEqualTo(movie.getId());
-            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
+            assertThat(extractedSubtitle2.getEpisodeId()).isEqualTo(episode2.getId());
+            assertThat(extractedSubtitle2.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle2.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle2.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle3.getMovieId()).isEqualTo(movie.getId());
-            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
+            assertThat(extractedSubtitle3.getEpisodeId()).isEqualTo(episode2.getId());
+            assertThat(extractedSubtitle3.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle3.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_1.vtt");
             assertThat(extractedSubtitle3.getName()).isEqualTo("Extracted (1)");
 
@@ -723,17 +729,20 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitles.size()).isEqualTo(10);
 
             assertThat(extractedSubtitle1.getMovieId()).isEqualTo(movie.getId());
+            assertThat(extractedSubtitle1.getEpisodeId()).isEqualTo(episode1.getId());
             assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle1.getPath()).isEqualTo("output_video_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle1.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle2.getMovieId()).isEqualTo(movie.getId());
-            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
+            assertThat(extractedSubtitle2.getEpisodeId()).isEqualTo(episode2.getId());
+            assertThat(extractedSubtitle2.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle2.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_0.vtt");
             assertThat(extractedSubtitle2.getName()).isEqualTo("Extracted (0)");
 
             assertThat(extractedSubtitle3.getMovieId()).isEqualTo(movie.getId());
-            assertThat(extractedSubtitle1.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
+            assertThat(extractedSubtitle3.getEpisodeId()).isEqualTo(episode2.getId());
+            assertThat(extractedSubtitle3.getType()).isEqualTo(Subtitle.SubtitleType.Episode);
             assertThat(extractedSubtitle3.getPath()).isEqualTo("output_video_2_eng_subs\\extracted_subtitles_1.vtt");
             assertThat(extractedSubtitle3.getName()).isEqualTo("Extracted (1)");
 

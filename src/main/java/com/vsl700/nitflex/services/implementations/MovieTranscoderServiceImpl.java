@@ -3,6 +3,7 @@ package com.vsl700.nitflex.services.implementations;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.repo.EpisodeRepository;
@@ -129,11 +130,11 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     private void transcodeSeries(Movie movie){
         // Transcoding each episode
         episodeRepo.findAllBySeriesId(movie.getId()).forEach(e -> {
-            String episodeFilePath = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), e.getEpisodePath()).toString();
             // Transcode subtitles from episode file
-            extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType.Episode, episodeFilePath, movie);
+            extractAndSaveSubtitlesFromEpisode(e, movie);
 
             // Transcode episode file
+            String episodeFilePath = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), e.getEpisodePath()).toString();
             if(!isPathOfTranscodedVideoFile(episodeFilePath)) {
                 e.setEpisodePath(Path.of(sharedProperties.getMoviesFolder(), movie.getPath()).relativize(Path.of(transcodeVideoFile(episodeFilePath))).toString());
                 episodeRepo.save(e);
@@ -160,6 +161,17 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
                     s.setPath(Path.of(sharedProperties.getMoviesFolder(), movie.getPath()).relativize(Path.of(transcodeSubtitleFile(Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), s.getPath()).toString()))).toString());
                     subtitleRepo.save(s);
                 });
+    }
+
+    private void extractAndSaveSubtitlesFromEpisode(Episode episode, Movie movie){
+        String path = Path.of(sharedProperties.getMoviesFolder(), movie.getPath(), episode.getEpisodePath()).toString();
+        String outputVideoFilePath = generateVideoFileOutputPath(path);
+        String outputSubtitleFilePath;
+        for(int i = 0; subtitleRepo.findByPath(outputSubtitleFilePath = Path.of(outputVideoFilePath, extractedSubtitlesNameStandard.formatted(i)).toString()).isEmpty() && extractAndTranscodeSubtitlesFromVideoFile(path, i); i++){
+            Subtitle extractedSubtitle = new Subtitle(movie.getId(), Subtitle.SubtitleType.Episode, "Extracted (%d)".formatted(i), Path.of(sharedProperties.getMoviesFolder(), movie.getPath()).relativize(Path.of(outputSubtitleFilePath)).toString());
+            extractedSubtitle.setEpisodeId(episode.getId());
+            subtitleRepo.save(extractedSubtitle);
+        }
     }
 
     private void extractAndSaveSubtitlesFromVideoFile(Subtitle.SubtitleType type, String path, Movie movie){
