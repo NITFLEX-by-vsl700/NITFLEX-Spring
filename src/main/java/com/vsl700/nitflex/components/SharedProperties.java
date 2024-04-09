@@ -14,4 +14,6 @@ public class SharedProperties {
     private int downloadInterval;
     private String movieRequestPrivilege;
     private int movieSizeLimit;
+    private boolean transcodingEnabled;
+    private String[] frontEndUrls;
 }

@@ -178,7 +178,10 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
                 isSubtitleFile(name)
         , true).forEach(s -> {
             String fileName = Path.of(s).getFileName().toString();
-            Subtitle subtitle = new Subtitle(movie.getId(), fileName.substring(0, fileName.lastIndexOf('.')), s);
+            Subtitle subtitle = new Subtitle(movie.getId(), getSubtitleTypeByPath(movie, s), fileName.substring(0, fileName.lastIndexOf('.')), s);
+            if(subtitle.getType().equals(Subtitle.SubtitleType.Episode))
+                subtitle.setEpisodeId(getSubtitleEpisodeByPath(movie, s));
+
             subtitleRepo.save(subtitle);
         });
     }
@@ -238,6 +241,42 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         return Integer.parseInt(episode);
     }
 
+    private String getSubtitleEpisodeByPath(Movie movie, String pathStr){
+        String subtitlePathNoFileExtension = pathStr.substring(0, pathStr.lastIndexOf("."));
+
+        List<Episode> episodes = episodeRepo.findAllBySeriesId(movie.getId());
+        String matcher = getMatcher(pathStr, "S\\d+E\\d+");
+
+        // Return the id of an Episode that either has the same path as the subtitles (without the file extensions),
+        // or check if the Episode's path and the Subtitle's path contain the same SddEdd pattern (have the same
+        // season and episode numbers)
+        return episodes.stream().filter(e -> e.getEpisodePath().substring(0, e.getEpisodePath().lastIndexOf(".")).equals(subtitlePathNoFileExtension) || matcher != null && e.getEpisodePath().contains(matcher))
+                .findFirst()
+                .orElseThrow()
+                .getId();
+    }
+
+    private Subtitle.SubtitleType getSubtitleTypeByPath(Movie movie, String pathStr){
+        Path path = Path.of(pathStr);
+        String subtitlePathNoFileExtension = pathStr.substring(0, pathStr.lastIndexOf("."));
+
+        if(movie.getTrailerPath() != null && movie.getTrailerPath().substring(0, movie.getTrailerPath().lastIndexOf(".")).equals(subtitlePathNoFileExtension))
+            return Subtitle.SubtitleType.Trailer;
+
+        if(movie.getType().equals(Movie.MovieType.Film) && movie.getFilmPath().substring(0, movie.getFilmPath().lastIndexOf(".")).equals(subtitlePathNoFileExtension))
+            return Subtitle.SubtitleType.Film;
+
+        List<Episode> episodes = episodeRepo.findAllBySeriesId(movie.getId());
+        String matcher = getMatcher(pathStr, "S\\d+E\\d+");
+        // Check if there's any Episode which has the same path as the subtitles (without the file extensions),
+        // or if there's an Episode which path contains the same SddEdd pattern as the path of the subtitles (if the
+        // season and episode numbers are the same)
+        if(episodes.stream().anyMatch(e -> e.getEpisodePath().substring(0, e.getEpisodePath().lastIndexOf(".")).equals(subtitlePathNoFileExtension) || matcher != null && e.getEpisodePath().contains(matcher)))
+            return Subtitle.SubtitleType.Episode;
+
+        return Subtitle.SubtitleType.Undetermined;
+    }
+
     private long getFilesSize(String path){
         return getFiles(path, null, true)
                 .stream()
@@ -286,7 +325,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
         return getFiles(parentPath, filenameFilter, checkNestedFiles).stream().map(f -> pathRelativizer.apply(parentPath, f.getAbsolutePath())).toList();
     }
 
-    private List<File> getFiles(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){
+    private List<File> getFiles(String parentPath, FilenameFilter filenameFilter, boolean checkNestedFiles){ // TODO Consider using Files::walk
         File file = new File(parentPath);
 
         var listFiles = file.listFiles(filenameFilter);

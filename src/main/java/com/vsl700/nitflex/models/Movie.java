@@ -17,20 +17,30 @@ import java.util.List;
 public class Movie{
     @Id
     private String id;
+
     @DBRef
     private User requester;
+
     @NonNull
     private String name;
+
     @NonNull
     private MovieType type;
+
     @NonNull
     private String path;
+
     @NonNull
     private long size;
+
     private String filmPath;
+
     private String trailerPath;
+
     @Setter(AccessLevel.NONE)
     private Date dateAdded = Date.from(Instant.now());
+
+    private boolean transcoded = false;
 
     @DocumentReference
     @Setter(AccessLevel.NONE)
