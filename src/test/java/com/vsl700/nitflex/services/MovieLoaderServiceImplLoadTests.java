@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,7 +69,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         assertThat(subtitles.size()).isEqualTo(43);
 
@@ -106,7 +109,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\The.Man.from.Toronto.2022.1080p.BluRay.AV1-DiN"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         assertThat(subtitles.size()).isEqualTo(1);
 
@@ -143,7 +148,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\NITFLEX Tests\\nitflex-origins");
 
-        service.load(Path.of("D:\\NITFLEX Tests\\nitflex-origins\\seriesTrailerInternalExternalSubtitles2"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\NITFLEX Tests\\nitflex-origins\\seriesTrailerInternalExternalSubtitles2"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         assertThat(subtitles.size()).isEqualTo(7);
 
@@ -204,7 +211,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\NITFLEX Tests\\nitflex-origins");
 
-        service.load(Path.of("D:\\NITFLEX Tests\\nitflex-origins\\seriesTrailerSubtitles2"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\NITFLEX Tests\\nitflex-origins\\seriesTrailerSubtitles2"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         assertThat(subtitles.size()).isEqualTo(6);
 
@@ -246,7 +255,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\The.Marksman.2021.BDRip.x264.AC3.BGAUDiO-SiSO"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -273,7 +284,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\Ex.Machina.2014.BRRip.XviD.BGAUDiO-SiSO"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -299,7 +312,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\Baby.Driver.2017.1080p.Bluray.x265"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\Baby.Driver.2017.1080p.Bluray.x265"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -325,7 +340,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -354,7 +371,10 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR"));
+        assertThat(loadedMovies.size()).isEqualTo(movies.size());
+        assertThat(movies.containsAll(loadedMovies)).isTrue();
+        assertThat(movies.size()).isEqualTo(4);
 
         // Test 1st movie from collection
         Movie resultMovie1 = movies.stream().filter(m -> m.getName().equals("The.Matrix.1999.1080p.BluRay.x265.DD5.1-WAR"))
@@ -385,8 +405,6 @@ public class MovieLoaderServiceImplLoadTests {
             assertThat(resultMovie2.getFilmPath()).isEqualTo("war-mreloaded.mkv");
             assertThat(resultMovie2.getSize()).isEqualTo(4887740817L);
         });
-
-        Assertions.assertEquals(4, movies.size());
     }
 
     @Test
@@ -402,7 +420,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\TEST_NESTED"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\TEST_NESTED"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -435,7 +455,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\Wednesday.S01.1080p.NF.WEBRip.DDP5.1.Atmos.x264-SMURF"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\Wednesday.S01.1080p.NF.WEBRip.DDP5.1.Atmos.x264-SMURF"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -482,7 +504,9 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\TEST_SERIES"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\TEST_SERIES"));
+        assertThat(loadedMovies.size()).isEqualTo(1);
+        assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
 
         Assertions.assertAll(() -> {
             assertThat(resultMovie.get()).isNotNull();
@@ -539,7 +563,10 @@ public class MovieLoaderServiceImplLoadTests {
 
         when(sharedProperties.getMoviesFolder()).thenReturn("D:\\Videos");
 
-        service.load(Path.of("D:\\Videos\\TEST_SERIES_SEP_FOLDER"));
+        List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\TEST_SERIES_SEP_FOLDER"));
+        assertThat(loadedMovies.size()).isEqualTo(movies.size());
+        assertThat(movies.containsAll(loadedMovies)).isTrue();
+        assertThat(movies.size()).isEqualTo(2);
 
         // Test 1st movie from collection
         Movie resultMovie1 = movies.stream().filter(m -> m.getName().equals("Season 1")).findFirst()
@@ -568,8 +595,6 @@ public class MovieLoaderServiceImplLoadTests {
             assertThat(resultMovie2.getFilmPath()).isNull();
             assertThat(resultMovie2.getSize()).isEqualTo(58L);
         });
-
-        Assertions.assertEquals(2, movies.size());
 
         // Test episodes
         Assertions.assertEquals(5, episodes.size());

@@ -65,12 +65,12 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
     };
 
     @Override
-    public void load(Path path){
-        load(path, null);
+    public List<Movie> load(Path path){
+        return load(path, null);
     }
 
     @Override
-    public void load(Path path, User requester) {
+    public List<Movie> load(Path path, User requester) {
         // Check if it is either a collection or a nested folder
         String pathStr = path.toString(); // TODO Finish refactoring (substitute the String methods you call with Path)
         if(isCollection(pathStr)){
@@ -79,8 +79,9 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
             var allFiles = getFiles(pathStr, (dir, name) -> true, false);
             var dirs = allFiles.stream().filter(File::isDirectory).toList();
 
-            dirs.forEach(f -> load(Path.of(f.getAbsolutePath())));
-            return;
+            List<Movie> result = new ArrayList<>();
+            dirs.forEach(f -> result.addAll(load(Path.of(f.getAbsolutePath()), requester)));
+            return result;
         }
 
         // Determine movie type
@@ -114,6 +115,8 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
 
         // Load the subtitles
         loadSubtitles(movie, pathStr);
+
+        return List.of(movie);
     }
 
     @Override

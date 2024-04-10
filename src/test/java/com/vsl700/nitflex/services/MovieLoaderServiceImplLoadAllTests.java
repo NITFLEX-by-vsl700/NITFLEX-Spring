@@ -103,7 +103,7 @@ public class MovieLoaderServiceImplLoadAllTests {
         service.loadNewlyAdded();
 
         assertThat(movies.size()).isEqualTo(44);
-        assertThat(episodes.size()).isEqualTo(173);
+        assertThat(episodes.size()).isEqualTo(175);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.components;
 
+import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.services.MovieLoaderService;
 import com.vsl700.nitflex.services.MovieSeekerService;
 import com.vsl700.nitflex.services.MovieTranscoderService;
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -25,6 +27,8 @@ public class AutoMovieDownloader {
     private MovieLoaderService movieLoaderService;
     @Autowired
     private MovieTranscoderService movieTranscoderService;
+    @Autowired
+    private SharedProperties sharedProperties;
 
     @Scheduled(initialDelayString = "${nitflex.download-interval}",
             fixedRateString = "${nitflex.download-interval}",
@@ -33,7 +37,8 @@ public class AutoMovieDownloader {
         LOG.info("Auto-download triggered!");
 
         Path path = urlMovieDownloaderService.downloadFromPageURL(movieSeekerService.findMovieURL());
-        movieLoaderService.load(path);
-        // TODO Call the Movie Transcoder here
+        List<Movie> newMovies = movieLoaderService.load(path);
+        if(sharedProperties.isTranscodingEnabled())
+            newMovies.forEach(m -> movieTranscoderService.transcode(m));
     }
 }
