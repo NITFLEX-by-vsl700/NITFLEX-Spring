@@ -72,6 +72,7 @@ public class MovieLoaderServiceImplLoadTests {
         List<Movie> loadedMovies = service.load(Path.of("D:\\Videos\\Tetris.2023.1080p.WEBRip.x264-LAMA"));
         assertThat(loadedMovies.size()).isEqualTo(1);
         assertThat(loadedMovies.contains(resultMovie.get())).isTrue();
+        // TODO Test to see if the returned Movie(s) have an ID
 
         assertThat(subtitles.size()).isEqualTo(43);
 
