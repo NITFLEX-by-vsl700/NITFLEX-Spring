@@ -2,7 +2,6 @@ package com.vsl700.nitflex.controllers;
 
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
-import com.vsl700.nitflex.models.dto.LoginDTO;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
@@ -15,7 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class AccountController {
