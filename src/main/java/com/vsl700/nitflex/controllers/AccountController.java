@@ -1,32 +1,77 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
-import com.vsl700.nitflex.models.dto.UserDTO;
+import com.vsl700.nitflex.models.dto.LoginDTO;
+import com.vsl700.nitflex.models.dto.RegisterDTO;
+import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AccountController {
     @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private RoleRepository roleRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private ModelMapper modelMapper;
 
-    @GetMapping("account/user")
-    public UserDTO getUser(){
-        var user = userRepo.findAll().stream().findFirst().orElse(null);
-        return modelMapper.map(user, UserDTO.class);
+    /*@PostMapping("/test")
+    public ResponseEntity<String> fakeLogin(@RequestBody RegisterDTO registerDTO){
+        authenticate(registerDTO.getUsername(), registerDTO.getPassword());
+
+        if(getAuthentication() == null)
+            return ResponseEntity.notFound()
+                    .build();
+
+        return ResponseEntity.ok()
+                .build();
+    }*/
+
+    @PostMapping("/welcome")
+    public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
+        if(userRepo.count() > 0) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("This server already has users!"); // TODO Create a custom exception
+        }
+
+        User user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()));
+        Role role = roleRepo.findByName("ROLE_OWNER").orElseThrow();
+        user.setRole(role);
+
+        userRepo.save(user);
+
+        authenticate(registerDTO.getUsername(), registerDTO.getPassword());
+
+        return ResponseEntity.ok()
+                .build();
     }
 
-    @GetMapping("account/users")
-    @ResponseStatus(HttpStatus.OK)
-    public Iterable<UserDTO> getAllUsers(){
-        return userRepo.findAll().stream().map(user -> modelMapper.map(user, UserDTO.class)).toList();
+    private void authenticate(String username, String password){
+        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    private Authentication getAuthentication(){
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 }
