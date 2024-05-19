@@ -33,7 +33,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((requests) -> requests
                         .requestMatchers(HttpMethod.POST, "/welcome").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/userStatus").permitAll()
                         .anyRequest().authenticated())
+                .cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(withDefaults())
                 .logout((form) -> form.clearAuthentication(true).logoutUrl("/logout"))
