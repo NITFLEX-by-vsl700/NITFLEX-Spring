@@ -2,6 +2,7 @@ package com.vsl700.nitflex.controllers;
 
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
+import com.vsl700.nitflex.models.dto.LoginDTO;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,6 +49,18 @@ public class AccountController {
                 .build();
     }*/
 
+    /*@PostMapping("/auth")
+    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO){
+        authenticate(loginDTO.getUsername(), loginDTO.getPassword());
+
+        if(getAuthentication() == null && !(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetails))
+            return ResponseEntity.notFound()
+                    .build();
+
+        return ResponseEntity.ok()
+                .build();
+    }*/
+
     @PostMapping("/welcome")
     public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
         if(userRepo.count() > 0) {
@@ -60,13 +74,13 @@ public class AccountController {
 
         userRepo.save(user);
 
-        authenticate(registerDTO.getUsername(), registerDTO.getPassword());
+        //authenticate(registerDTO.getUsername(), registerDTO.getPassword());
 
         return ResponseEntity.ok()
                 .build();
     }
 
-    private void authenticate(String username, String password){
+    /*private void authenticate(String username, String password){
         Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -74,5 +88,5 @@ public class AccountController {
 
     private Authentication getAuthentication(){
         return SecurityContextHolder.getContext().getAuthentication();
-    }
+    }*/
 }
