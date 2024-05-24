@@ -1,6 +1,5 @@
 package com.vsl700.nitflex.controllers;
 
-import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.models.dto.EpisodeDTO;
 import com.vsl700.nitflex.models.dto.MovieDTO;
 import com.vsl700.nitflex.models.dto.SubtitleDTO;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-public class HomeController {
+public class MovieController {
     @Autowired
     private MovieAPIService movieAPIService;
     @Autowired

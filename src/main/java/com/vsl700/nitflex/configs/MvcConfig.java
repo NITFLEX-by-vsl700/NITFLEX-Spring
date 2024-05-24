@@ -14,20 +14,16 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 @Configuration
-public class MvcConfig {
+@EnableWebMvc
+public class MvcConfig implements WebMvcConfigurer {
     @Autowired
     private SharedProperties sharedProperties;
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource(SharedProperties sharedProperties){
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(sharedProperties.getFrontEndUrls()));
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
+    @Override
+    public void addCorsMappings(CorsRegistry registry){
+        registry.addMapping("/**")
+                .allowedOrigins(sharedProperties.getFrontEndUrls())
+                .allowedMethods("GET","POST","PUT","DELETE","OPTIONS")
+                .allowCredentials(true);
     }
 }

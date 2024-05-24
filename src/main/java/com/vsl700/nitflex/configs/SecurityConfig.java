@@ -28,7 +28,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class SecurityConfig {
 
     @Autowired
-    private CorsConfigurationSource corsConfigurationSource;
+    private SharedProperties sharedProperties;
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -43,17 +43,27 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests((requests) -> requests
-                        //.requestMatchers(HttpMethod.OPTIONS, "/login").permitAll()
-                        .requestMatchers("/welcome").permitAll()
-                        .requestMatchers("/userStatus").permitAll()
+                        .requestMatchers("/welcome", "/userStatus").permitAll()
                         .anyRequest().authenticated())
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                //.cors(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(form -> form
                         .successHandler(((request, response, authentication) -> response.setStatus(HttpStatus.NO_CONTENT.value())))
                         .failureHandler(((request, response, exception) -> response.setStatus(HttpStatus.UNAUTHORIZED.value()))))
-                .logout((form) -> form.clearAuthentication(true).logoutUrl("/logout"));
+                .logout((logout) -> logout.clearAuthentication(true).logoutUrl("/logout"));
 
         return http.build();
+    }
+
+    private CorsConfigurationSource corsConfigurationSource(){
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(sharedProperties.getFrontEndUrls()));
+        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }
