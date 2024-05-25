@@ -23,4 +23,6 @@
 hs_err_pid*
 replay_pid*
 /src/main/resources/application.credentials.properties
+/src/main/resources/application.security.properties
 /target/classes/application.credentials.properties
+/target/classes/application.security.properties
