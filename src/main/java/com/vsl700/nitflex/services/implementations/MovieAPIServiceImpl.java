@@ -29,6 +29,14 @@ public class MovieAPIServiceImpl implements MovieAPIService {
     }
 
     @Override
+    public List<Movie> searchMovies(String search){
+        return movieRepository.findAll().stream()
+                .filter(m -> m.getName().toLowerCase()
+                        .contains(search.toLowerCase()))
+                .toList();
+    }
+
+    @Override
     public Movie getMovieById(String movieId) {
         return movieRepository.findById(movieId).orElseThrow(); // TODO Add custom exception
     }

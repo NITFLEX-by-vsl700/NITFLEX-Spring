@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.dto.EpisodeDTO;
 import com.vsl700.nitflex.models.dto.MovieDTO;
 import com.vsl700.nitflex.models.dto.SubtitleDTO;
@@ -8,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -20,8 +22,13 @@ public class MovieController {
     private ModelMapper modelMapper;
 
     @GetMapping("/movies")
-    public List<MovieDTO> getAllAvailableMovies(){
-        return movieAPIService.getAllAvailableMovies().stream()
+    public List<MovieDTO> getAllAvailableMovies(@RequestParam(required = false) String search){
+        List<Movie> movies;
+        if(search == null)
+            movies = movieAPIService.getAllAvailableMovies();
+        else movies = movieAPIService.searchMovies(search);
+
+        return movies.stream()
                 .map(m -> modelMapper.map(m, MovieDTO.class))
                 .toList();
     }
