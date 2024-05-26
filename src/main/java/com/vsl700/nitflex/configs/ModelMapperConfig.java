@@ -1,7 +1,9 @@
 package com.vsl700.nitflex.configs;
 
 import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.MovieDTO;
+import com.vsl700.nitflex.models.dto.UserDTO;
 import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +27,12 @@ public class ModelMapperConfig {
                 .addMappings(mapping -> mapping.map(
                         src -> src.getRequester().getUsername(),
                         MovieDTO::setRequester
+                ));
+
+        modelMapper.createTypeMap(User.class, UserDTO.class)
+                .addMappings(mapping -> mapping.map(
+                        src -> src.getRole().getName(),
+                        UserDTO::setRole
                 ));
 
         return modelMapper;

@@ -26,6 +26,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public void register(RegisterDTO registerDTO) {
+        if(registerDTO.getUsername().isBlank() || registerDTO.getPassword().isBlank())
+            throw new RuntimeException("Username/password cannot be empty!"); // TODO Add custom breakpoint
+
+        if(userRepo.findByUsername(registerDTO.getUsername()).isPresent())
+            throw new RuntimeException("User with such username already exists!"); // TODO Add custom breakpoint
+
         User user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()), registerDTO.getDeviceLimit());
         Role role = roleRepo.findByName(registerDTO.getRole()).orElseThrow();
         user.setRole(role);

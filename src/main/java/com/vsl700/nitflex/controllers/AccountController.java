@@ -1,19 +1,24 @@
 package com.vsl700.nitflex.controllers;
 
 import com.vsl700.nitflex.models.dto.RegisterDTO;
+import com.vsl700.nitflex.models.dto.UserDTO;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class AccountController {
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     private AuthenticationService authService;
@@ -57,13 +62,20 @@ public class AccountController {
                 .build();
     }
 
-    /*private void authenticate(String username, String password){
-        Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    @GetMapping("/users")
+    public List<UserDTO> getAllUsers(){
+        return userRepo.findAll().stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .toList();
     }
 
-    private Authentication getAuthentication(){
-        return SecurityContextHolder.getContext().getAuthentication();
-    }*/
+    @DeleteMapping("/users/{id}")
+    public void deleteUserById(@PathVariable String id){
+        userRepo.deleteById(id);
+    }
+
+    @PostMapping("/register")
+    public void addNewUser(@RequestBody RegisterDTO registerDTO){
+        authService.register(registerDTO);
+    }
 }
