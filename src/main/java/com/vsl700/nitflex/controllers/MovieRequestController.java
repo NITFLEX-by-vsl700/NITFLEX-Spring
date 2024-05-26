@@ -40,7 +40,7 @@ public class MovieRequestController {
     private SharedProperties sharedProperties;
 
     @PostMapping("/request")
-    public void requestMovie(@RequestBody MovieRequestDTO movieRequestDTO) throws MalformedURLException {
+    public void requestMovie(@RequestBody MovieRequestDTO movieRequestDTO) throws MalformedURLException { // TODO Add custom exception
         User user = userRepository.findByUsername(authenticationService.getCurrentUserName()).orElseThrow();
         LOG.info("Movie request by %s: (%s)".formatted(user.getUsername(), movieRequestDTO.getUrl()));
 
