@@ -21,7 +21,11 @@ public class ModelMapperConfig {
         modelMapper.createTypeMap(Movie.class, MovieDTO.class)
                 .addMappings(mapping -> mapping.using(STRING_TO_BOOLEAN_CONVERTER).map(
                         Movie::getTrailerPath,
-                        MovieDTO::setHasTrailer));
+                        MovieDTO::setHasTrailer))
+                .addMappings(mapping -> mapping.map(
+                        src -> src.getRequester().getUsername(),
+                        MovieDTO::setRequester
+                ));
 
         return modelMapper;
     }

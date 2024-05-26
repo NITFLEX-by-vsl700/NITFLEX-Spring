@@ -13,4 +13,5 @@ public class MovieDTO {
     private String name;
     private Movie.MovieType type;
     private boolean hasTrailer;
+    private String requester;
 }
