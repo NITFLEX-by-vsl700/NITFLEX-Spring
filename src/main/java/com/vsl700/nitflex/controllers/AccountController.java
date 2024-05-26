@@ -1,7 +1,11 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.models.Role;
+import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
 import com.vsl700.nitflex.models.dto.UserDTO;
+import com.vsl700.nitflex.models.dto.UserSettingsDTO;
+import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
 import org.modelmapper.ModelMapper;
@@ -16,6 +20,9 @@ import java.util.List;
 public class AccountController {
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private RoleRepository roleRepo;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -77,5 +84,24 @@ public class AccountController {
     @PostMapping("/register")
     public void addNewUser(@RequestBody RegisterDTO registerDTO){
         authService.register(registerDTO);
+    }
+
+    @GetMapping("/users/settings/{id}")
+    public UserSettingsDTO getUserSettings(@PathVariable String id){
+        User user = userRepo.findById(id).orElseThrow(); // TODO Use a custom exception
+
+        return modelMapper.map(user, UserSettingsDTO.class);
+    }
+
+    @PutMapping("/users/settings/{id}")
+    public void updateUserSettings(@PathVariable String id, @RequestBody UserSettingsDTO userSettingsDTO){
+        User user = userRepo.findById(id).orElseThrow(); // TODO Use a custom exception
+
+        Role role = roleRepo.findByName(userSettingsDTO.getRole()).orElseThrow(); // TODO Use a custom exception
+        user.setStatus(User.UserStatus.valueOf(userSettingsDTO.getStatus()));
+        user.setRole(role);
+        user.setDeviceLimit(userSettingsDTO.getDeviceLimit());
+        
+        userRepo.save(user);
     }
 }
