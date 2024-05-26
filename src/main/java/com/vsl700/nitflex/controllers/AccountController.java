@@ -76,6 +76,17 @@ public class AccountController {
                 .toList();
     }
 
+    @GetMapping("/users/{id}")
+    public UserDTO getUserById(@PathVariable String id){
+        return modelMapper.map(userRepo.findById(id), UserDTO.class);
+    }
+
+    @GetMapping("/currentUser")
+    public UserDTO getCurrentUser(){
+        String username = authService.getCurrentUserName();
+        return modelMapper.map(userRepo.findByUsername(username), UserDTO.class);
+    }
+
     @DeleteMapping("/users/{id}")
     public void deleteUserById(@PathVariable String id){
         userRepo.deleteById(id);
@@ -101,7 +112,7 @@ public class AccountController {
         user.setStatus(User.UserStatus.valueOf(userSettingsDTO.getStatus()));
         user.setRole(role);
         user.setDeviceLimit(userSettingsDTO.getDeviceLimit());
-        
+
         userRepo.save(user);
     }
 }
