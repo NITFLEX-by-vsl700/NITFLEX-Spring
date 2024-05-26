@@ -1,5 +1,7 @@
 package com.vsl700.nitflex;
 
+import com.vsl700.nitflex.models.Movie;
+import com.vsl700.nitflex.models.dto.MovieDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,11 +15,6 @@ public class NitflexApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(NitflexApplication.class, args);
-	}
-
-	@Bean
-	public ModelMapper modelMapper(){
-		return new ModelMapper();
 	}
 
 //	@Bean
