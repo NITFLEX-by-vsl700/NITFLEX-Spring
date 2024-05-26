@@ -34,6 +34,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
+    public String getCurrentUserName() {
+        if(!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetails))
+            return null;
+
+        return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+    }
+
+    @Override
     public UserStatusDTO getUserStatus() {
         if(userRepo.count() == 0)
             return new UserStatusDTO("no-users");

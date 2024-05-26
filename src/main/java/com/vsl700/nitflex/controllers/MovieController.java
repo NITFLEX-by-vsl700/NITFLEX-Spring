@@ -7,10 +7,7 @@ import com.vsl700.nitflex.models.dto.SubtitleDTO;
 import com.vsl700.nitflex.services.MovieAPIService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,7 +19,7 @@ public class MovieController {
     private ModelMapper modelMapper;
 
     @GetMapping("/movies")
-    public List<MovieDTO> getAllAvailableMovies(@RequestParam(required = false) String search){
+    public List<MovieDTO> getMovies(@RequestParam(required = false) String search){
         List<Movie> movies;
         if(search == null)
             movies = movieAPIService.getAllAvailableMovies();
