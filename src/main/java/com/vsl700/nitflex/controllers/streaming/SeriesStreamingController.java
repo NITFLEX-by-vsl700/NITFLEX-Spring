@@ -11,6 +11,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +34,7 @@ public class SeriesStreamingController {
     @Autowired
     private SharedProperties sharedProperties;
 
+    @Secured("ROLE_WATCH_CONTENT_PRIVILEGE")
     @GetMapping("stream/series/{id}/{episodeId}/{dashFilePath}")
     public ResponseEntity<Resource> getEpisodeDashFile(@PathVariable String id, @PathVariable String episodeId, @PathVariable String dashFilePath){
         Movie movie = movieRepository.findById(id)
@@ -92,6 +94,7 @@ public class SeriesStreamingController {
                 .body(new FileSystemResource(moviePath));
     }*/
 
+    @Secured("ROLE_WATCH_CONTENT_PRIVILEGE")
     @GetMapping("stream/raw/series/{id}/{episodeId}")
     public ResponseEntity<Resource> getEpisodeVideoFile(@PathVariable String id, @PathVariable String episodeId) throws URISyntaxException {
         Movie movie = movieRepository.findById(id)

@@ -7,8 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDTO {
-    private String id;
-    private String username;
-    private String role;
+public class MovieSettingsDTO {
+    private String name;
+    private String path;
 }

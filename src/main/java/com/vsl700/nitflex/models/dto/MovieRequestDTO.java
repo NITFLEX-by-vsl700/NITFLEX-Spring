@@ -7,8 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class UserDTO {
-    private String id;
-    private String username;
-    private String role;
+public class MovieRequestDTO {
+    private String url;
 }
