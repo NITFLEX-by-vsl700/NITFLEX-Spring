@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ public class TrailerStreamingController {
     @Autowired
     private SharedProperties sharedProperties;
 
+    @Secured("ROLE_WATCH_CONTENT_PRIVILEGE")
     @GetMapping("stream/trailer/{id}/{dashFilePath}")
     public ResponseEntity<Resource> getTrailerDashFile(@PathVariable String id, @PathVariable String dashFilePath){
         Movie movie = movieRepository.findById(id)
@@ -84,6 +86,7 @@ public class TrailerStreamingController {
                 .body(new FileSystemResource(moviePath));
     }*/
 
+    @Secured("ROLE_WATCH_CONTENT_PRIVILEGE")
     @GetMapping("stream/raw/trailer/{id}")
     public ResponseEntity<Resource> getTrailerVideoFile(@PathVariable String id) throws URISyntaxException {
         Movie movie = movieRepository.findById(id)

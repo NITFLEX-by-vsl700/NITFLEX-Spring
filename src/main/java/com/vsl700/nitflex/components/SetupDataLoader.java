@@ -30,32 +30,20 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     public void onApplicationEvent(ContextRefreshedEvent event) {
         List<Privilege> userPrivileges = new ArrayList<>(List.of(
                 createPrivilegeIfNotFound("WATCH_CONTENT_PRIVILEGE"),
-                createPrivilegeIfNotFound("DEVICE_SESSIONS_PRIVILEGE"),
                 createPrivilegeIfNotFound("READ_USER_SETTINGS_PRIVILEGE")
         ));
 
-        List<Privilege> adminPrivileges = new ArrayList<>(userPrivileges);
-        adminPrivileges.addAll(List.of(
+        List<Privilege> ownerPrivileges = new ArrayList<>(userPrivileges);
+        ownerPrivileges.addAll(List.of(
                 createPrivilegeIfNotFound("WRITE_USER_SETTINGS_PRIVILEGE"),
                 createPrivilegeIfNotFound("MANAGE_USERS_PRIVILEGE"),
                 createPrivilegeIfNotFound("DELETE_USERS_PRIVILEGE"),
+                createPrivilegeIfNotFound("REGISTER_USERS_PRIVILEGE"),
                 createPrivilegeIfNotFound("MANAGE_MOVIES_PRIVILEGE"),
-                createPrivilegeIfNotFound("REGISTER_USERS_PRIVILEGE")
-        ));
-
-        List<Privilege> ownerPrivileges = new ArrayList<>(adminPrivileges);
-        ownerPrivileges.addAll(List.of(
-                createPrivilegeIfNotFound("MANAGE_ADMINS_PRIVILEGE"),
-                createPrivilegeIfNotFound("DELETE_ADMINS_PRIVILEGE"),
-                createPrivilegeIfNotFound("MANAGE_OWNERS_PRIVILEGE"),
-                createPrivilegeIfNotFound("DELETE_OWNERS_PRIVILEGE"),
-                createPrivilegeIfNotFound("DELETE_MOVIES_PRIVILEGE"),
-                createPrivilegeIfNotFound("REGISTER_ADMINS_PRIVILEGE"),
-                createPrivilegeIfNotFound("REGISTER_OWNERS_PRIVILEGE")
+                createPrivilegeIfNotFound("DELETE_MOVIES_PRIVILEGE")
         ));
 
         createRoleIfNotFound("ROLE_USER", userPrivileges);
-        createRoleIfNotFound("ROLE_ADMIN", adminPrivileges);
         createRoleIfNotFound("ROLE_OWNER", ownerPrivileges);
     }
 
