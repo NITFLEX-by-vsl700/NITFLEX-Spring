@@ -4,6 +4,7 @@ import com.vsl700.nitflex.components.SharedProperties;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.Subtitle;
+import com.vsl700.nitflex.models.dto.MovieSettingsDTO;
 import com.vsl700.nitflex.repo.EpisodeRepository;
 import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.repo.SubtitleRepository;
@@ -49,7 +50,7 @@ public class MovieAPIServiceImpl implements MovieAPIService {
 
     @Override
     public void deleteMovieById(String movieId) {
-        Movie movie = movieRepository.findById(movieId).orElseThrow();
+        Movie movie = movieRepository.findById(movieId).orElseThrow(); // TODO Add custom exception
 
         try {
             Files.walkFileTree(Path.of(sharedProperties.getMoviesFolder(), movie.getPath()),
@@ -74,6 +75,15 @@ public class MovieAPIServiceImpl implements MovieAPIService {
         }
 
         movieRepository.delete(movie);
+    }
+
+    @Override
+    public void updateMovieSettingsById(String movieId, MovieSettingsDTO movieSettingsDTO) {
+        Movie movie = movieRepository.findById(movieId).orElseThrow(); // TODO Add custom exception
+
+        movie.setName(movieSettingsDTO.getName());
+
+        movieRepository.save(movie);
     }
 
     @Override

@@ -80,4 +80,9 @@ public class MovieController {
     public MovieSettingsDTO getMovieSettingsByMovieId(@PathVariable String movieId){
         return modelMapper.map(movieAPIService.getMovieById(movieId), MovieSettingsDTO.class);
     }
+
+    @PutMapping("/movies/settings/{movieId}")
+    public void updateMovieSettingsByMovieId(@PathVariable String movieId, @RequestBody MovieSettingsDTO movieSettingsDTO){
+        movieAPIService.updateMovieSettingsById(movieId, movieSettingsDTO);
+    }
 }
