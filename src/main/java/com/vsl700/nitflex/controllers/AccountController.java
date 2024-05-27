@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
@@ -12,6 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -85,6 +87,13 @@ public class AccountController {
     public UserDTO getCurrentUser(){
         String username = authService.getCurrentUserName();
         return modelMapper.map(userRepo.findByUsername(username), UserDTO.class);
+    }
+
+    @GetMapping("/users/privileges/{id}")
+    public List<String> getUserPrivilegesByUserId(@PathVariable String id){
+        return userRepo.findById(id).orElseThrow().getRole().getPrivileges().stream()
+                .map(Privilege::getName)
+                .toList();
     }
 
     @DeleteMapping("/users/{id}")
