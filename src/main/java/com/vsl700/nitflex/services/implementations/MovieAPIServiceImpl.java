@@ -11,6 +11,12 @@ import com.vsl700.nitflex.services.MovieAPIService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 
 @Service
@@ -39,6 +45,35 @@ public class MovieAPIServiceImpl implements MovieAPIService {
     @Override
     public Movie getMovieById(String movieId) {
         return movieRepository.findById(movieId).orElseThrow(); // TODO Add custom exception
+    }
+
+    @Override
+    public void deleteMovieById(String movieId) {
+        Movie movie = movieRepository.findById(movieId).orElseThrow();
+
+        try {
+            Files.walkFileTree(Path.of(sharedProperties.getMoviesFolder(), movie.getPath()),
+                    new SimpleFileVisitor<>() {
+                        @Override
+                        public FileVisitResult postVisitDirectory(
+                                Path dir, IOException exc) throws IOException {
+                            Files.delete(dir);
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult visitFile(
+                                Path file, BasicFileAttributes attrs)
+                                throws IOException {
+                            Files.delete(file);
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+        } catch (IOException e) {
+            throw new RuntimeException(e); // TODO Add custom exception
+        }
+
+        movieRepository.delete(movie);
     }
 
     @Override

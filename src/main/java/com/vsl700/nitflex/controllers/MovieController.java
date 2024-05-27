@@ -3,6 +3,7 @@ package com.vsl700.nitflex.controllers;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.dto.EpisodeDTO;
 import com.vsl700.nitflex.models.dto.MovieDTO;
+import com.vsl700.nitflex.models.dto.MovieSettingsDTO;
 import com.vsl700.nitflex.models.dto.SubtitleDTO;
 import com.vsl700.nitflex.services.MovieAPIService;
 import org.modelmapper.ModelMapper;
@@ -33,6 +34,11 @@ public class MovieController {
     @GetMapping("/movies/{movieId}")
     public MovieDTO getMovieById(@PathVariable String movieId){
         return modelMapper.map(movieAPIService.getMovieById(movieId), MovieDTO.class);
+    }
+
+    @DeleteMapping("/movies/{movieId}")
+    public void deleteMovieById(@PathVariable String movieId){
+        movieAPIService.deleteMovieById(movieId);
     }
 
     @GetMapping("/episodes/{movieId}")
@@ -68,5 +74,10 @@ public class MovieController {
         return movieAPIService.getEpisodeSubtitlesByMovieAndEpisodeId(movieId, episodeId).stream()
                 .map(s -> modelMapper.map(s, SubtitleDTO.class))
                 .toList();
+    }
+
+    @GetMapping("/movies/settings/{movieId}")
+    public MovieSettingsDTO getMovieSettingsByMovieId(@PathVariable String movieId){
+        return modelMapper.map(movieAPIService.getMovieById(movieId), MovieSettingsDTO.class);
     }
 }

@@ -11,6 +11,7 @@ public interface MovieAPIService {
     List<Movie> getAllAvailableMovies();
     List<Movie> searchMovies(String search);
     Movie getMovieById(String movieId);
+    void deleteMovieById(String movieId);
     List<Episode> getEpisodesByMovieId(String movieId);
     List<Subtitle> getAllSubtitlesByMovieId(String movieId);
     List<Subtitle> getTrailerSubtitlesByMovieId(String movieId);
