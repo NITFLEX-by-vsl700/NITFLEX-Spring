@@ -1,13 +1,17 @@
 package com.vsl700.nitflex.services.implementations;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.vsl700.nitflex.configs.UserAuthenticationProvider;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
+import com.vsl700.nitflex.models.dto.UserDTO;
 import com.vsl700.nitflex.models.dto.UserStatusDTO;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,29 +26,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private RoleRepository roleRepo;
 
     @Autowired
+    private UserAuthenticationProvider userAuthenticationProvider;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
-    public void register(RegisterDTO registerDTO) {
-        if(registerDTO.getUsername().isBlank() || registerDTO.getPassword().isBlank())
-            throw new RuntimeException("Username/password cannot be empty!"); // TODO Add custom breakpoint
-
-        if(userRepo.findByUsername(registerDTO.getUsername()).isPresent())
-            throw new RuntimeException("User with such username already exists!"); // TODO Add custom breakpoint
-
-        User user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()), registerDTO.getDeviceLimit());
-        Role role = roleRepo.findByName(registerDTO.getRole()).orElseThrow();
-        user.setRole(role);
-
-        userRepo.save(user);
+    private Authentication getAuthentication(){
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
     @Override
     public String getCurrentUserName() {
-        if(!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetails))
+        var authentication = getAuthentication();
+
+        if(!(authentication.getPrincipal() instanceof UserDTO))
             return null;
 
-        return ((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername();
+        return ((UserDTO) authentication.getPrincipal()).getUsername();
     }
 
     @Override
@@ -52,7 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(userRepo.count() == 0)
             return new UserStatusDTO("no-users");
 
-        if(!(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetails))
+        if(!(getAuthentication().getPrincipal() instanceof UserDTO))
             return new UserStatusDTO("unauthenticated");
 
         return new UserStatusDTO("authenticated");

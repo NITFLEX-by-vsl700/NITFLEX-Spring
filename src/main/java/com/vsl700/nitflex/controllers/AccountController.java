@@ -14,6 +14,7 @@ import com.vsl700.nitflex.configs.UserAuthenticationProvider;
 import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -39,25 +40,28 @@ public class AccountController {
     @Autowired
     private AuthenticationService authService;
 
+    @Autowired
     private UserAuthenticationProvider userAuthenticationProvider;
 
     @PostMapping("/login")
-    public ResponseEntity<UserDTO> login(@RequestBody LoginDTO loginDTO) {
-        UserDTO userDTO = userService.login(loginDTO);
-        userDTO.setToken(userAuthenticationProvider.createToken(userDTO.getUsername()));
-        return ResponseEntity.ok(userDTO);
+    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
+        if(userService.login(loginDTO))
+            return ResponseEntity.ok(userAuthenticationProvider.createToken(loginDTO.getUsername()));
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Login failed!");
     }
 
     @PostMapping("/welcome")
-    public ResponseEntity<UserDTO> initialRegister(@RequestBody RegisterDTO registerDTO) {
+    public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
         if(userRepo.count() > 0) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .build(); // TODO Create a custom exception
+                    .body("This server already has users!"); // TODO Create a custom exception
         }
 
-        UserDTO createdUser = userService.register(registerDTO);
-        createdUser.setToken(userAuthenticationProvider.createToken(registerDTO.getUsername()));
-        return ResponseEntity.created(URI.create("/users/" + createdUser.getId())).body(createdUser);
+        userService.register(registerDTO);
+
+        return ResponseEntity.ok(userAuthenticationProvider.createToken(registerDTO.getUsername()));
     }
 
     @Secured("ROLE_MANAGE_USERS_PRIVILEGE")
@@ -96,7 +100,7 @@ public class AccountController {
     @Secured("ROLE_REGISTER_USERS_PRIVILEGE")
     @PostMapping("/register")
     public void addNewUser(@RequestBody RegisterDTO registerDTO){
-        authService.register(registerDTO);
+        userService.register(registerDTO);
     }
 
     @GetMapping("/users/settings/{id}")

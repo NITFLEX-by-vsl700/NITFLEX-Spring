@@ -17,6 +17,7 @@ public class RequestInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
+        String token = request.getHeader("Authorization");
         if(authService.getCurrentUserName() != null && userRepo.findByUsername(authService.getCurrentUserName()).orElseThrow().getStatus().equals(User.UserStatus.BANNED)){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return false;
