@@ -3,23 +3,31 @@ package com.vsl700.nitflex.controllers;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
+import com.vsl700.nitflex.models.dto.LoginDTO;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
 import com.vsl700.nitflex.models.dto.UserDTO;
 import com.vsl700.nitflex.models.dto.UserSettingsDTO;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
+import com.vsl700.nitflex.configs.UserAuthenticationProvider;
+import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+
+import java.net.URI;
 
 @RestController
 public class AccountController {
+    @Autowired
+    private UserService userService;
+
     @Autowired
     private UserRepository userRepo;
 
@@ -32,29 +40,17 @@ public class AccountController {
     @Autowired
     private AuthenticationService authService;
 
-    /*@PostMapping("/test")
-    public ResponseEntity<String> fakeLogin(@RequestBody RegisterDTO registerDTO){
-        authenticate(registerDTO.getUsername(), registerDTO.getPassword());
+    @Autowired
+    private UserAuthenticationProvider userAuthenticationProvider;
 
-        if(getAuthentication() == null)
-            return ResponseEntity.notFound()
-                    .build();
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
+        if(userService.login(loginDTO))
+            return ResponseEntity.ok(userAuthenticationProvider.createToken(loginDTO.getUsername()));
 
-        return ResponseEntity.ok()
-                .build();
-    }*/
-
-    /*@PostMapping("/auth")
-    public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO){
-        authenticate(loginDTO.getUsername(), loginDTO.getPassword());
-
-        if(getAuthentication() == null && !(SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof UserDetails))
-            return ResponseEntity.notFound()
-                    .build();
-
-        return ResponseEntity.ok()
-                .build();
-    }*/
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Login failed!");
+    }
 
     @PostMapping("/welcome")
     public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
@@ -63,12 +59,9 @@ public class AccountController {
                     .body("This server already has users!"); // TODO Create a custom exception
         }
 
-        authService.register(registerDTO);
+        userService.register(registerDTO);
 
-        //authenticate(registerDTO.getUsername(), registerDTO.getPassword());
-
-        return ResponseEntity.ok()
-                .build();
+        return ResponseEntity.ok(userAuthenticationProvider.createToken(registerDTO.getUsername()));
     }
 
     @Secured("ROLE_MANAGE_USERS_PRIVILEGE")
@@ -107,7 +100,7 @@ public class AccountController {
     @Secured("ROLE_REGISTER_USERS_PRIVILEGE")
     @PostMapping("/register")
     public void addNewUser(@RequestBody RegisterDTO registerDTO){
-        authService.register(registerDTO);
+        userService.register(registerDTO);
     }
 
     @GetMapping("/users/settings/{id}")
