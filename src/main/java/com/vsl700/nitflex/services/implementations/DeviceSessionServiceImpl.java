@@ -24,12 +24,12 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
         User currentUser = userRepository.findByUsername(authenticationService.getCurrentUserName()).orElseThrow(); // TODO Add custom exception
 
         // Check for exceeding device limit
-        if(currentUser.getDeviceSessions().size() >= currentUser.getDeviceLimit())
+        if(deviceSessionRepository.findAllByUser(currentUser).size() >= currentUser.getDeviceLimit())
             return false;
 
         // Add device
         String userAgent = (String) SecurityContextHolder.getContext().getAuthentication().getDetails();
-        var deviceSession = new DeviceSession(currentUser.getId(), deviceName, userAgent);
+        var deviceSession = new DeviceSession(currentUser, deviceName, userAgent);
         deviceSessionRepository.save(deviceSession);
 
         return true;

@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 
 @Document
 @RequiredArgsConstructor
@@ -31,10 +30,6 @@ public class User {
 
     @DocumentReference
     private Role role;
-
-    @DocumentReference
-    @Setter(AccessLevel.NONE)
-    private List<DeviceSession> deviceSessions;
 
     public enum UserStatus{
         ACTIVE,

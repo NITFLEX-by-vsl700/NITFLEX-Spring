@@ -7,6 +7,7 @@ import com.vsl700.nitflex.models.dto.LoginDTO;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
 import com.vsl700.nitflex.models.dto.UserDTO;
 import com.vsl700.nitflex.models.dto.UserStatusDTO;
+import com.vsl700.nitflex.repo.DeviceSessionRepository;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.UserService;
@@ -35,12 +36,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private DeviceSessionRepository deviceSessionRepository;
+
     @Override
     public boolean login(LoginDTO loginDTO) {
         User user = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(() -> new RuntimeException("Unknown user")); // TODO Create custom exception (401 Unauthorized)
 
-        if(user.getDeviceSessions().size() >= user.getDeviceLimit())
+        if(deviceSessionRepository.findAllByUser(user).size() >= user.getDeviceLimit())
             return false;
 
         return passwordEncoder.matches(CharBuffer.wrap(loginDTO.getPassword()), user.getPassword());// TODO Create custom exception (401 Unauthorized)
