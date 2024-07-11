@@ -3,14 +3,12 @@ package com.vsl700.nitflex.controllers;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
-import com.vsl700.nitflex.models.dto.LoginDTO;
-import com.vsl700.nitflex.models.dto.RegisterDTO;
-import com.vsl700.nitflex.models.dto.UserDTO;
-import com.vsl700.nitflex.models.dto.UserSettingsDTO;
+import com.vsl700.nitflex.models.dto.*;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
 import com.vsl700.nitflex.configs.UserAuthenticationProvider;
+import com.vsl700.nitflex.services.DeviceSessionService;
 import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +41,9 @@ public class AccountController {
     @Autowired
     private UserAuthenticationProvider userAuthenticationProvider;
 
+    @Autowired
+    private DeviceSessionService deviceSessionService;
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
         if(userService.login(loginDTO))
@@ -50,6 +51,18 @@ public class AccountController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Login failed!");
+    }
+
+    @PostMapping("/login/deviceName")
+    public ResponseEntity<String> loginWithDeviceName(@RequestBody LoginDeviceNameDTO loginDeviceNameDTO) {
+        String currentUsername = authService.getCurrentUserName();
+        String deviceName = loginDeviceNameDTO.getDeviceName();
+
+        if(deviceSessionService.addNewDeviceSession(deviceName))
+            return ResponseEntity.ok(userAuthenticationProvider.createToken(currentUsername, deviceName));
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("Device limit exceeded!");
     }
 
     @PostMapping("/welcome")

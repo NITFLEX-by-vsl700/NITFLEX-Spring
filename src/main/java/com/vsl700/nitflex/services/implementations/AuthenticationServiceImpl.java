@@ -1,11 +1,7 @@
 package com.vsl700.nitflex.services.implementations;
 
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.vsl700.nitflex.configs.UserAuthenticationProvider;
-import com.vsl700.nitflex.models.Role;
-import com.vsl700.nitflex.models.User;
-import com.vsl700.nitflex.models.dto.RegisterDTO;
-import com.vsl700.nitflex.models.dto.UserDTO;
+import com.vsl700.nitflex.models.dto.UserPrincipalDTO;
 import com.vsl700.nitflex.models.dto.UserStatusDTO;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
@@ -13,7 +9,6 @@ import com.vsl700.nitflex.services.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,10 +34,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public String getCurrentUserName() {
         var authentication = getAuthentication();
 
-        if(!(authentication.getPrincipal() instanceof UserDTO))
+        if(!(authentication.getPrincipal() instanceof UserPrincipalDTO))
             return null;
 
-        return ((UserDTO) authentication.getPrincipal()).getUsername();
+        return ((UserPrincipalDTO) authentication.getPrincipal()).getUsername();
     }
 
     @Override
@@ -50,8 +45,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if(userRepo.count() == 0)
             return new UserStatusDTO("no-users");
 
-        if(!(getAuthentication().getPrincipal() instanceof UserDTO))
+        if(!(getAuthentication().getPrincipal() instanceof UserPrincipalDTO userPrincipalDTO))
             return new UserStatusDTO("unauthenticated");
+
+        if(userPrincipalDTO.getDeviceName() == null)
+            return new UserStatusDTO("no-device-name");
 
         return new UserStatusDTO("authenticated");
     }

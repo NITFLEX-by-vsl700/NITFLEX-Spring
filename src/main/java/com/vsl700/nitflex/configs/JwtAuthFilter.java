@@ -1,5 +1,6 @@
 package com.vsl700.nitflex.configs;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,17 +23,18 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse,
             FilterChain filterChain) throws ServletException, IOException {
-        String header = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        String authHeader = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        String userAgentHeader = httpServletRequest.getHeader(HttpHeaders.USER_AGENT);
 
-        if (header != null) {
-            String[] authElements = header.split(" ");
+        if (authHeader != null) {
+            String[] authElements = authHeader.split(" ");
 
             if (authElements.length == 2
                     && "Bearer".equals(authElements[0])) {
                 try {
                     SecurityContextHolder.getContext().setAuthentication(
-                            userAuthenticationProvider.validateToken(authElements[1]));
-                } catch (RuntimeException e) {
+                            userAuthenticationProvider.createAuthentication(authElements[1], userAgentHeader));
+                } catch (JWTVerificationException e) {
                     SecurityContextHolder.clearContext();
                     throw e;
                 }

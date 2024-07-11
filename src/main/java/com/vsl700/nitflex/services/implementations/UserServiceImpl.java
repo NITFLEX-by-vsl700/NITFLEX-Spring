@@ -40,6 +40,9 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(loginDTO.getUsername())
                 .orElseThrow(() -> new RuntimeException("Unknown user")); // TODO Create custom exception (401 Unauthorized)
 
+        if(user.getDeviceSessions().size() >= user.getDeviceLimit())
+            return false;
+
         return passwordEncoder.matches(CharBuffer.wrap(loginDTO.getPassword()), user.getPassword());// TODO Create custom exception (401 Unauthorized)
     }
 

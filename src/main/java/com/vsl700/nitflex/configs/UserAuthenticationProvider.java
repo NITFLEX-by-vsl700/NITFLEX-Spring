@@ -8,8 +8,8 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.UserDTO;
+import com.vsl700.nitflex.models.dto.UserPrincipalDTO;
 import com.vsl700.nitflex.repo.UserRepository;
-import com.vsl700.nitflex.services.UserService;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -45,17 +44,30 @@ public class UserAuthenticationProvider {
 
     public String createToken(String login) {
         Date now = new Date();
+        Date validity = new Date(now.getTime() + 3600000L * 24); // 1 day
+
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        return JWT.create()
+                .withSubject(login)
+                .withIssuedAt(now)
+                .withExpiresAt(validity)
+                .sign(algorithm);
+    }
+
+    public String createToken(String login, String deviceName) {
+        Date now = new Date();
         //Date validity = new Date(now.getTime() + 3600000L * 24 * 28); // 28 days
 
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         return JWT.create()
                 .withSubject(login)
                 .withIssuedAt(now)
+                .withClaim("device_name", deviceName)
                 //.withExpiresAt(validity)
                 .sign(algorithm);
     }
 
-    public Authentication validateToken(String token) throws JWTVerificationException { // TODO Add exception handler for JWTVerificationException
+    public Authentication createAuthentication(String token, String userAgent) throws JWTVerificationException { // TODO Add exception handler for JWTVerificationException
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
 
         JWTVerifier verifier = JWT.require(algorithm)
@@ -65,10 +77,13 @@ public class UserAuthenticationProvider {
 
         User user = userRepo.findByUsername(decoded.getSubject()).orElseThrow(); // TODO Add custom exception
         List<Privilege> userPrivileges = user.getRole().getPrivileges();
-        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        UserPrincipalDTO userPrincipalDTO = new UserPrincipalDTO(user.getUsername(), decoded.getClaim("device_name").asString());
 
-        return new UsernamePasswordAuthenticationToken(userDTO, null, userPrivileges.stream()
+        var authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token, userPrivileges.stream()
                 .map(p -> new SimpleGrantedAuthority("ROLE_" + p.getName()))
                 .toList());
+        authentication.setDetails(userAgent);
+
+        return authentication;
     }
 }
