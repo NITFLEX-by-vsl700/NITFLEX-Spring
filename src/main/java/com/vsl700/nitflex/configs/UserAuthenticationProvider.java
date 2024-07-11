@@ -5,10 +5,13 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.vsl700.nitflex.exceptions.InternalServerErrorException;
+import com.vsl700.nitflex.exceptions.UnauthorizedException;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.UserDTO;
 import com.vsl700.nitflex.models.dto.UserPrincipalDTO;
+import com.vsl700.nitflex.repo.DeviceSessionRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
@@ -32,6 +35,9 @@ public class UserAuthenticationProvider {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private DeviceSessionRepository deviceSessionRepo;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -75,13 +81,23 @@ public class UserAuthenticationProvider {
 
         DecodedJWT decoded = verifier.verify(token);
 
-        User user = userRepo.findByUsername(decoded.getSubject()).orElseThrow(); // TODO Add custom exception
-        List<Privilege> userPrivileges = user.getRole().getPrivileges();
-        UserPrincipalDTO userPrincipalDTO = new UserPrincipalDTO(user.getUsername(), decoded.getClaim("device_name").asString());
+        User user = userRepo.findByUsername(decoded.getSubject())
+                .orElseThrow(() -> new UnauthorizedException("User account doesn't exist!"));
+        String deviceName = decoded.getClaim("device_name").asString();
+        if(deviceName != null)
+            deviceSessionRepo.findByDeviceName(deviceName) // Check if device actually exists (it might be logged off)
+                    .orElseThrow(() -> new UnauthorizedException("User device doesn't exist!"));
 
-        var authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token, userPrivileges.stream()
-                .map(p -> new SimpleGrantedAuthority("ROLE_" + p.getName()))
-                .toList());
+        List<Privilege> userPrivileges = user.getRole().getPrivileges();
+        UserPrincipalDTO userPrincipalDTO = new UserPrincipalDTO(user.getUsername(), deviceName);
+
+        UsernamePasswordAuthenticationToken authentication;
+        if(deviceName == null) // Device name not present in token
+            authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token); // authenticated = false
+        else // Device name present in token
+            authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token, userPrivileges.stream()
+                    .map(p -> new SimpleGrantedAuthority("ROLE_" + p.getName()))
+                    .toList()); // authenticated = true
         authentication.setDetails(userAgent);
 
         return authentication;

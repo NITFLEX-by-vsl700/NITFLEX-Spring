@@ -1,5 +1,7 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.exceptions.BadRequestException;
+import com.vsl700.nitflex.exceptions.NotFoundException;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
@@ -46,11 +48,8 @@ public class AccountController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
-        if(userService.login(loginDTO))
-            return ResponseEntity.ok(userAuthenticationProvider.createToken(loginDTO.getUsername()));
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Login failed!");
+        userService.login(loginDTO);
+        return ResponseEntity.ok(userAuthenticationProvider.createToken(loginDTO.getUsername()));
     }
 
     @PostMapping("/login/deviceName")
@@ -58,11 +57,8 @@ public class AccountController {
         String currentUsername = authService.getCurrentUserName();
         String deviceName = loginDeviceNameDTO.getDeviceName();
 
-        if(deviceSessionService.addNewDeviceSession(deviceName))
-            return ResponseEntity.ok(userAuthenticationProvider.createToken(currentUsername, deviceName));
-
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body("Device limit exceeded!");
+        deviceSessionService.addNewDeviceSession(deviceName);
+        return ResponseEntity.ok(userAuthenticationProvider.createToken(currentUsername, deviceName));
     }
 
     @PostMapping("/welcome")
@@ -118,7 +114,8 @@ public class AccountController {
 
     @GetMapping("/users/settings/{id}")
     public UserSettingsDTO getUserSettings(@PathVariable String id){
-        User user = userRepo.findById(id).orElseThrow(); // TODO Use a custom exception
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id '%s' not found!".formatted(id)));
 
         return modelMapper.map(user, UserSettingsDTO.class);
     }
@@ -126,9 +123,11 @@ public class AccountController {
     @Secured("ROLE_MANAGE_USERS_PRIVILEGE")
     @PutMapping("/users/settings/{id}")
     public void updateUserSettings(@PathVariable String id, @RequestBody UserSettingsDTO userSettingsDTO){
-        User user = userRepo.findById(id).orElseThrow(); // TODO Use a custom exception
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id '%s' not found!".formatted(id)));
 
-        Role role = roleRepo.findByName(userSettingsDTO.getRole()).orElseThrow(); // TODO Use a custom exception
+        Role role = roleRepo.findByName(userSettingsDTO.getRole())
+                .orElseThrow(() -> new BadRequestException("Role with name '%s' doesn't exist!".formatted(userSettingsDTO.getRole())));
         user.setStatus(User.UserStatus.valueOf(userSettingsDTO.getStatus()));
         user.setRole(role);
         user.setDeviceLimit(userSettingsDTO.getDeviceLimit());

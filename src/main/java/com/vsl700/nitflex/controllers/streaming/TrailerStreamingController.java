@@ -1,6 +1,7 @@
 package com.vsl700.nitflex.controllers.streaming;
 
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.exceptions.NotFoundException;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.repo.MovieRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class TrailerStreamingController {
     @GetMapping("stream/trailer/{id}/{dashFilePath}")
     public ResponseEntity<Resource> getTrailerDashFile(@PathVariable String id, @PathVariable String dashFilePath){
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Movie with id '%s' not found!".formatted(id)));
 
         if(movie.getTrailerPath() == null)
             return ResponseEntity
@@ -90,7 +91,7 @@ public class TrailerStreamingController {
     @GetMapping("stream/raw/trailer/{id}")
     public ResponseEntity<Resource> getTrailerVideoFile(@PathVariable String id) throws URISyntaxException {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Movie with id '%s' not found!".formatted(id)));
 
         if(movie.getTrailerPath() == null)
             return ResponseEntity

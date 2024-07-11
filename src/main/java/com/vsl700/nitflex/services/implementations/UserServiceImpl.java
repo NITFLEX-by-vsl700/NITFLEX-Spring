@@ -1,6 +1,10 @@
 package com.vsl700.nitflex.services.implementations;
 
 import com.vsl700.nitflex.configs.UserAuthenticationProvider;
+import com.vsl700.nitflex.exceptions.BadRequestException;
+import com.vsl700.nitflex.exceptions.DataUniquenessException;
+import com.vsl700.nitflex.exceptions.DeviceLimitException;
+import com.vsl700.nitflex.exceptions.LoginException;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.LoginDTO;
@@ -40,23 +44,24 @@ public class UserServiceImpl implements UserService {
     private DeviceSessionRepository deviceSessionRepository;
 
     @Override
-    public boolean login(LoginDTO loginDTO) {
+    public void login(LoginDTO loginDTO) {
         User user = userRepository.findByUsername(loginDTO.getUsername())
-                .orElseThrow(() -> new RuntimeException("Unknown user")); // TODO Create custom exception (401 Unauthorized)
+                .orElseThrow(LoginException::new);
 
         if(deviceSessionRepository.findAllByUser(user).size() >= user.getDeviceLimit())
-            return false;
+            throw new DeviceLimitException();
 
-        return passwordEncoder.matches(CharBuffer.wrap(loginDTO.getPassword()), user.getPassword());// TODO Create custom exception (401 Unauthorized)
+        if(!passwordEncoder.matches(CharBuffer.wrap(loginDTO.getPassword()), user.getPassword()))
+            throw new LoginException();
     }
 
     @Override
     public void register(RegisterDTO registerDTO) {
         if(registerDTO.getUsername().isBlank() || registerDTO.getPassword().isBlank())
-            throw new RuntimeException("Username/password cannot be empty!"); // TODO Add custom breakpoint
+            throw new BadRequestException("Username/password cannot be empty!");
 
         if(userRepository.findByUsername(registerDTO.getUsername()).isPresent())
-            throw new RuntimeException("User with such username already exists!"); // TODO Add custom breakpoint
+            throw new DataUniquenessException("User with such username already exists!");
 
         User user = new User(registerDTO.getUsername(), passwordEncoder.encode(registerDTO.getPassword()), registerDTO.getDeviceLimit());
         Role role = roleRepo.findByName(registerDTO.getRole()).orElseThrow();

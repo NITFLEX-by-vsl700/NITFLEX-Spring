@@ -1,5 +1,8 @@
 package com.vsl700.nitflex.services.implementations;
 
+import com.vsl700.nitflex.exceptions.DataUniquenessException;
+import com.vsl700.nitflex.exceptions.DeviceLimitException;
+import com.vsl700.nitflex.exceptions.InternalServerErrorException;
 import com.vsl700.nitflex.models.DeviceSession;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.UserPrincipalDTO;
@@ -19,20 +22,23 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
     private DeviceSessionRepository deviceSessionRepository;
 
     @Override
-    public boolean addNewDeviceSession(String deviceName) {
+    public void addNewDeviceSession(String deviceName) {
         // Get current user
-        User currentUser = userRepository.findByUsername(authenticationService.getCurrentUserName()).orElseThrow(); // TODO Add custom exception
+        User currentUser = userRepository.findByUsername(authenticationService.getCurrentUserName())
+                .orElseThrow(() -> new InternalServerErrorException("Authenticated user not found in database!"));
 
         // Check for exceeding device limit
         if(deviceSessionRepository.findAllByUser(currentUser).size() >= currentUser.getDeviceLimit())
-            return false;
+            throw new DeviceLimitException();
+
+        // Check for already existing device with the given name
+        if(deviceSessionRepository.findByDeviceName(deviceName).isPresent())
+            throw new DataUniquenessException("A device with such a name already exists!");
 
         // Add device
         String userAgent = (String) SecurityContextHolder.getContext().getAuthentication().getDetails();
         var deviceSession = new DeviceSession(currentUser, deviceName, userAgent);
         deviceSessionRepository.save(deviceSession);
-
-        return true;
     }
 
     @Override
@@ -44,7 +50,8 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
         if(userPrincipalDTO.getDeviceName() == null)
             return null;
 
-        return deviceSessionRepository.findByDeviceName(userPrincipalDTO.getDeviceName()).orElseThrow(); // TODO Add custom exception
+        return deviceSessionRepository.findByDeviceName(userPrincipalDTO.getDeviceName())
+                .orElseThrow(); // TODO Add custom exception
     }
 
     @Override

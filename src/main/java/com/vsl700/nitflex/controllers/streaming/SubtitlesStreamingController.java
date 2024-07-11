@@ -1,6 +1,7 @@
 package com.vsl700.nitflex.controllers.streaming;
 
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.exceptions.NotFoundException;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.Subtitle;
 import com.vsl700.nitflex.repo.MovieRepository;
@@ -38,10 +39,10 @@ public class SubtitlesStreamingController {
     @GetMapping("stream/subs/{id}/{subtitlesId}")
     public ResponseEntity<Resource> getSubtitlesFile(@PathVariable String id, @PathVariable String subtitlesId) throws URISyntaxException {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Movie with id '%s' not found!".formatted(id)));
 
         Subtitle subtitle = subtitleRepository.findById(subtitlesId)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Subtitles with id '%s' not found!".formatted(subtitlesId)));
 
         Path subtitlePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), subtitle.getPath());
 

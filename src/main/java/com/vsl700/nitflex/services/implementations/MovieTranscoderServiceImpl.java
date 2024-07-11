@@ -3,6 +3,7 @@ package com.vsl700.nitflex.services.implementations;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.exceptions.InternalServerErrorException;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.models.Subtitle;
@@ -200,7 +201,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
 
         int exitCode = execFFmpegCommand(videoFileTranscodeCommandTemplate.formatted(path, outputPath, outputPath, "%05d", outputPath));
         if(exitCode != 0)
-            throw new RuntimeException("Transcoding of video file \"%s\" failed!".formatted(path)); // TODO Add custom exception
+            throw new InternalServerErrorException("Transcoding of video file \"%s\" failed!".formatted(path));
 
         correctMPDValues(outputPath);
 
@@ -247,7 +248,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
 
         int exitCode = execFFmpegCommand(subtitleFileTranscodeCommandTemplate.formatted(charset, path, outputPath));
         if(exitCode != 0)
-            throw new RuntimeException("Transcoding of subtitle file \"%s\" failed!".formatted(path)); // TODO Add custom exception
+            throw new InternalServerErrorException("Transcoding of subtitle file \"%s\" failed!".formatted(path));
 
         return outputPath;
     }
@@ -322,7 +323,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
     private String createDirAndReturn(String path){
         File file = new File(path);
         if(!file.exists() && !file.mkdir())
-            throw new RuntimeException("Directory at %s could not be created!".formatted(path)); // TODO Change that or add custom exception
+            throw new InternalServerErrorException("Directory at %s could not be created!".formatted(path)); // TODO Change that
         return path;
     }
 }
