@@ -27,18 +27,22 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
     private static final String VERSION_NUMBER_REGEX = "\\b\\d+\\b";
     private static final Pattern VERSION_NUMBER_PATTERN = Pattern.compile(VERSION_NUMBER_REGEX);
 
+    private User getCurrentUser(){
+        return userRepository.findByUsername(authenticationService.getCurrentUserName())
+                .orElseThrow(() -> new InternalServerErrorException("Authenticated user not found in database!"));
+    }
+
     @Override
     public void addNewDeviceSession(String deviceName) {
         // Get current user
-        User currentUser = userRepository.findByUsername(authenticationService.getCurrentUserName())
-                .orElseThrow(() -> new InternalServerErrorException("Authenticated user not found in database!"));
+        User currentUser = getCurrentUser();
 
         // Check for exceeding device limit
         if(deviceSessionRepository.findAllByUser(currentUser).size() >= currentUser.getDeviceLimit())
             throw new DeviceLimitException();
 
         // Check for already existing device with the given name
-        if(deviceSessionRepository.findByDeviceName(deviceName).isPresent())
+        if(deviceSessionRepository.findByDeviceNameAndUser(deviceName, currentUser).isPresent())
             throw new DataUniquenessException("A device with such a name already exists!");
 
         // Add device
@@ -56,7 +60,7 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
         if(userPrincipalDTO.getDeviceName() == null)
             return null;
 
-        return deviceSessionRepository.findByDeviceName(userPrincipalDTO.getDeviceName())
+        return deviceSessionRepository.findByDeviceNameAndUser(userPrincipalDTO.getDeviceName(), getCurrentUser())
                 .orElseThrow(); // TODO Add custom exception
     }
 
@@ -76,7 +80,7 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
 
         // Check equality in version numbers
         Matcher givenUAMatcher = VERSION_NUMBER_PATTERN.matcher(givenUA);
-        Matcher actualUAMatcher = VERSION_NUMBER_PATTERN.matcher(givenUA);
+        Matcher actualUAMatcher = VERSION_NUMBER_PATTERN.matcher(actualUA);
 
         StringBuilder updatedActualUA = new StringBuilder(actualUA);
         while(givenUAMatcher.find() && actualUAMatcher.find()){ // Assuming that both matchers return either true or false at the same time
@@ -85,7 +89,7 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
 
             if(givenUAVersion > actualUAVersion){
                 // Update the version number in the saved UA
-                updatedActualUA.replace(actualUAMatcher.start(), actualUAMatcher.end(), actualUAVersion + "");
+                updatedActualUA.replace(actualUAMatcher.start(), actualUAMatcher.end(), givenUAVersion + "");
             }else if(givenUAVersion < actualUAVersion)
                 return false;
         }

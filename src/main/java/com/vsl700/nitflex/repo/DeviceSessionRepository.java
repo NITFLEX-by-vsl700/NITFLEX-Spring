@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DeviceSessionRepository extends MongoRepository<DeviceSession, String> {
-    Optional<DeviceSession> findByDeviceName(String deviceName);
+    Optional<DeviceSession> findByDeviceNameAndUser(String deviceName, User user);
     List<DeviceSession> findAllByUser(User user);
     void deleteByDeviceName(String deviceName);
 }

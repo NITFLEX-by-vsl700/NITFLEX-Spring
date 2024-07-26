@@ -85,7 +85,7 @@ public class UserAuthenticationProvider {
                 .orElseThrow(() -> new UnauthorizedException("User account doesn't exist!"));
         String deviceName = decoded.getClaim("device_name").asString();
         if(deviceName != null)
-            deviceSessionRepo.findByDeviceName(deviceName) // Check if device actually exists (it might be logged off)
+            deviceSessionRepo.findByDeviceNameAndUser(deviceName, user) // Check if device actually exists (it might be logged off)
                     .orElseThrow(() -> new UnauthorizedException("User device doesn't exist!"));
 
         List<Privilege> userPrivileges = user.getRole().getPrivileges();
