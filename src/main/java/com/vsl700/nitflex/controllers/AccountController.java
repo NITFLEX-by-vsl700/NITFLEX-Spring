@@ -1,6 +1,8 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.configs.UserAuthenticationProvider;
 import com.vsl700.nitflex.exceptions.BadRequestException;
+import com.vsl700.nitflex.exceptions.InitialRegisterClosedException;
 import com.vsl700.nitflex.exceptions.NotFoundException;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.Role;
@@ -9,19 +11,15 @@ import com.vsl700.nitflex.models.dto.*;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
-import com.vsl700.nitflex.configs.UserAuthenticationProvider;
 import com.vsl700.nitflex.services.DeviceSessionService;
 import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
 public class AccountController {
@@ -64,8 +62,7 @@ public class AccountController {
     @PostMapping("/welcome")
     public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
         if(userRepo.count() > 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("This server already has users!"); // TODO Create a custom exception
+            throw new InitialRegisterClosedException();
         }
 
         userService.register(registerDTO);
