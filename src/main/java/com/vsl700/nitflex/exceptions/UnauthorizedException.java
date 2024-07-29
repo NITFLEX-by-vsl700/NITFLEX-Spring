@@ -1,9 +1,7 @@
 package com.vsl700.nitflex.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class UnauthorizedException extends RuntimeException {
-    public UnauthorizedException(String message) { super(message); }
+public class UnauthorizedException extends CustomException {
+    public UnauthorizedException(String message) { super(HttpStatus.UNAUTHORIZED, message); }
 }

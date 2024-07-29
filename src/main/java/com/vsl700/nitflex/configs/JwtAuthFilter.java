@@ -1,6 +1,7 @@
 package com.vsl700.nitflex.configs;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +17,8 @@ import java.io.IOException;
 @Component
 @AllArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     private UserAuthenticationProvider userAuthenticationProvider;
 
     @Override
@@ -36,7 +39,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                             userAuthenticationProvider.createAuthentication(authElements[1], userAgentHeader));
                 } catch (JWTVerificationException e) {
                     SecurityContextHolder.clearContext();
-                    throw e;
+
+                    httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    OBJECT_MAPPER.writeValue(httpServletResponse.getOutputStream(), "Token verification failed!");
+                    return;
                 }
             }
         }

@@ -1,11 +1,9 @@
 package com.vsl700.nitflex.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-public class OutOfLuckException extends RuntimeException {
+public class OutOfLuckException extends CustomException {
     public OutOfLuckException(String message){
-        super(message);
+        super(HttpStatus.INTERNAL_SERVER_ERROR, message);
     }
 }

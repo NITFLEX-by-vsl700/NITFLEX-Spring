@@ -1,9 +1,7 @@
 package com.vsl700.nitflex.exceptions;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-public class LoginException extends RuntimeException {
-    public LoginException() { super("Login failed!"); }
+public class LoginException extends CustomException {
+    public LoginException() { super(HttpStatus.UNAUTHORIZED, "Login failed!"); }
 }
