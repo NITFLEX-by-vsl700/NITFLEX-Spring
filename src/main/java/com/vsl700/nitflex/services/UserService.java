@@ -7,5 +7,6 @@ import com.vsl700.nitflex.models.dto.UserStatusDTO;
 
 public interface UserService {
     void login(LoginDTO credentialsDto);
+    void logout();
     void register(RegisterDTO userDto);
 }

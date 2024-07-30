@@ -61,10 +61,7 @@ public class AccountController {
 
     @GetMapping("/logout")
     public void logout(){
-        var deviceSession = deviceSessionService.getCurrentDeviceSession();
-
-        if(deviceSession != null)
-            deviceSessionService.removeDeviceSession(deviceSession);
+        userService.logout();
     }
 
     @PostMapping("/welcome")

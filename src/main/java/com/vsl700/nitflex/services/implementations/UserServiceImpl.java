@@ -14,6 +14,7 @@ import com.vsl700.nitflex.models.dto.UserStatusDTO;
 import com.vsl700.nitflex.repo.DeviceSessionRepository;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
+import com.vsl700.nitflex.services.DeviceSessionService;
 import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private DeviceSessionRepository deviceSessionRepository;
 
+    @Autowired
+    private DeviceSessionService deviceSessionService;
+
     @Override
     public void login(LoginDTO loginDTO) {
         User user = userRepository.findByUsername(loginDTO.getUsername())
@@ -53,6 +57,14 @@ public class UserServiceImpl implements UserService {
 
         if(!passwordEncoder.matches(CharBuffer.wrap(loginDTO.getPassword()), user.getPassword()))
             throw new LoginException();
+    }
+
+    @Override
+    public void logout(){
+        var deviceSession = deviceSessionService.getCurrentDeviceSession();
+
+        if(deviceSession != null)
+            deviceSessionService.removeDeviceSession(deviceSession);
     }
 
     @Override
