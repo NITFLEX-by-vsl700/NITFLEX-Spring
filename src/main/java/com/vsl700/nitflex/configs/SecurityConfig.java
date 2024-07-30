@@ -30,6 +30,9 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter jwtAuthFilter;
 
+    @Autowired
+    private UserAuthenticationEntryPoint userAuthenticationEntryPoint;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -38,7 +41,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .exceptionHandling(AbstractHttpConfigurer::disable)
+                .exceptionHandling(eh -> eh.authenticationEntryPoint(userAuthenticationEntryPoint))
                 .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class)
                 .csrf(AbstractHttpConfigurer::disable)
 				.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -47,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/login/**", "/welcome").permitAll()
                         .requestMatchers(HttpMethod.GET, "/userStatus").permitAll()
                         .anyRequest().authenticated())
+                .logout(AbstractHttpConfigurer::disable)
         ;
         return http.build();
     }

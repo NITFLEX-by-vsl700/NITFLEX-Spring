@@ -59,6 +59,14 @@ public class AccountController {
         return ResponseEntity.ok(userAuthenticationProvider.createToken(currentUsername, deviceName));
     }
 
+    @GetMapping("/logout")
+    public void logout(){
+        var deviceSession = deviceSessionService.getCurrentDeviceSession();
+
+        if(deviceSession != null)
+            deviceSessionService.removeDeviceSession(deviceSession);
+    }
+
     @PostMapping("/welcome")
     public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
         if(userRepo.count() > 0) {

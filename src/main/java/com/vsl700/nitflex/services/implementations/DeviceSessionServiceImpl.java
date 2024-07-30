@@ -2,6 +2,7 @@ package com.vsl700.nitflex.services.implementations;
 
 import com.vsl700.nitflex.exceptions.DataUniquenessException;
 import com.vsl700.nitflex.exceptions.DeviceLimitException;
+import com.vsl700.nitflex.exceptions.EmptyPropertyException;
 import com.vsl700.nitflex.exceptions.InternalServerErrorException;
 import com.vsl700.nitflex.models.DeviceSession;
 import com.vsl700.nitflex.models.User;
@@ -34,6 +35,9 @@ public class DeviceSessionServiceImpl implements DeviceSessionService {
 
     @Override
     public void addNewDeviceSession(String deviceName) {
+        if(deviceName.isEmpty())
+            throw new EmptyPropertyException("Device name cannot be empty!");
+
         // Get current user
         User currentUser = getCurrentUser();
 
