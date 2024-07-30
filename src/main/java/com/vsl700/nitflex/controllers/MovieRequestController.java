@@ -2,6 +2,7 @@ package com.vsl700.nitflex.controllers;
 
 import com.vsl700.nitflex.components.AutoMovieDownloader;
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.exceptions.InternalServerErrorException;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.MovieRequestDTO;
 import com.vsl700.nitflex.repo.UserRepository;
@@ -12,9 +13,10 @@ import com.vsl700.nitflex.services.URLMovieDownloaderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,7 +46,8 @@ public class MovieRequestController {
     @Secured("ROLE_WATCH_CONTENT_PRIVILEGE")
     @PostMapping("/request")
     public void requestMovie(@RequestBody MovieRequestDTO movieRequestDTO) throws MalformedURLException { // TODO Add custom exception
-        User user = userRepository.findByUsername(authenticationService.getCurrentUserName()).orElseThrow();
+        User user = userRepository.findByUsername(authenticationService.getCurrentUserName())
+                .orElseThrow(() -> new InternalServerErrorException("Authenticated user not found in database!"));
         LOG.info("Movie request by %s: (%s)".formatted(user.getUsername(), movieRequestDTO.getUrl()));
 
         urlMovieDownloaderService.downloadFromPageURLAsync(new URL(movieRequestDTO.getUrl()), path -> {

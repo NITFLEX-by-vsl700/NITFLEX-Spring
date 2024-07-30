@@ -1,27 +1,25 @@
 package com.vsl700.nitflex.controllers;
 
+import com.vsl700.nitflex.configs.UserAuthenticationProvider;
+import com.vsl700.nitflex.exceptions.BadRequestException;
+import com.vsl700.nitflex.exceptions.InitialRegisterClosedException;
+import com.vsl700.nitflex.exceptions.NotFoundException;
 import com.vsl700.nitflex.models.Privilege;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
-import com.vsl700.nitflex.models.dto.LoginDTO;
-import com.vsl700.nitflex.models.dto.RegisterDTO;
-import com.vsl700.nitflex.models.dto.UserDTO;
-import com.vsl700.nitflex.models.dto.UserSettingsDTO;
+import com.vsl700.nitflex.models.dto.*;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.AuthenticationService;
-import com.vsl700.nitflex.configs.UserAuthenticationProvider;
+import com.vsl700.nitflex.services.DeviceSessionService;
 import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
 public class AccountController {
@@ -43,20 +41,36 @@ public class AccountController {
     @Autowired
     private UserAuthenticationProvider userAuthenticationProvider;
 
+    @Autowired
+    private DeviceSessionService deviceSessionService;
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) {
-        if(userService.login(loginDTO))
-            return ResponseEntity.ok(userAuthenticationProvider.createToken(loginDTO.getUsername()));
+        userService.login(loginDTO);
+        return ResponseEntity.ok(userAuthenticationProvider.createToken(loginDTO.getUsername()));
+    }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("Login failed!");
+    @PostMapping("/login/deviceName")
+    public ResponseEntity<String> loginWithDeviceName(@RequestBody LoginDeviceNameDTO loginDeviceNameDTO) {
+        String currentUsername = authService.getCurrentUserName();
+        String deviceName = loginDeviceNameDTO.getDeviceName();
+
+        deviceSessionService.addNewDeviceSession(deviceName);
+        return ResponseEntity.ok(userAuthenticationProvider.createToken(currentUsername, deviceName));
+    }
+
+    @GetMapping("/logout")
+    public void logout(){
+        var deviceSession = deviceSessionService.getCurrentDeviceSession();
+
+        if(deviceSession != null)
+            deviceSessionService.removeDeviceSession(deviceSession);
     }
 
     @PostMapping("/welcome")
     public ResponseEntity<String> initialRegister(@RequestBody RegisterDTO registerDTO) {
         if(userRepo.count() > 0) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("This server already has users!"); // TODO Create a custom exception
+            throw new InitialRegisterClosedException();
         }
 
         userService.register(registerDTO);
@@ -105,7 +119,8 @@ public class AccountController {
 
     @GetMapping("/users/settings/{id}")
     public UserSettingsDTO getUserSettings(@PathVariable String id){
-        User user = userRepo.findById(id).orElseThrow(); // TODO Use a custom exception
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id '%s' not found!".formatted(id)));
 
         return modelMapper.map(user, UserSettingsDTO.class);
     }
@@ -113,9 +128,11 @@ public class AccountController {
     @Secured("ROLE_MANAGE_USERS_PRIVILEGE")
     @PutMapping("/users/settings/{id}")
     public void updateUserSettings(@PathVariable String id, @RequestBody UserSettingsDTO userSettingsDTO){
-        User user = userRepo.findById(id).orElseThrow(); // TODO Use a custom exception
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new NotFoundException("User with id '%s' not found!".formatted(id)));
 
-        Role role = roleRepo.findByName(userSettingsDTO.getRole()).orElseThrow(); // TODO Use a custom exception
+        Role role = roleRepo.findByName(userSettingsDTO.getRole())
+                .orElseThrow(() -> new BadRequestException("Role with name '%s' doesn't exist!".formatted(userSettingsDTO.getRole())));
         user.setStatus(User.UserStatus.valueOf(userSettingsDTO.getStatus()));
         user.setRole(role);
         user.setDeviceLimit(userSettingsDTO.getDeviceLimit());

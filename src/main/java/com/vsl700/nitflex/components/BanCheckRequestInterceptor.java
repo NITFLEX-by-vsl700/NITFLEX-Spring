@@ -11,7 +11,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 @AllArgsConstructor
-public class RequestInterceptor implements HandlerInterceptor {
+public class BanCheckRequestInterceptor implements HandlerInterceptor {
     private UserRepository userRepo;
     private AuthenticationService authService;
 

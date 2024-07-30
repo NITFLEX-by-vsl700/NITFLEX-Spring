@@ -1,6 +1,7 @@
 package com.vsl700.nitflex.controllers.streaming;
 
 import com.vsl700.nitflex.components.SharedProperties;
+import com.vsl700.nitflex.exceptions.NotFoundException;
 import com.vsl700.nitflex.models.Episode;
 import com.vsl700.nitflex.models.Movie;
 import com.vsl700.nitflex.repo.EpisodeRepository;
@@ -38,7 +39,7 @@ public class SeriesStreamingController {
     @GetMapping("stream/series/{id}/{episodeId}/{dashFilePath}")
     public ResponseEntity<Resource> getEpisodeDashFile(@PathVariable String id, @PathVariable String episodeId, @PathVariable String dashFilePath){
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Movie with id '%s' not found!".formatted(id)));
 
         if(!movie.getType().equals(Movie.MovieType.Series))
             return ResponseEntity
@@ -55,7 +56,7 @@ public class SeriesStreamingController {
         }
 
         Episode episode = episodeRepository.findById(episodeId)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Episode with id '%s' not found!".formatted(episodeId)));
 
         Path fullDashFilePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), episode.getEpisodePath(), dashFilePath);
 
@@ -98,7 +99,7 @@ public class SeriesStreamingController {
     @GetMapping("stream/raw/series/{id}/{episodeId}")
     public ResponseEntity<Resource> getEpisodeVideoFile(@PathVariable String id, @PathVariable String episodeId) throws URISyntaxException {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Movie with id '%s' not found!".formatted(id)));
 
         if(!movie.getType().equals(Movie.MovieType.Series))
             return ResponseEntity
@@ -112,7 +113,7 @@ public class SeriesStreamingController {
                     .build();
 
         Episode episode = episodeRepository.findById(episodeId)
-                .orElseThrow(); // TODO Add custom exception
+                .orElseThrow(() -> new NotFoundException("Episode with id '%s' not found!".formatted(episodeId)));
 
         Path episodePath = Paths.get(sharedProperties.getMoviesFolder(), movie.getPath(), episode.getEpisodePath());
 
