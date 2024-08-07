@@ -18,7 +18,7 @@ public class Movie{
     @Id
     private String id;
 
-    @DBRef
+    @DocumentReference
     private User requester;
 
     @NonNull

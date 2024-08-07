@@ -84,7 +84,9 @@ public class URLMovieDownloaderServiceImplTests {
     @ParameterizedTest
     @ValueSource(strings = {"https://zamunda.net/banan?id=747087&hit=1&t=movie",
                             "https://zamunda.net/banan?id=747384&hit=1&t=movie",
-                            "https://zamunda.net/banan?id=747134&hit=1&t=movie"})
+                            "https://zamunda.net/banan?id=747134&hit=1&t=movie",
+                            "https://zamunda.net/banan?id=761629&hit=1&t=movie",
+                            "https://zamunda.net/banan?id=761629&hit=1&t=movie"})
     public void downloadFromPageURL_RepeatedTest(String url){
         // Setup
         AtomicBoolean flag = new AtomicBoolean(false);

@@ -1,36 +1,30 @@
 package com.vsl700.nitflex.services.implementations;
 
-import com.vsl700.nitflex.configs.UserAuthenticationProvider;
-import com.vsl700.nitflex.exceptions.BadRequestException;
-import com.vsl700.nitflex.exceptions.DataUniquenessException;
-import com.vsl700.nitflex.exceptions.DeviceLimitException;
-import com.vsl700.nitflex.exceptions.LoginException;
+import com.vsl700.nitflex.exceptions.*;
 import com.vsl700.nitflex.models.Role;
 import com.vsl700.nitflex.models.User;
 import com.vsl700.nitflex.models.dto.LoginDTO;
 import com.vsl700.nitflex.models.dto.RegisterDTO;
-import com.vsl700.nitflex.models.dto.UserDTO;
-import com.vsl700.nitflex.models.dto.UserStatusDTO;
 import com.vsl700.nitflex.repo.DeviceSessionRepository;
+import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.repo.RoleRepository;
 import com.vsl700.nitflex.repo.UserRepository;
 import com.vsl700.nitflex.services.DeviceSessionService;
 import com.vsl700.nitflex.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.nio.CharBuffer;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private MovieRepository movieRepository;
 
     @Autowired
     private RoleRepository roleRepo;
@@ -80,5 +74,15 @@ public class UserServiceImpl implements UserService {
         user.setRole(role);
 
         userRepository.save(user);
+    }
+
+    @Override
+    public void delete(String userId) {
+        var user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found!"));
+        var movies = movieRepository.findAllByRequester(user);
+        movies.forEach(m -> m.setRequester(null));
+        movieRepository.saveAll(movies);
+
+        userRepository.delete(user);
     }
 }

@@ -105,7 +105,7 @@ public class AccountController {
     @Secured("ROLE_DELETE_USERS_PRIVILEGE")
     @DeleteMapping("/users/{id}")
     public void deleteUserById(@PathVariable String id){
-        userRepo.deleteById(id);
+        userService.delete(id);
     }
 
     @Secured("ROLE_REGISTER_USERS_PRIVILEGE")

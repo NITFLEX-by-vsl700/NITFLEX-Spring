@@ -66,7 +66,13 @@ public class URLMovieDownloaderServiceImpl implements URLMovieDownloaderService 
             // If this is the first iteration, check torrent type (whether it's a movie) & movie size
             if(downloadLinkPath == null){
                 // Size check
-                String sizeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(12) > td:nth-child(2)"))
+                int sizeIndex = 1;
+                while(!Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(%s) > td:nth-child(1)".formatted(sizeIndex)))
+                        .text().equals("Размер")){
+                    sizeIndex++;
+                }
+
+                String sizeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(%s) > td:nth-child(2)".formatted(sizeIndex)))
                         .text();
                 String[] sizeStrParts = sizeStr.split(" ");
                 float size = sizeStrParts[1].equals("MB") ? Float.parseFloat(sizeStrParts[0]) / 1024 : Float.parseFloat(sizeStrParts[0]);
@@ -74,7 +80,13 @@ public class URLMovieDownloaderServiceImpl implements URLMovieDownloaderService 
                     throw new InvalidTorrentException("Requested movie exceeds the size limit!");
 
                 // Type check
-                String typeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(8) > td:nth-child(2)"))
+                int typeIndex = 1;
+                while(!Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(%s) > td:nth-child(1)".formatted(typeIndex)))
+                        .text().equals("Тип")){
+                    typeIndex++;
+                }
+
+                String typeStr = Objects.requireNonNull(doc.selectFirst("body > div.content-position > div > table > tbody > tr:nth-child(1) > td > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td > table > tbody > tr:nth-child(%s) > td:nth-child(2)".formatted(typeIndex)))
                         .text();
                 switch (typeStr){
                     case "Филми/SD":
