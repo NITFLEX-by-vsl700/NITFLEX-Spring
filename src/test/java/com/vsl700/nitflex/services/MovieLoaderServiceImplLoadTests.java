@@ -481,6 +481,7 @@ public class MovieLoaderServiceImplLoadTests {
         Assertions.assertAll(() -> {
             assertThat(episode.getSeriesId()).isEqualTo(resultMovie.get().getId());
             assertThat(episode.getEpisodePath()).isEqualTo("Wednesday.S01E01.Wednesdays.Child.is.Full.of.Woe.1080p.NF.WEB-DL.DDP5.1.Atmos.H.264-SMURF.mkv");
+            assertThat(episode.getEpisodeName()).isEqualTo("Wednesday.S01E01.Wednesdays.Child.is.Full.of.Woe.1080p.NF.WEB-DL.DDP5.1.Atmos.H.264-SMURF");
             assertThat(episode.getSeasonNumber()).isEqualTo(1);
         });
     }
@@ -531,6 +532,7 @@ public class MovieLoaderServiceImplLoadTests {
         Assertions.assertAll(() -> {
             assertThat(episode_S01E03.getSeriesId()).isEqualTo(resultMovie.get().getId());
             assertThat(episode_S01E03.getEpisodePath()).isEqualTo("Нов текстов документ.S01E03.mkv");
+            assertThat(episode_S01E03.getEpisodeName()).isEqualTo("Нов текстов документ.S01E03");
         });
 
         Episode episode_S02E01 = episodes.stream().filter(e -> e.getEpisodeNumber() == 1 && e.getSeasonNumber() == 2).findFirst()
@@ -539,6 +541,7 @@ public class MovieLoaderServiceImplLoadTests {
         Assertions.assertAll(() -> {
             assertThat(episode_S02E01.getSeriesId()).isEqualTo(resultMovie.get().getId());
             assertThat(episode_S02E01.getEpisodePath()).isEqualTo("Нов текстов документ.S02E01.mkv");
+            assertThat(episode_S02E01.getEpisodeName()).isEqualTo("Нов текстов документ.S02E01");
         });
     }
 
@@ -610,6 +613,7 @@ public class MovieLoaderServiceImplLoadTests {
         Assertions.assertAll(() -> {
             assertThat(episode_S01E03.getSeriesId()).isEqualTo(resultMovie1.getId());
             assertThat(episode_S01E03.getEpisodePath()).isEqualTo("Нов текстов документ.S01E03.mkv");
+            assertThat(episode_S01E03.getEpisodeName()).isEqualTo("Нов текстов документ.S01E03");
         });
 
         Episode episode_S02E01 = episodes.stream().filter(e -> e.getEpisodeNumber() == 1 && e.getSeasonNumber() == 2).findFirst()
@@ -618,6 +622,7 @@ public class MovieLoaderServiceImplLoadTests {
         Assertions.assertAll(() -> {
             assertThat(episode_S02E01.getSeriesId()).isEqualTo(resultMovie2.getId());
             assertThat(episode_S02E01.getEpisodePath()).isEqualTo("Нов текстов документ.S02E01.mkv");
+            assertThat(episode_S02E01.getEpisodeName()).isEqualTo("Нов текстов документ.S02E01");
         });
     }
 

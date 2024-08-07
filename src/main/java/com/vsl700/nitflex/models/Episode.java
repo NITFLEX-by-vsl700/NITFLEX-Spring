@@ -14,6 +14,8 @@ public class Episode {
     @NonNull
     private String seriesId;
     @NonNull
+    private String episodeName;
+    @NonNull
     private int seasonNumber;
     @NonNull
     private int episodeNumber;

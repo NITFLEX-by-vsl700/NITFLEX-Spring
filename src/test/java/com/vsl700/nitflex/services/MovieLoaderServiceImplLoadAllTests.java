@@ -119,11 +119,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
         Movie series =
                 movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
-        episodeRepo.save(new Episode(series.getId(), 1, 1, "S01E01.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 1, 2, "S01E02.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E01.mkv", 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E02.mkv", 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E03.mkv", 1, 3, "S01E03.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S02E01.mkv", 2, 1, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S02E02.mkv", 2, 2, "S02E02.mkv"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E01.srt", "S01E01.srt"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E02.srt", "S01E02.srt"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E03.srt", "S01E03.srt"));
@@ -131,11 +131,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S02E02.srt", "S02E02.srt"));
         Movie series2 =
                 movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
-        episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 1, 2, "S01E02.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 1, 3, "S02E01.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 2, 1, "S02E02.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 2, 2, "S02E03.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S01E01.mkv", 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S01E02.mkv", 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E01.mkv", 1, 3, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E02.mkv", 2, 1, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E03.mkv", 2, 2, "S02E03.mkv"));
 
         service.unloadNonExisting();
 
@@ -159,11 +159,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
         Movie series =
                 movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
-        episodeRepo.save(new Episode(series.getId(), 1, 1, "S01E01.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 1, 2, "S01E02.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E01.mkv", 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E02.mkv", 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E03.mkv", 1, 3, "S01E03.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S02E01.mkv", 2, 1, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S02E02.mkv", 2, 2, "S02E02.mkv"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E01.srt", "S01E01.srt"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E02.srt", "S01E02.srt"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E03.srt", "S01E03.srt"));
@@ -171,11 +171,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S02E02.srt", "S02E02.srt"));
         Movie series2 =
                 movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
-        episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 1, 2, "S01E02.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 1, 3, "S02E01.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 2, 1, "S02E02.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 2, 2, "S02E03.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S01E01.mkv", 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S01E02.mkv", 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E01.mkv", 1, 3, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E02.mkv", 2, 1, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E03.mkv", 2, 2, "S02E03.mkv"));
 
         service.unloadNonExisting();
         service.loadNewlyAdded();
@@ -240,11 +240,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         movieRepo.save(new Movie("Not existing Matrix movie", Movie.MovieType.Film, "The.Matrix.Collection.1080p.BluRay.x265.DD5.1-WAR\\not.existing.matrix.movie", 45L));
         Movie series =
                 movieRepo.save(new Movie("Not existing series", Movie.MovieType.Series, "not.existing.series", 45L));
-        episodeRepo.save(new Episode(series.getId(), 1, 1, "S01E01.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 1, 2, "S01E02.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 1, 3, "S01E03.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 2, 1, "S02E01.mkv"));
-        episodeRepo.save(new Episode(series.getId(), 2, 2, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E01.mkv", 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E02.mkv", 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S01E03.mkv", 1, 3, "S01E03.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S02E01.mkv", 2, 1, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series.getId(), "S02E02.mkv", 2, 2, "S02E02.mkv"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E01.srt", "S01E01.srt"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E02.srt", "S01E02.srt"));
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S01E03.srt", "S01E03.srt"));
@@ -252,11 +252,11 @@ public class MovieLoaderServiceImplLoadAllTests {
         subtitleRepo.save(new Subtitle(series.getId(), Subtitle.SubtitleType.Episode, "S02E02.srt", "S02E02.srt"));
         Movie series2 =
                 movieRepo.save(new Movie("Not existing series 2", Movie.MovieType.Series, "not.existing.series2", 45L));
-        episodeRepo.save(new Episode(series2.getId(), 1, 1, "S01E01.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 1, 2, "S01E02.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 1, 3, "S02E01.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 2, 1, "S02E02.mkv"));
-        episodeRepo.save(new Episode(series2.getId(), 2, 2, "S02E03.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S01E01.mkv", 1, 1, "S01E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S01E02.mkv", 1, 2, "S01E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E01.mkv", 1, 3, "S02E01.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E02.mkv", 2, 1, "S02E02.mkv"));
+        episodeRepo.save(new Episode(series2.getId(), "S02E03.mkv", 2, 2, "S02E03.mkv"));
 
         service.loadNewlyAdded();
         service.unloadNonExisting();

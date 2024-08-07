@@ -10,6 +10,7 @@ import com.vsl700.nitflex.repo.MovieRepository;
 import com.vsl700.nitflex.repo.SubtitleRepository;
 import com.vsl700.nitflex.services.MovieLoaderService;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -217,7 +218,7 @@ public class MovieLoaderServiceImpl implements MovieLoaderService {
             int seasonNumber = getSeasonNumber(episodePath);
             int episodeNumber = getEpisodeNumber(episodePath);
 
-            Episode episode = new Episode(movie.getId(), seasonNumber, episodeNumber, episodePath);
+            Episode episode = new Episode(movie.getId(), FilenameUtils.removeExtension(Path.of(episodePath).getFileName().toString()), seasonNumber, episodeNumber, episodePath);
             episodeRepo.save(episode);
         });
     }

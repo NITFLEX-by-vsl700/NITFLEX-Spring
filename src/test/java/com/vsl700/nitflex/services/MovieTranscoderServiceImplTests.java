@@ -262,11 +262,11 @@ public class MovieTranscoderServiceImplTests {
         Movie movie = new Movie("series", Movie.MovieType.Series, "series", 10L);
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "S01E01.mkv");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "S01E02.mkv");
-        Episode episode3 = new Episode(movie.getId(), 0, 0, "S01E03.mkv");
-        Episode episode4 = new Episode(movie.getId(), 0, 0, "S02E01.mkv");
-        Episode episode5 = new Episode(movie.getId(), 0, 0, "S02E02.mkv");
+        Episode episode1 = new Episode(movie.getId(), "S01E01.mkv", 0, 0, "S01E01.mkv");
+        Episode episode2 = new Episode(movie.getId(), "S01E02.mkv", 0, 0, "S01E02.mkv");
+        Episode episode3 = new Episode(movie.getId(), "S01E03.mkv", 0, 0, "S01E03.mkv");
+        Episode episode4 = new Episode(movie.getId(), "S02E01.mkv", 0, 0, "S02E01.mkv");
+        Episode episode5 = new Episode(movie.getId(), "S02E02.mkv", 0, 0, "S02E02.mkv");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
         episodeRepo.save(episode3);
@@ -295,11 +295,11 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "S01E01.mkv");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "S01E02.mkv");
-        Episode episode3 = new Episode(movie.getId(), 0, 0, "S01E03.mkv");
-        Episode episode4 = new Episode(movie.getId(), 0, 0, "S02E01.mkv");
-        Episode episode5 = new Episode(movie.getId(), 0, 0, "S02E02.mkv");
+        Episode episode1 = new Episode(movie.getId(), "S01E01.mkv", 0, 0, "S01E01.mkv");
+        Episode episode2 = new Episode(movie.getId(), "S01E02.mkv", 0, 0, "S01E02.mkv");
+        Episode episode3 = new Episode(movie.getId(), "S01E03.mkv", 0, 0, "S01E03.mkv");
+        Episode episode4 = new Episode(movie.getId(), "S02E01.mkv", 0, 0, "S02E01.mkv");
+        Episode episode5 = new Episode(movie.getId(), "S02E02.mkv", 0, 0, "S02E02.mkv");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
         episodeRepo.save(episode3);
@@ -328,11 +328,11 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "Season1\\S01E01.mkv");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "Season1\\S01E02.mkv");
-        Episode episode3 = new Episode(movie.getId(), 0, 0, "Season1\\S01E03.mkv");
-        Episode episode4 = new Episode(movie.getId(), 0, 0, "Season2\\S02E01.mkv");
-        Episode episode5 = new Episode(movie.getId(), 0, 0, "Season2\\S02E02.mkv");
+        Episode episode1 = new Episode(movie.getId(), "S01E01.mkv", 0, 0, "Season1\\S01E01.mkv");
+        Episode episode2 = new Episode(movie.getId(), "S01E02.mkv", 0, 0, "Season1\\S01E02.mkv");
+        Episode episode3 = new Episode(movie.getId(), "S01E03.mkv", 0, 0, "Season1\\S01E03.mkv");
+        Episode episode4 = new Episode(movie.getId(), "S02E01.mkv", 0, 0, "Season2\\S02E01.mkv");
+        Episode episode5 = new Episode(movie.getId(), "S02E02.mkv", 0, 0, "Season2\\S02E02.mkv");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
         episodeRepo.save(episode3);
@@ -360,11 +360,11 @@ public class MovieTranscoderServiceImplTests {
         Movie movie = new Movie("seriesSubtitles", Movie.MovieType.Series, "seriesSubtitles", 10L);
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "S01E01.mkv");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "S01E02.mkv");
-        Episode episode3 = new Episode(movie.getId(), 0, 0, "S01E03.mkv");
-        Episode episode4 = new Episode(movie.getId(), 0, 0, "S02E01.mkv");
-        Episode episode5 = new Episode(movie.getId(), 0, 0, "S02E02.mkv");
+        Episode episode1 = new Episode(movie.getId(), "S01E01.mkv", 0, 0, "S01E01.mkv");
+        Episode episode2 = new Episode(movie.getId(), "S01E02.mkv", 0, 0, "S01E02.mkv");
+        Episode episode3 = new Episode(movie.getId(), "S01E03.mkv", 0, 0, "S01E03.mkv");
+        Episode episode4 = new Episode(movie.getId(), "S02E01.mkv", 0, 0, "S02E01.mkv");
+        Episode episode5 = new Episode(movie.getId(), "S02E02.mkv", 0, 0, "S02E02.mkv");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
         episodeRepo.save(episode3);
@@ -410,11 +410,11 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "S01E01.mkv");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "S01E02.mkv");
-        Episode episode3 = new Episode(movie.getId(), 0, 0, "S01E03.mkv");
-        Episode episode4 = new Episode(movie.getId(), 0, 0, "S02E01.mkv");
-        Episode episode5 = new Episode(movie.getId(), 0, 0, "S02E02.mkv");
+        Episode episode1 = new Episode(movie.getId(), "S01E01.mkv", 0, 0, "S01E01.mkv");
+        Episode episode2 = new Episode(movie.getId(), "S01E02.mkv", 0, 0, "S01E02.mkv");
+        Episode episode3 = new Episode(movie.getId(), "S01E03.mkv", 0, 0, "S01E03.mkv");
+        Episode episode4 = new Episode(movie.getId(), "S02E01.mkv", 0, 0, "S02E01.mkv");
+        Episode episode5 = new Episode(movie.getId(), "S02E02.mkv", 0, 0, "S02E02.mkv");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
         episodeRepo.save(episode3);
@@ -460,11 +460,11 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "S01E01.mkv");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "S01E02.mkv");
-        Episode episode3 = new Episode(movie.getId(), 0, 0, "S01E03.mkv");
-        Episode episode4 = new Episode(movie.getId(), 0, 0, "S02E01.mkv");
-        Episode episode5 = new Episode(movie.getId(), 0, 0, "S02E02.mkv");
+        Episode episode1 = new Episode(movie.getId(), "S01E01.mkv", 0, 0, "S01E01.mkv");
+        Episode episode2 = new Episode(movie.getId(), "S01E02.mkv", 0, 0, "S01E02.mkv");
+        Episode episode3 = new Episode(movie.getId(), "S01E03.mkv", 0, 0, "S01E03.mkv");
+        Episode episode4 = new Episode(movie.getId(), "S02E01.mkv", 0, 0, "S02E01.mkv");
+        Episode episode5 = new Episode(movie.getId(), "S02E02.mkv", 0, 0, "S02E02.mkv");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
         episodeRepo.save(episode3);
@@ -539,8 +539,8 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "output_video_eng_subs.mp4");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "output_video_2_eng_subs.mp4");
+        Episode episode1 = new Episode(movie.getId(), "output_video_eng_subs.mp4", 0, 0, "output_video_eng_subs.mp4");
+        Episode episode2 = new Episode(movie.getId(), "output_video_2_eng_subs.mp4", 0, 0, "output_video_2_eng_subs.mp4");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
 
@@ -623,8 +623,8 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "output_video_eng_subs.mp4");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "output_video_2_eng_subs.mp4");
+        Episode episode1 = new Episode(movie.getId(), "output_video_eng_subs.mp4", 0, 0, "output_video_eng_subs.mp4");
+        Episode episode2 = new Episode(movie.getId(), "output_video_2_eng_subs.mp4", 0, 0, "output_video_2_eng_subs.mp4");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
 
@@ -691,8 +691,8 @@ public class MovieTranscoderServiceImplTests {
         movie.setTrailerPath("sample.mkv");
         movieRepo.save(movie);
 
-        Episode episode1 = new Episode(movie.getId(), 0, 0, "output_video_eng_subs.mp4");
-        Episode episode2 = new Episode(movie.getId(), 0, 0, "output_video_2_eng_subs.mp4");
+        Episode episode1 = new Episode(movie.getId(), "output_video_eng_subs.mp4", 0, 0, "output_video_eng_subs.mp4");
+        Episode episode2 = new Episode(movie.getId(), "output_video_2_eng_subs.mp4", 0, 0, "output_video_2_eng_subs.mp4");
         episodeRepo.save(episode1);
         episodeRepo.save(episode2);
 
