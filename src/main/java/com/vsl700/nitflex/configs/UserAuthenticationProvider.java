@@ -93,11 +93,11 @@ public class UserAuthenticationProvider {
 
         UsernamePasswordAuthenticationToken authentication;
         if(deviceName == null) // Device name not present in token
-            authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token); // authenticated = false
+            authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token, List.of(new SimpleGrantedAuthority("ROLE_AUTHENTICATED")));
         else // Device name present in token
             authentication = new UsernamePasswordAuthenticationToken(userPrincipalDTO, token, userPrivileges.stream()
                     .map(p -> new SimpleGrantedAuthority("ROLE_" + p.getName()))
-                    .toList()); // authenticated = true
+                    .toList());
         authentication.setDetails(userAgent);
 
         return authentication;
