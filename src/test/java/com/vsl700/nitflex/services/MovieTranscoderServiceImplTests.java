@@ -16,11 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -171,14 +174,17 @@ public class MovieTranscoderServiceImplTests {
 
         movieTranscoderService.transcode(movie);
 
-        String filmManifestContent = Files.readString(Path.of("D:\\NITFLEX Tests\\nitflex\\filmTrailer\\2024-01-28 14-35-19\\manifest.mpd"));
-        String trailerManifestContent = Files.readString(Path.of("D:\\NITFLEX Tests\\nitflex\\filmTrailer\\sample\\manifest.mpd"));
+        String filmManifestContent = Files.readString(Path.of("D:\\NITFLEX Tests\\nitflex\\filmTrailerMPDCheck\\2024-01-28 14-35-19\\manifest.mpd"));
+        String trailerManifestContent = Files.readString(Path.of("D:\\NITFLEX Tests\\nitflex\\filmTrailerMPDCheck\\sample\\manifest.mpd"));
 
         Assertions.assertAll(() -> {
-            assertThat(countWordOccurrences(filmManifestContent, "initialization=\"init-$RepresentationID$.m4s\"")).isEqualTo(2);
-            assertThat(countWordOccurrences(filmManifestContent, "media=\"chunk-$RepresentationID$-$Number%05d$.m4s\"")).isEqualTo(2);
-            assertThat(countWordOccurrences(trailerManifestContent, "initialization=\"init-$RepresentationID$.m4s\"")).isEqualTo(2);
-            assertThat(countWordOccurrences(trailerManifestContent, "media=\"chunk-$RepresentationID$-$Number%05d$.m4s\"")).isEqualTo(2);
+            assertThat(StringUtils.countOccurrencesOf(filmManifestContent, "initialization=\"init-$RepresentationID$.m4s\"")).isEqualTo(2);
+            assertThat(StringUtils.countOccurrencesOf(filmManifestContent, "media=\"chunk-$RepresentationID$-$Number%05d$.m4s\"")).isEqualTo(2);
+            assertThat(StringUtils.countOccurrencesOf(trailerManifestContent, "initialization=\"init-$RepresentationID$.m4s\"")).isEqualTo(2);
+            assertThat(StringUtils.countOccurrencesOf(trailerManifestContent, "media=\"chunk-$RepresentationID$-$Number%05d$.m4s\"")).isEqualTo(2);
+
+            assertThat(StringUtils.countOccurrencesOf(filmManifestContent, "lang=")).isEqualTo(1);
+            assertThat(StringUtils.countOccurrencesOf(trailerManifestContent, "lang=")).isEqualTo(1);
         });
     }
 
@@ -754,23 +760,5 @@ public class MovieTranscoderServiceImplTests {
             assertThat(subtitle.getPath()).isEqualTo("2024-01-28 14-35-19.vtt");
             assertThat(trailerSubtitle.getPath()).isEqualTo("sample.vtt");
         });
-    }
-
-    /**
-     * Counts the occurences of a word. Every word must be space-separated!
-     * @param str the string to count word occurrences from
-     * @param word the word which occurrence we want to count
-     * @return the amount of occurrences of the given word in the given string
-     */
-    private int countWordOccurrences(String str, String word) {
-        String[] words = str.split(" ");
-
-        int count = 0;
-        for (String s : words) {
-            if (word.equals(s))
-                count++;
-        }
-
-        return count;
     }
 }

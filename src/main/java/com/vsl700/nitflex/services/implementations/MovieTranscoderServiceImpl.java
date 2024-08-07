@@ -216,6 +216,7 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
         Path manifestFilePath = Path.of(path, "manifest.mpd");
         StringBuilder manifestContent = new StringBuilder(Files.readString(manifestFilePath));
 
+        // Init & chunk paths
         String initStart = "initialization=\"";
         String initEnd = "init-";
         String mediaStart = "media=\"";
@@ -235,6 +236,16 @@ public class MovieTranscoderServiceImpl implements MovieTranscoderService {
             initEndIndex = manifestContent.indexOf(initEnd, initEndIndex + 1);
             mediaStartIndex = manifestContent.indexOf(mediaStart, mediaStartIndex + 1) + mediaStart.length();
             mediaEndIndex = manifestContent.indexOf(mediaEnd, mediaEndIndex + 1);
+        }
+
+        // Audio streams' 'lang' properties
+        int audioCount = 1;
+        int currentIndex = manifestContent.indexOf("AdaptationSet id=\"1\"");
+        while((currentIndex = manifestContent.indexOf("<Representation", currentIndex)) != -1){
+            int editIndex = currentIndex = manifestContent.indexOf(">", currentIndex);
+            manifestContent.insert(editIndex, " lang=\"audio%s\"".formatted(audioCount));
+
+            audioCount++;
         }
 
         Files.write(manifestFilePath, manifestContent.toString().getBytes());
